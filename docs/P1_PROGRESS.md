@@ -35,3 +35,7 @@ Use built-in Node SQLite (minimum Node 22.13, actual pinned CI 22/24) to avoid n
 Core: packages/storage, packages/mesh, packages/runtime, apps/gateway. Design: [ADR 0002](adr/0002-p1-mesh-runtime.md). Reproducers: scripts/p1-process-smoke.mjs and scripts/p1-mdns-smoke.mjs. Windows-only/user-coordinated work: [P1_WINDOWS_TASKS.md](P1_WINDOWS_TASKS.md).
 
 Before marking Mac work delivered: capture pnpm check plus independent-process and multicast reports from a committed clean source, publish a reviewable PR, and inspect hosted CI. Physical Mac↔Windows evidence is deliberately deferred, so LAM-15 and whole-P1 acceptance must remain open. No user action is needed for continued Mac work.
+
+## Mac evidence
+
+[mac-20261023T195045Z](evidence/p1/mac-20261023T195045Z/SUMMARY.md) records clean source 4714ed9, full checks (36 tests), independent-process bidirectional/crash/identity tests, and observed local mDNS. Both helpers exited successfully and removed their owned state/listeners. Implementation and separated Windows pack are published in [PR #38](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/38). Hosted cross-platform checks are inspected separately; physical Mac↔Windows gates remain pending by user request.
