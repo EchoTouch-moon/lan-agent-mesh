@@ -56,3 +56,6 @@ jobs:
       - name: Validate Windows native probe launcher
         if: runner.os == 'Windows'
         run: node scripts/check-windows-probe-runner.mjs
+      - name: Validate DSH desktop cmd launcher
+        if: runner.os == 'Windows'
+        run: node scripts/check-dsh-desktop-launcher.mjs

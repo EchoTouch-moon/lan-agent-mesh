@@ -65,5 +65,12 @@
     "redaction": "The probe itself redacts the temporary home and the launcher path; verified free of machine-identifying paths before committing."
   },
   "runId": "win-20261023T165446Z",
-  "testedSourceSha": "da5eeeb37abbf2351fb9f843960db2cdf13e5da9"
+  "testedSourceSha": "da5eeeb37abbf2351fb9f843960db2cdf13e5da9",
+  "testedSourceShaMeaning": "Repository checkout base before two new probe scripts were added; this SHA alone cannot reproduce their execution.",
+  "probeSourceArchive": {
+    "path": "scripts/probe-dsh-desktop.mjs",
+    "firstCommittedIn": "85a3c37515a19efb5dbeb5b2fac2b8eb767cd735",
+    "sha256": "78b91cb60f9602c5d5e660847bdb5bee8895a1a6fac20ed51ef10cb466e08b5a",
+    "qualification": "Hash of first committed report-associated source; no separate pre-execution source hash was recorded."
+  }
 }

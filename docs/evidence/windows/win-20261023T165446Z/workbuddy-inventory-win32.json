@@ -59,5 +59,12 @@
     "redaction": "The probe itself redacts the temporary home and the launcher path; verified free of machine-identifying paths before committing."
   },
   "runId": "win-20261023T165446Z",
-  "testedSourceSha": "da5eeeb37abbf2351fb9f843960db2cdf13e5da9"
+  "testedSourceSha": "da5eeeb37abbf2351fb9f843960db2cdf13e5da9",
+  "testedSourceShaMeaning": "Repository checkout base before two new probe scripts were added; this SHA alone cannot reproduce their execution.",
+  "probeSourceArchive": {
+    "path": "scripts/probe-workbuddy-inventory-win.mjs",
+    "firstCommittedIn": "85a3c37515a19efb5dbeb5b2fac2b8eb767cd735",
+    "sha256": "42ff01471e83bc784b14640de598a5b7dfde376cf9cd09ce54a15aa63b2c11c5",
+    "qualification": "Hash of first committed report-associated source; no separate pre-execution source hash was recorded."
+  }
 }

@@ -9,7 +9,16 @@
     "npmGlobal": {
       "prefix": "[NPM_GLOBAL_PREFIX]",
       "openaiCodexPackage": false,
-      "observedAgentClis": ["@anthropic-ai/claude-code 2.1.1", "@deepseek-ai/dsh 0.1.1-rc.2", "@earendil-works/pi-coding-agent 0.82.1", "@google/gemini-cli 0.30.0", "@iflow-ai/iflow-cli 0.5.10", "@larksuite/cli 1.0.89", "@mimo-ai/cli 0.1.0", "@tencent-qqmail/agently-cli 1.0.6"]
+      "observedAgentClis": [
+        "@anthropic-ai/claude-code 2.1.1",
+        "@deepseek-ai/dsh 0.1.1-rc.2",
+        "@earendil-works/pi-coding-agent 0.82.1",
+        "@google/gemini-cli 0.30.0",
+        "@iflow-ai/iflow-cli 0.5.10",
+        "@larksuite/cli 1.0.89",
+        "@mimo-ai/cli 0.1.0",
+        "@tencent-qqmail/agently-cli 1.0.6"
+      ]
     },
     "startMenuAndProgramDirs": "No codex-named entries in user or all-users Start Menu programs, nor in per-user LocalAppData Programs",
     "msixInventory": {
@@ -17,16 +26,25 @@
       "displayName": "ChatGPT",
       "packageId": "MSIX OpenAI.Codex_26.825.6671.0_x64",
       "version": "26.825.6671.0",
-      "note": "This is the ChatGPT desktop application carrying the OpenAI.Codex package identity, not the codex CLI binary verified on macOS."
+      "note": "Inventory display name and package identity are observations only. Package payload executables and app-server support were not inspected; the desktop label does not exclude bundled Codex functionality or a CLI.",
+      "payloadExecutableInspection": "not performed"
     },
     "userCodexHome": {
       "exists": true,
       "path": "[USER_PROFILE]\\.codex",
-      "inspection": "Top-level directory names only (configuration and session-history files were NOT opened); names are consistent with prior Codex CLI/desktop use.",
-      "topLevelNamesSample": ["AGENTS.md", "archived_sessions", "attachments", "auth.json", "browser", "config.toml", "sessions"]
+      "inspection": "Top-level names only; file contents were not read. Existence and filenames do not establish which product created the directory or whether the standalone CLI was used.",
+      "topLevelNamesSample": [
+        "AGENTS.md",
+        "archived_sessions",
+        "attachments",
+        "auth.json",
+        "browser",
+        "config.toml",
+        "sessions"
+      ]
     }
   },
-  "conclusion": "No standalone codex CLI executable is located on this Windows machine by PATH, npm global, Start Menu, per-user program directories or MSIX inventory. The installed OpenAI surface is the ChatGPT desktop application (OpenAI.Codex MSIX 26.825.6671.0), and a user .codex home exists, so prior Codex use is likely, but the macOS-verified `codex app-server` stdio control surface is not established here. All Codex control capabilities remain unknown; this does not prove absence of other install channels.",
+  "conclusion": "No Codex CLI entry was identified in the searched PATH, npm global, Start Menu and per-user Programs locations. Inventory reports display name ChatGPT and MSIX identity OpenAI.Codex 26.825.6671.0. The installed package payload was not searched for bundled CLI executables, so no conclusion about that payload or prior CLI use follows. Windows app-server control remains unestablished and all control capabilities remain unknown.",
   "capabilityStatus": {
     "create": "unknown",
     "resume": "unknown",
@@ -35,5 +53,11 @@
     "cancel": "unknown",
     "permissions": "unknown",
     "attachExistingGui": "unknown"
-  }
+  },
+  "reviewReferences": [
+    {
+      "url": "https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan",
+      "relevance": "Official documentation describes Codex in the ChatGPT desktop app; a desktop display label alone does not rule out Codex functionality."
+    }
+  ]
 }

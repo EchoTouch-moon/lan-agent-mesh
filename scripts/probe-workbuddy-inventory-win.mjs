@@ -3,6 +3,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { redactProbeText } from './probe-diagnostics.mjs';
 
 const app = process.env.LAM_WORKBUDDY_APP;
 if (!app) throw new Error('Set LAM_WORKBUDDY_APP to the WorkBuddy installation root.');
@@ -25,5 +26,5 @@ try {
     { url: 'https://open.workbuddy.cn/docs/connector', scope: 'Outbound MCP/CLI extensions' },
     { url: 'https://open.workbuddy.cn/docs/openapi', scope: 'Hosted OAuth local-assistant and cloud-task API; requires separate developer application authorization' },
   ];
-} catch (e) { report.error = e.message; process.exitCode = 1; }
+} catch (e) { report.error = redactProbeText(e.message.replaceAll(app, '[WORKBUDDY_INSTALL_ROOT]'), null); process.exitCode = 1; }
 console.log(JSON.stringify(report, null, 2));

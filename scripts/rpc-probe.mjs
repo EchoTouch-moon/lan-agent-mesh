@@ -1,9 +1,9 @@
-import { spawn } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
 
 /** Bounded JSON-lines probe. Startup diagnostics are opt-in and redacted by callers. */
 export function rpcProcess(command, args, env, cwd, options = {}) {
-  const child = spawn(command, args, { env, cwd, stdio: ['pipe', 'pipe', 'pipe'] });
+  const child = spawn(command, args, { env, cwd, stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true, windowsVerbatimArguments: options.windowsVerbatimArguments ?? false });
   const pending = new Map(); let nextId = 1;
   let terminalError; let stderrTail = ''; let stdoutTextTail = ''; let exit;
   child.stderr.on('data', chunk => { if (options.captureDiagnostics) stderrTail = (stderrTail + chunk.toString()).slice(-8192); });
@@ -43,7 +43,11 @@ export function rpcProcess(command, args, env, cwd, options = {}) {
       lines.close(); child.stdin.end();
       await new Promise(resolve => {
         if (child.exitCode !== null || child.signalCode !== null || !child.pid) return resolve();
-        const timer = setTimeout(() => { child.kill('SIGKILL'); }, 2000);
+        const timer = setTimeout(() => {
+          if (process.platform === 'win32' && options.killTree) {
+            execFile('taskkill.exe', ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true, timeout: 5000 }, () => { if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL'); });
+          } else child.kill('SIGKILL');
+        }, 2000);
         child.once('exit', () => { clearTimeout(timer); resolve(); });
       });
     },
