@@ -50,11 +50,20 @@
     "docs/evidence/windows/win-20261023T161616Z/dsh-desktop-static-win32.json"
   ],
   "originalsKeptLocal": [
-    { "file": "%TEMP%/lam-windows-harness-inventory.json", "sha256": "3e3b123efb98c1c2f2dafc807b0e89da18b679ad5d3d10e37f4bdcb9ee17cf47" },
-    { "file": "%TEMP%/lam-windows-harness-layout.json", "sha256": "9a84d9f0f1d3a3805cf828503566d7077fd4b4050c9ec3f379dc91b950bb2e6f" },
-    { "file": "%TEMP%/lam-windows-native-probe-v2.json", "sha256": "409b6e6bca648603380eda40c3efe8eeb6856487c4e668d2bec2f9f88de3a6ac" }
+    {
+      "file": "%TEMP%/lam-windows-harness-inventory.json",
+      "sha256": "3e3b123efb98c1c2f2dafc807b0e89da18b679ad5d3d10e37f4bdcb9ee17cf47"
+    },
+    {
+      "file": "%TEMP%/lam-windows-harness-layout.json",
+      "sha256": "9a84d9f0f1d3a3805cf828503566d7077fd4b4050c9ec3f379dc91b950bb2e6f"
+    },
+    {
+      "file": "%TEMP%/lam-windows-native-probe-v2.json",
+      "sha256": "409b6e6bca648603380eda40c3efe8eeb6856487c4e668d2bec2f9f88de3a6ac"
+    }
   ],
-  "redactionScope": "Absolute install roots, npm global prefix, user profile and temp directory paths replaced with bracketed placeholders in committed evidence. No machine name, username, address, credential, real session ID, chat history or full user log is committed. The native probe report is produced already-redacted by the probe itself and was verified clean before committing.",
+  "redactionScope": "Absolute install roots, npm global prefix, user profile and temp directory paths replaced with bracketed placeholders in committed evidence. No machine name, username, address, credential, real session ID, chat history or full user log is committed. The native probe applies initial redaction; Mac-side review additionally removed npm package file-URL prefixes from stderr in the committed sanitized copy. Original local-file hashes remain unchanged.",
   "constraintsHeld": [
     "No application upgrades, downgrades, plugin installs or profile installs were performed.",
     "No paid or external model was called; ZCode inference used the loopback fixed-response fixture (fixtureRequests=4, externalModelRequests=0).",

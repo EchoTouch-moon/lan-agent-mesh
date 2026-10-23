@@ -2,7 +2,7 @@
 
 **Windows LM 直接执行入口：[任务与 GitHub 回传约定](WINDOWS_AGENT_TASKS.md)。** 后续验证由 Windows 端从 GitHub 领取、执行并回传证据 PR，不再依赖用户中转文件。以下保留独立脚本的运行说明。
 
-此包包含当前 P0 源码及锁定依赖文件，在实现 PR 合并前，GitHub main 分支仍不包含这些代码；请使用此压缩包或对应实现分支。
+P0 基线已随 PR #33 合并到 main；后续 Windows 诊断与交接脚本仍在 feat/p0-foundation，实机证据见 PR #34。执行最新诊断任务时使用对应分支并记录实际 SHA。下列压缩包和手工回传步骤保留为历史运行说明；后续直接通过 GitHub 回传。
 
 1. 将 `lan-agent-mesh-p0-windows.zip` 复制到 Windows，用系统“全部解压缩”解压到普通用户可写目录。不要直接在压缩包里运行。
 2. 准备 Node.js 22 或 24。安装后重新打开终端，运行 `node --version` 确认。

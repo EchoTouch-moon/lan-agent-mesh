@@ -10,6 +10,7 @@ Evidence date: 2026-10-23. `verified` means the specific local probe succeeded. 
 | WorkBuddy desktop 5.8.3 / darwin arm64 | unknown | unknown | documented cloud message API / not exercised | unknown | unknown | unknown |
 | DSH CLI 0.1.1-rc.2 / Windows AMD64 | unknown (no ACP component in this distribution; startup exits before initialize) | unknown | unknown | unknown | unknown | unknown |
 | DSH desktop 0.2.1-rc.2 / Windows AMD64 | unknown (ACP stack bundled statically; runtime not exercised) | unknown | unknown | unknown | unknown | unknown |
+| ZCode desktop 3.16.2 / bundled CLI 0.17.0 / Windows AMD64 (earlier run) | unknown (v1 create timed out; v2 untested) | unknown | unknown | unknown | unknown | unknown |
 | ZCode desktop 3.16.3 / bundled CLI 0.17.0 / Windows AMD64 | verified (3609 ms; prior 15 s timeout was on desktop 3.16.2 entry and did not recur) | verified after process restart | verified with localhost fixture | verified during in-flight fixture request | verified native request + deny | unknown |
 | WorkBuddy desktop 5.7.7 / Windows AMD64 | unknown | unknown | unknown | unknown | unknown | unknown |
 | Codex / Windows (not found on PATH) | unknown | unknown | unknown | unknown | unknown | unknown |
@@ -62,7 +63,7 @@ The [returned native report](evidence/native-probe-win32-v1.json), captured at 2
 - DSH reports CLI 0.1.1-rc.2, then exits with code 1 before initialize succeeds. The first probe discarded stderr, so this result alone does not identify the cause. [Inspection of the exact published package](evidence/dsh-011-package-inspection.json) shows that only web/headless profiles auto-initialize and other profiles need explicit configuration. Assuming acp would auto-initialize in a fresh DSH_HOME was not valid for this older distribution. The test does not establish Windows incompatibility; existing custom profiles are not inspected or reused.
 - WorkBuddy and Codex were not launched and remain unknown.
 
-The diagnostic v2 pack captures bounded, redacted stderr/non-protocol startup output, storage phases, preference request scopes/reply counts, and selected startup events from only the probe-owned temporary JSONL log directory. It excludes native IDs and prompt/history/tool payloads from log summaries. Only session/create gets a longer 60-second deadline; this is a diagnostic experiment, not a claimed fix. A separate output filename preserves the v1 report. Windows user-machine v2 results and the full-project validation log remain pending.
+The diagnostic v2 pack captures bounded, redacted stderr/non-protocol startup output, storage phases, preference request scopes/reply counts, and selected startup events from only the probe-owned temporary JSONL log directory. It excludes native IDs and prompt/history/tool payloads from log summaries. Only session/create gets a longer 60-second deadline; this is a diagnostic experiment, not a claimed fix. A separate output filename preserves the v1 report. At that point the Windows v2 and workspace reports were pending; the second run below supplies the corresponding GitHub evidence.
 
 ## Windows native probe, second run (v2)
 

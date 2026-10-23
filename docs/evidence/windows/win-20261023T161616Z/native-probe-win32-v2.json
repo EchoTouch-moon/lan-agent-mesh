@@ -396,7 +396,7 @@
             "code": 1,
             "signal": null
           },
-          "stderrTail": "file:///F:/node-v24.12.0/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-app-boot/lib/index.js:543\r\n\t\tif (template === void 0) throw new Error(`${binName}: profile ${JSON.stringify(name)} does not exist; create it with 'dsh plugin --profile ${name} add <package>'`);\r\n\t\t                               ^\r\n\r\nError: dsh: profile \"acp\" does not exist; create it with 'dsh plugin --profile acp add <package>'\r\n    at loadProfile (file:///F:/node-v24.12.0/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-app-boot/lib/index.js:543:34)\r\n    at prepareProfile (file:///F:/node-v24.12.0/node_modules/@deepseek-ai/dsh/lib/profile-boot-DG5t9aNs.js:142:18)\r\n    at composeProfile (file:///F:/node-v24.12.0/node_modules/@deepseek-ai/dsh/lib/profile-boot-DG5t9aNs.js:167:18)\r\n    at runProfile (file:///F:/node-v24.12.0/node_modules/@deepseek-ai/dsh/lib/profile-boot-DG5t9aNs.js:221:19)\r\n    at file:///F:/node-v24.12.0/node_modules/@deepseek-ai/dsh/lib/bin.js:133:9\r\n\r\nNode.js v24.12.0\r\n",
+          "stderrTail": "[DSH_CLI_PACKAGE_ROOT]/node_modules/@deepseek-ai/dsh-app-boot/lib/index.js:543\r\n\t\tif (template === void 0) throw new Error(`${binName}: profile ${JSON.stringify(name)} does not exist; create it with 'dsh plugin --profile ${name} add <package>'`);\r\n\t\t                               ^\r\n\r\nError: dsh: profile \"acp\" does not exist; create it with 'dsh plugin --profile acp add <package>'\r\n    at loadProfile ([DSH_CLI_PACKAGE_ROOT]/node_modules/@deepseek-ai/dsh-app-boot/lib/index.js:543:34)\r\n    at prepareProfile ([DSH_CLI_PACKAGE_ROOT]/lib/profile-boot-DG5t9aNs.js:142:18)\r\n    at composeProfile ([DSH_CLI_PACKAGE_ROOT]/lib/profile-boot-DG5t9aNs.js:167:18)\r\n    at runProfile ([DSH_CLI_PACKAGE_ROOT]/lib/profile-boot-DG5t9aNs.js:221:19)\r\n    at [DSH_CLI_PACKAGE_ROOT]/lib/bin.js:133:9\r\n\r\nNode.js v24.12.0\r\n",
           "stdoutTextTail": ""
         }
       }
@@ -414,7 +414,7 @@
     "source": "Locally captured during this run; original kept only on the execution machine.",
     "originalFileName": "lam-windows-native-probe-v2.json",
     "originalSha256": "409b6e6bca648603380eda40c3efe8eeb6856487c4e668d2bec2f9f88de3a6ac",
-    "redaction": "Absolute install roots, npm global prefix, user profile and temp paths replaced with bracketed placeholders. Versions, relative paths, byte sizes and SHA-256 hashes unchanged."
+    "redaction": "Absolute install roots, npm global prefix, user profile and temp paths replaced with bracketed placeholders. Versions, relative paths, byte sizes and SHA-256 hashes unchanged. Mac-side review additionally replaced npm package file-URL prefixes in stderr; the original SHA-256 is unchanged."
   },
   "runId": "win-20261023T161616Z",
   "testedSourceSha": "6eadd08b10148be5f80f02b5b30712bdfb231e7e"
