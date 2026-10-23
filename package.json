@@ -18,7 +18,9 @@
     "probe:dsh": "node scripts/probe-dsh.mjs",
     "probe:zcode": "node scripts/probe-zcode.mjs",
     "probe:codex:fixture": "node scripts/probe-codex-fixture.mjs",
-    "probe:dsh:fixture": "node scripts/probe-dsh-fixture.mjs"
+    "probe:dsh:fixture": "node scripts/probe-dsh-fixture.mjs",
+    "probe:zcode:fixture": "node scripts/probe-zcode-fixture.mjs",
+    "probe:workbuddy:inventory": "node scripts/probe-workbuddy-inventory.mjs"
   },
   "devDependencies": {
     "@eslint/js": "9.39.1",

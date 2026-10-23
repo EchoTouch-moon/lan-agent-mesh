@@ -12,3 +12,7 @@
 如果系统阻止 PowerShell 脚本，先把报错文字回传，不需要修改整机执行策略。脚本不会请求管理员权限。安装依赖需要网络；测试和演示使用 Mock，不调用模型服务，不连接其他机器，也不会更改现有 Harness 配置或 GUI 会话。
 
 此脚本验证的是工程的 Windows 兼容性，不能代替 Codex、DSH、ZCode、WorkBuddy 的真实接口实测。后者需要在基础检查通过后，按实际安装版本分别验证。
+
+## Harness 安装版本采集（LAM-01）
+
+工程日志验证基础代码；另运行 `powershell.exe -NoProfile -File .\scripts\inventory-windows-harnesses.ps1` 可采集已安装 Harness 的版本线索。它只查询 Codex/DSH 的版本及相关应用的卸载注册表信息，不登录、不调用模型、不启动 GUI、不访问会话。结果为 `%TEMP%\lam-windows-harness-inventory.json`，可与工程日志一起回传。路径可能包含本机用户名，回传前可遮盖。便携版应用可能不在注册表中，缺失项保持 unknown。此脚本是在初始离线压缩包发出后增加的，可从 PR 分支或聊天提供的独立文件获取；初始压缩包的基础代码保持不变。

@@ -72,7 +72,7 @@ Workspace layout:
 - `packages/mock-adapter`: deterministic sessions, streaming, scoped mock permissions, cancellation and fault injection.
 - `apps/cli`: offline demonstration. `apps/gateway` and `apps/console`: reserved entry points.
 
-[ADR 0001](docs/adr/0001-p0-contracts.md) records contract decisions and limits. `pnpm probe:codex`, `pnpm probe:dsh` and `pnpm probe:zcode` optionally probe installed binaries without model inference; see the [version-specific matrix](docs/HARNESS_MATRIX.md). Optional `pnpm probe:codex:fixture` and `pnpm probe:dsh:fixture` exercise the installed native harnesses against deterministic localhost inference, including streaming, cancellation and native approval denial. No external model is called. These research probes are not required for CI.
+[ADR 0001](docs/adr/0001-p0-contracts.md) records contract decisions and limits. `pnpm probe:codex`, `pnpm probe:dsh` and `pnpm probe:zcode` optionally probe installed binaries without model inference; see the [version-specific matrix](docs/HARNESS_MATRIX.md). Optional `pnpm probe:codex:fixture`, `pnpm probe:dsh:fixture` and `pnpm probe:zcode:fixture` exercise the installed native harnesses against deterministic localhost inference, including streaming, cancellation and native approval denial. No external model is called. The macOS-only `pnpm probe:workbuddy:inventory` reads shipped SDK metadata without launching the app. These research probes are not required for CI.
 
 ## License
 
