@@ -55,6 +55,10 @@ try {
     }
     report.findings.executableNames = exeNames;
     report.findings.cliCandidates = exeNames.filter(name => /codex|cli|server|agent/i.test(name));
+    try {
+      const versionScript = `(Get-Item -LiteralPath '${rootDir.replaceAll("'", "''")}\\app\\Codex.exe').VersionInfo | Select-Object ProductName, ProductVersion, FileVersion, FileDescription | ConvertTo-Json -Compress`;
+      report.findings.codexExecutableVersion = JSON.parse(await powershell(versionScript));
+    } catch (e) { report.findings.codexExecutableVersion = { error: redact(e.message) }; }
   } catch (e) { report.findings.fileListing = { error: redact(e.message), note: 'WindowsApps directory listing may be ACL-restricted for the current user' }; }
 
   report.conclusion = 'Static package metadata only. Whether this MSIX exposes a standalone Codex CLI or app-server stdio entry is determined by the manifest applications/extensions and executable names recorded above; nothing was launched. All control capabilities remain unknown until a supported interface is exercised.';
