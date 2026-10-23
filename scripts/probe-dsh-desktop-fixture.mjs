@@ -32,24 +32,32 @@ const fixture = createServer(async (request, response) => {
   let body; try { body = JSON.parse(raw); } catch { body = null; }
   report.requestLog ??= [];
   if (report.requestLog.length < 10) report.requestLog.push({ method: request.method, url: request.url, bodyKeys: body ? Object.keys(body) : null, stream: body?.stream ?? null, model: body?.model ?? null, tools: body?.tools?.map(tool => tool.function?.name ?? tool.name) ?? null });
-  if (request.method !== 'POST' || !request.url?.endsWith('/chat/completions')) { response.writeHead(404).end(); return; }
+  const isMessages = request.method === 'POST' && /\/(beta\/)?messages$/.test(request.url ?? '');
+  if (!isMessages) { response.writeHead(404).end(); return; }
   report.fixtureRequests++;
   response.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-cache' });
-  const delta = (value, finish = null) => response.write(`data: ${JSON.stringify({ id: 'chatcmpl-lam-fixture', object: 'chat.completion.chunk', created: 0, model: 'deepseek-v4-flash', choices: [{ index: 0, delta: value, finish_reason: finish }] })}\n\n`);
-  delta({ role: 'assistant' });
-  if (mode === 'hold') { notifyHeld?.(); return; }
+  const event = (name, data) => response.write(`event: ${name}\ndata: ${JSON.stringify(data)}\n\n`);
+  event('message_start', { type: 'message_start', message: { id: 'msg_lam_fixture', type: 'message', role: 'assistant', model: body?.model ?? 'deepseek-v4-flash', content: [], stop_reason: null } });
+  if (mode === 'hold') { event('content_block_start', { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } }); notifyHeld?.(); return; }
   if (mode === 'permission' && permissionStage < 2) {
-    const tool = body.tools?.find(tool => tool.function?.name === 'bash');
-    const priorDenial = body.messages?.some(message => message.role === 'tool' && JSON.stringify(message.content).includes('sandbox: file access denied'));
+    const tool = body.tools?.find(tool => tool.name === 'pwsh' || tool.function?.name === 'pwsh');
+    const priorDenial = body.messages?.some(message => message.role === 'user' && JSON.stringify(message.content).includes('sandbox: file access denied'));
     if (tool && (permissionStage === 0 || priorDenial)) {
       const args = { command: `printf fixture > '${join(root, 'denied-marker')}'`, description: 'Exercise temporary permission denial fixture', ...(permissionStage === 1 ? { sandbox_permissions: 'workspace-write', justification: 'Verify that the native ACP client can reject this temporary fixture operation.' } : {}) };
       permissionStage++;
-      delta({ tool_calls: [{ index: 0, id: `call_lam_${permissionStage}`, type: 'function', function: { name: 'bash', arguments: JSON.stringify(args) } }] });
-      delta({}, 'tool_calls'); response.end('data: [DONE]\n\n'); return;
+      event('content_block_start', { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id: `toolu_lam_${permissionStage}`, name: 'pwsh', input: {} } });
+      event('content_block_delta', { type: 'content_block_delta', index: 0, delta: { type: 'input_json_delta', partial_json: JSON.stringify(args) } });
+      event('content_block_stop', { type: 'content_block_stop', index: 0 });
+      event('message_delta', { type: 'message_delta', delta: { stop_reason: 'tool_use' } });
+      event('message_stop', { type: 'message_stop' }); response.end(); return;
     }
-    report.results.permissionSetup = { bashAdvertised: Boolean(tool), initialSandboxDenialObserved: Boolean(priorDenial) };
+    report.results.permissionSetup = { pwshAdvertised: Boolean(tool), initialSandboxDenialObserved: Boolean(priorDenial) };
   }
-  delta({ content: 'LAM DSH fixture response' }); delta({}, 'stop'); response.end('data: [DONE]\n\n');
+  event('content_block_start', { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } });
+  event('content_block_delta', { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'LAM DSH fixture response' } });
+  event('content_block_stop', { type: 'content_block_stop', index: 0 });
+  event('message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn' } });
+  event('message_stop', { type: 'message_stop' }); response.end();
 });
 await new Promise(resolve => fixture.listen(0, '127.0.0.1', resolve));
 
