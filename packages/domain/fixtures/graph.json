@@ -1,0 +1,9 @@
+{
+  "registry": {
+    "node": { "id": "mac", "name": "Developer Mac", "platform": "darwin", "publicKeyFingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
+    "harnesses": [{ "id": "mac/mock", "nodeId": "mac", "kind": "mock", "version": "1", "capabilities": { "discover": "supported", "spawn": "supported", "resume": "supported", "send": "supported", "watch": "supported", "cancel": "supported", "answerPermission": "supported", "attachExistingGui": "unsupported" } }],
+    "agents": [{ "id": "mac/mock/default", "nodeId": "mac", "harnessId": "mac/mock", "name": "Mock", "workspaceAliases": ["project-a"], "capabilities": { "discover": "supported", "spawn": "supported", "resume": "supported", "send": "supported", "watch": "supported", "cancel": "supported", "answerPermission": "supported", "attachExistingGui": "unsupported" } }]
+  },
+  "sessions": [{ "id": "session-1", "nodeId": "mac", "agentId": "mac/mock/default", "nativeSessionId": "native-1", "workspaceAlias": "project-a", "state": "idle", "createdAt": "2026-10-23T00:00:00Z" }],
+  "tasks": [{ "id": "task-1", "nodeId": "mac", "agentId": "mac/mock/default", "sessionId": "session-1", "state": "QUEUED", "deadline": "2026-10-24T00:00:00Z", "delegationDepth": 0 }]
+}

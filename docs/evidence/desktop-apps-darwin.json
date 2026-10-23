@@ -1,0 +1,25 @@
+{
+  "platform": "darwin",
+  "date": "2026-10-23",
+  "applications": [
+    {
+      "name": "ZCode",
+      "path": "/Applications/ZCode.app",
+      "bundleId": "dev.zcode.app",
+      "appVersion": "3.16.2",
+      "build": "3.16.2.8769",
+      "bundledCli": "Contents/Resources/glm/zcode.cjs",
+      "cliVersion": "0.17.0"
+    },
+    {
+      "name": "WorkBuddy",
+      "path": "/Applications/WorkBuddy.app",
+      "bundleId": "com.tencent.workbuddy.mac",
+      "appVersion": "5.8.3",
+      "build": "5.8.3",
+      "controlledInbound": "unknown",
+      "existingGuiAttach": "unknown"
+    }
+  ],
+  "method": "Read Info.plist and installed resource names; ZCode CLI --version/--help only. No GUI launch or user session data access."
+}

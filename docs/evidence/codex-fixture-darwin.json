@@ -1,0 +1,40 @@
+{
+  "harness": "codex",
+  "platform": "darwin",
+  "inference": "localhost deterministic fixture; no external model",
+  "externalModelRequests": 0,
+  "fixtureRequests": 4,
+  "results": {
+    "send": {
+      "status": "verified",
+      "turnStatus": "completed",
+      "error": null
+    },
+    "stream": {
+      "status": "verified"
+    },
+    "resume": {
+      "status": "verified",
+      "sameThreadId": true,
+      "retainedTurns": 1,
+      "afterProcessRestart": true
+    },
+    "cancel": {
+      "status": "verified",
+      "turnStatus": "interrupted",
+      "inFlightFixtureRequest": true
+    },
+    "permissionTurn": {
+      "turnStatus": "completed"
+    },
+    "deniedOperation": {
+      "status": "verified",
+      "markerCreated": false
+    },
+    "attachExistingGui": {
+      "status": "unknown",
+      "reason": "Only this probe-owned thread was controlled"
+    }
+  },
+  "version": "codex-cli 0.146.0"
+}

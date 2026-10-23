@@ -32,3 +32,7 @@ QUEUED → AUTHORIZING → RUNNING → COMPLETED/FAILED/CANCELLED, with WAITING_
 Validate schemas and limits before dispatch. Correlation and idempotency keys are mandatory for side-effecting calls. The receiver persists a deduplication record before execution and records transitions durably. Acknowledge delivery separately from task completion. Serialize turns on the same native session. Apply queue limits, deadlines, cancellation and max delegation depth. Avoid arbitrary absolute paths: use receiving-node workspace aliases.
 
 This draft is an internal contract, not a claim of A2A wire compatibility. External A2A bridge deferred to P5.
+
+## P0 implementation
+
+`packages/protocol` implements strict per-type schemas, encoding/decoding and errors for the message classes above. [ADR 0001](adr/0001-p0-contracts.md) defines required fields and the 64 KiB UTF-8 limit. Correlation, idempotency and message identifiers use UUIDs; task/session/node IDs remain opaque bounded strings. Transport authentication, persistence and execution authorization are later components.

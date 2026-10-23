@@ -2,7 +2,7 @@
 
 **A peer-to-peer local network for existing AI agent harnesses.** Discover, wake, message and delegate work across macOS and Windows while keeping each harness and machine's native execution permissions.
 
-> **Status: planning only.** This repository currently contains design documents and a 30-issue engineering backlog, **not a working gateway**.
+> **Status: P0 foundation implemented locally.** Domain schemas, protocol v1, Adapter SDK and a deterministic mock are available. P2P transport, real harness adapters and a working network Gateway are still planned. See [P0 progress](docs/P0_PROGRESS.md).
 
 ## Goal
 
@@ -52,6 +52,30 @@ TypeScript, Node.js, pnpm, js-libp2p (mDNS/TCP/Noise), official MCP TypeScript S
 
 P0: interface feasibility + SDK (LAM-01..06) → P1: P2P core (07..15) → P2: MCP + Codex/ACP (16..19) → P3: policy, UI, audit (20..24) → P4: ZCode, WorkBuddy, releases (25..28) → P5: rooms and A2A bridge (29..30).
 
+## Local development
+
+Use Node.js 22 or 24 and pnpm 10.18.3 (pinned in packageManager). If Corepack is available, `corepack enable` makes the pinned pnpm available; otherwise install that pnpm version using your normal package manager.
+
+```sh
+pnpm install --frozen-lockfile
+pnpm check
+pnpm demo
+```
+
+`pnpm check` builds the packages, type-checks source and tests, runs lint and the offline contract tests. The demo prints mock response events and needs no model credentials. CI defines the same checks for macOS and Windows on Node 22/24. Hosted CI results are pending until this change is pushed.
+
+Workspace layout:
+
+- `packages/domain`: strict ownership/identity schemas, remote cache and graph fixture.
+- `packages/protocol`: versioned typed messages, errors and UTF-8 size limits.
+- `packages/adapter-sdk`: capability-gated inbound control contract.
+- `packages/mock-adapter`: deterministic sessions, streaming, scoped mock permissions, cancellation and fault injection.
+- `apps/cli`: offline demonstration. `apps/gateway` and `apps/console`: reserved entry points.
+
+[ADR 0001](docs/adr/0001-p0-contracts.md) records contract decisions and limits. `pnpm probe:codex`, `pnpm probe:dsh` and `pnpm probe:zcode` optionally probe installed binaries without model inference; see the [version-specific matrix](docs/HARNESS_MATRIX.md). Optional `pnpm probe:codex:fixture` and `pnpm probe:dsh:fixture` exercise the installed native harnesses against deterministic localhost inference, including streaming, cancellation and native approval denial. No external model is called. These research probes are not required for CI.
+
 ## License
 
 License selection is pending; do not assume a license grant until a LICENSE file is committed.
+
+Windows local verification: run `powershell -File scripts/verify-windows.ps1` from the checkout after installing Node and the pinned pnpm. It writes a report to the temporary directory, runs only the offline workspace checks/demo and does not start a real harness.

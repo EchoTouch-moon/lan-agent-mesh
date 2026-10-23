@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-Everything below is planned; no feature is implemented by these documents.
+P0 foundation code is implemented locally; hosted CI and the full Harness feasibility matrix remain pending. P1 onward remains planned. See [P0 progress](P0_PROGRESS.md).
 
 | Phase | Deliverable | Planned IDs | Exit criteria |
 |---|---|---|---|
