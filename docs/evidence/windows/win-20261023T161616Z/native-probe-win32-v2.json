@@ -1,0 +1,421 @@
+{
+  "probeRevision": 2,
+  "capturedAtUtc": "2026-10-23T16:20:39.065Z",
+  "platform": "win32",
+  "node": "v24.12.0",
+  "scope": "Probe-owned temporary sessions only. ZCode uses fixed loopback inference; DSH receives no prompts. No existing GUI attachment or WorkBuddy launch.",
+  "probes": {
+    "zcode": {
+      "entrySha256": "97490d0f06a7a225d54d47817acf4b4859cdb268b59f2490caaeda982bef063a",
+      "exitCode": 0,
+      "result": {
+        "harness": "zcode",
+        "platform": "win32",
+        "inference": "localhost deterministic fixture; no external model",
+        "externalModelRequests": 0,
+        "fixtureRequests": 4,
+        "results": {
+          "runtimeCapabilities": {
+            "status": "verified"
+          },
+          "create": {
+            "status": "verified"
+          },
+          "send": {
+            "status": "verified",
+            "eventType": "turn.completed",
+            "resultType": "success"
+          },
+          "stream": {
+            "status": "verified",
+            "matchingFixtureText": true,
+            "textDeltaCount": 1
+          },
+          "resume": {
+            "status": "verified",
+            "afterProcessRestart": true,
+            "retainsFixtureText": true,
+            "messageCount": 3
+          },
+          "cancel": {
+            "status": "verified",
+            "eventType": "turn.completed",
+            "resultType": "cancelled",
+            "inFlightFixtureRequest": true
+          },
+          "permissions": {
+            "status": "verified",
+            "nativeRequestMethod": "interaction/requestPermission",
+            "decision": "deny"
+          },
+          "permissionTurn": {
+            "eventType": "turn.completed",
+            "resultType": "success"
+          },
+          "deniedOperation": {
+            "status": "verified",
+            "markerCreated": false
+          },
+          "attachExistingGui": {
+            "status": "unknown",
+            "reason": "Only this probe-owned App Server session was controlled"
+          }
+        },
+        "startup": {
+          "storageStates": [
+            {
+              "phase": "checking",
+              "elapsedMs": 0
+            },
+            {
+              "phase": "checking",
+              "elapsedMs": 1
+            },
+            {
+              "phase": "checking",
+              "elapsedMs": 9
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 13
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 16
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 17
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 19
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 20
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 22
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 24
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 26
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 28
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 30
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 32
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 33
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 36
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 38
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 40
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 42
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 43
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 46
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 49
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 51
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 62
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 63
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 66
+            },
+            {
+              "phase": "migrating",
+              "elapsedMs": 68
+            },
+            {
+              "phase": "committing",
+              "elapsedMs": 70
+            },
+            {
+              "phase": "ready",
+              "elapsedMs": 77
+            },
+            {
+              "phase": "checking",
+              "elapsedMs": 0
+            },
+            {
+              "phase": "checking",
+              "elapsedMs": 0
+            },
+            {
+              "phase": "checking",
+              "elapsedMs": 6
+            },
+            {
+              "phase": "committing",
+              "elapsedMs": 9
+            },
+            {
+              "phase": "ready",
+              "elapsedMs": 10
+            }
+          ],
+          "preferenceRequests": [
+            {
+              "scope": "runtime-materialization",
+              "idType": "string"
+            },
+            {
+              "scope": "user-execution",
+              "idType": "string"
+            },
+            {
+              "scope": "runtime-materialization",
+              "idType": "string"
+            },
+            {
+              "scope": "user-execution",
+              "idType": "string"
+            }
+          ],
+          "preferenceReplies": 4,
+          "createElapsedMs": 3609,
+          "logs": [
+            {
+              "event": "zcode_protocol.startup.started",
+              "level": "info",
+              "status": "started",
+              "durationMs": 0,
+              "message": "ZCode Protocol agent startup started"
+            },
+            {
+              "event": "zcode_protocol.startup.storage_state",
+              "level": "info",
+              "message": "SQLite startup state"
+            },
+            {
+              "event": "zcode_protocol.startup.storage_state",
+              "level": "info",
+              "message": "SQLite startup state"
+            },
+            {
+              "event": "zcode_protocol.startup.storage_state",
+              "level": "info",
+              "message": "SQLite startup state"
+            },
+            {
+              "event": "zcode_protocol.startup.storage_state",
+              "level": "info",
+              "message": "SQLite startup state"
+            },
+            {
+              "event": "zcode_protocol.startup.storage_state",
+              "level": "info",
+              "message": "SQLite startup state"
+            },
+            {
+              "event": "zcode_protocol.startup.completed",
+              "level": "info",
+              "status": "completed",
+              "durationMs": 142,
+              "message": "ZCode Protocol agent startup completed"
+            },
+            {
+              "event": "zcode_protocol.create_record.mcp_config",
+              "level": "info",
+              "message": "ZCode Protocol createRecord MCP config"
+            },
+            {
+              "event": "bootstrap.app.startup.started",
+              "level": "info",
+              "status": "started",
+              "durationMs": 0,
+              "message": "ZCode app startup started"
+            },
+            {
+              "event": "bootstrap.app.startup.config.completed",
+              "level": "info",
+              "status": "completed",
+              "durationMs": 4,
+              "message": "ZCode app configuration loaded"
+            },
+            {
+              "event": "bootstrap.app.startup.plugins.completed",
+              "level": "info",
+              "status": "completed",
+              "durationMs": 498,
+              "message": "ZCode plugins resolved"
+            },
+            {
+              "event": "bootstrap.app.startup.runtime_config.completed",
+              "level": "info",
+              "status": "completed",
+              "durationMs": 4,
+              "message": "ZCode runtime configuration resolved"
+            },
+            {
+              "event": "bootstrap.app.startup.storage.completed",
+              "level": "info",
+              "status": "completed",
+              "durationMs": 1,
+              "message": "ZCode storage adapters initialized"
+            },
+            {
+              "event": "bootstrap.app.startup.mcp.completed",
+              "level": "info",
+              "status": "completed",
+              "durationMs": 1,
+              "message": "ZCode MCP adapter initialized"
+            },
+            {
+              "event": "bootstrap.app.startup.runtime.completed",
+              "level": "info",
+              "status": "completed",
+              "durationMs": 6,
+              "message": "ZCode runtime constructed"
+            },
+            {
+              "event": "bootstrap.app.startup.completed",
+              "level": "info",
+              "status": "completed",
+              "durationMs": 516,
+              "message": "ZCode app startup completed"
+            },
+            {
+              "event": "model.sdk.stream.failed",
+              "level": "error",
+              "status": "cancelled",
+              "durationMs": 81,
+              "message": "AI SDK stream failed",
+              "error": {
+                "name": "Error",
+                "message": "ZCode Protocol session stopped"
+              }
+            },
+            {
+              "event": "model.request.failed",
+              "level": "warn",
+              "status": "cancelled",
+              "durationMs": 81,
+              "message": "Model request attempt failed"
+            },
+            {
+              "event": "model.network.failed",
+              "level": "warn",
+              "status": "cancelled",
+              "durationMs": 81,
+              "message": "Model network request failed"
+            },
+            {
+              "event": "model.retry.delay.resolved",
+              "level": "warn",
+              "status": "failed",
+              "message": "Model retry delay decision inspected"
+            },
+            {
+              "event": "turn.failed",
+              "level": "error",
+              "status": "cancelled",
+              "message": "Turn failed",
+              "error": {
+                "name": "Error",
+                "code": "TURN_CANCELLED",
+                "message": "Turn was cancelled."
+              }
+            },
+            {
+              "level": "warn",
+              "durationMs": 160,
+              "message": "ZCode Protocol background turn failed"
+            }
+          ]
+        },
+        "version": "0.17.0",
+        "stage": "complete",
+        "diagnostics": {
+          "exit": {
+            "code": 0,
+            "signal": null
+          },
+          "stderrTail": "",
+          "stdoutTextTail": ""
+        }
+      }
+    },
+    "dsh": {
+      "exitCode": 1,
+      "result": {
+        "harness": "dsh",
+        "platform": "win32",
+        "modelRequests": 0,
+        "results": {},
+        "version": "0.1.1-rc.2",
+        "error": "process exited (1)",
+        "diagnostics": {
+          "exit": {
+            "code": 1,
+            "signal": null
+          },
+          "stderrTail": "file:///F:/node-v24.12.0/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-app-boot/lib/index.js:543\r\n\t\tif (template === void 0) throw new Error(`${binName}: profile ${JSON.stringify(name)} does not exist; create it with 'dsh plugin --profile ${name} add <package>'`);\r\n\t\t                               ^\r\n\r\nError: dsh: profile \"acp\" does not exist; create it with 'dsh plugin --profile acp add <package>'\r\n    at loadProfile (file:///F:/node-v24.12.0/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-app-boot/lib/index.js:543:34)\r\n    at prepareProfile (file:///F:/node-v24.12.0/node_modules/@deepseek-ai/dsh/lib/profile-boot-DG5t9aNs.js:142:18)\r\n    at composeProfile (file:///F:/node-v24.12.0/node_modules/@deepseek-ai/dsh/lib/profile-boot-DG5t9aNs.js:167:18)\r\n    at runProfile (file:///F:/node-v24.12.0/node_modules/@deepseek-ai/dsh/lib/profile-boot-DG5t9aNs.js:221:19)\r\n    at file:///F:/node-v24.12.0/node_modules/@deepseek-ai/dsh/lib/bin.js:133:9\r\n\r\nNode.js v24.12.0\r\n",
+          "stdoutTextTail": ""
+        }
+      }
+    },
+    "workbuddy": {
+      "status": "unknown",
+      "reason": "Installed guest SDK metadata is recorded separately; no supported standalone control contract established. Application was not launched."
+    },
+    "codex": {
+      "status": "unknown",
+      "reason": "No Windows Codex CLI entry established by supplied inventory"
+    }
+  },
+  "provenance": {
+    "source": "Locally captured during this run; original kept only on the execution machine.",
+    "originalFileName": "lam-windows-native-probe-v2.json",
+    "originalSha256": "409b6e6bca648603380eda40c3efe8eeb6856487c4e668d2bec2f9f88de3a6ac",
+    "redaction": "Absolute install roots, npm global prefix, user profile and temp paths replaced with bracketed placeholders. Versions, relative paths, byte sizes and SHA-256 hashes unchanged."
+  },
+  "runId": "win-20261023T161616Z",
+  "testedSourceSha": "6eadd08b10148be5f80f02b5b30712bdfb231e7e"
+}

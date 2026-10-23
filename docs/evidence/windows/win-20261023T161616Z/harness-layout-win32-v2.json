@@ -1,0 +1,511 @@
+{
+  "capturedAtUtc": "2026-10-23T16:20:18.6122103Z",
+  "scope": "Static installation layout only. No CLI/GUI launch, inference, login, configuration or session access.",
+  "installations": [
+    {
+      "root": "[ZCODE_INSTALL_ROOT]",
+      "source": "ZCode 3.16.3",
+      "files": [
+        {
+          "relativePath": "resources\\glm\\zcode.cjs",
+          "bytes": 15242397,
+          "sha256": "97490d0f06a7a225d54d47817acf4b4859cdb268b59f2490caaeda982bef063a"
+        }
+      ],
+      "resourceEntries": [
+        {
+          "relativePath": ".zcode-install-manifest",
+          "kind": "file"
+        },
+        {
+          "relativePath": "chrome_100_percent.pak",
+          "kind": "file"
+        },
+        {
+          "relativePath": "chrome_200_percent.pak",
+          "kind": "file"
+        },
+        {
+          "relativePath": "d3dcompiler_47.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "dxcompiler.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "dxil.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "ffmpeg.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "icudtl.dat",
+          "kind": "file"
+        },
+        {
+          "relativePath": "libEGL.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "libGLESv2.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "LICENSE.electron.txt",
+          "kind": "file"
+        },
+        {
+          "relativePath": "LICENSES.chromium.html",
+          "kind": "file"
+        },
+        {
+          "relativePath": "locales",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources.pak",
+          "kind": "file"
+        },
+        {
+          "relativePath": "snapshot_blob.bin",
+          "kind": "file"
+        },
+        {
+          "relativePath": "Uninstall ZCode.exe",
+          "kind": "file"
+        },
+        {
+          "relativePath": "uninstallerIcon.ico",
+          "kind": "file"
+        },
+        {
+          "relativePath": "v8_context_snapshot.bin",
+          "kind": "file"
+        },
+        {
+          "relativePath": "vk_swiftshader.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "vk_swiftshader_icd.json",
+          "kind": "file"
+        },
+        {
+          "relativePath": "vulkan-1.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "ZCode.exe",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\app.asar",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\app.asar.unpacked",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources\\app-update.yml",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\config",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources\\elevate.exe",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\glm",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources\\icon.png",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\icon_windows.png",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\licenses",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources\\THIRD-PARTY-NOTICES.md",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\tools",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources\\tray_icon.ico",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\glm\\.node-bundle-meta.json",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\glm\\packages",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources\\glm\\zcode.cjs",
+          "kind": "file"
+        }
+      ]
+    },
+    {
+      "root": "[DSH_DESKTOP_INSTALL_ROOT]",
+      "source": "DeepSeek Harness 0.2.1-rc.2",
+      "files": [],
+      "resourceEntries": [
+        {
+          "relativePath": "7zip-installer-COPYING.txt",
+          "kind": "file"
+        },
+        {
+          "relativePath": "7zip-installer-LICENSE.txt",
+          "kind": "file"
+        },
+        {
+          "relativePath": "chrome_100_percent.pak",
+          "kind": "file"
+        },
+        {
+          "relativePath": "chrome_200_percent.pak",
+          "kind": "file"
+        },
+        {
+          "relativePath": "d3dcompiler_47.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "DeepSeek Harness.exe",
+          "kind": "file"
+        },
+        {
+          "relativePath": "dxcompiler.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "dxil.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "ffmpeg.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "icudtl.dat",
+          "kind": "file"
+        },
+        {
+          "relativePath": "LICENSE.electron.txt",
+          "kind": "file"
+        },
+        {
+          "relativePath": "LICENSES.chromium.html",
+          "kind": "file"
+        },
+        {
+          "relativePath": "locales",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources.pak",
+          "kind": "file"
+        },
+        {
+          "relativePath": "snapshot_blob.bin",
+          "kind": "file"
+        },
+        {
+          "relativePath": "Uninstall DeepSeek Harness.exe",
+          "kind": "file"
+        },
+        {
+          "relativePath": "v8_context_snapshot.bin",
+          "kind": "file"
+        },
+        {
+          "relativePath": "version",
+          "kind": "file"
+        },
+        {
+          "relativePath": "vk_swiftshader.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "vk_swiftshader_icd.json",
+          "kind": "file"
+        },
+        {
+          "relativePath": "vulkan-1.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\app.asar",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\app.asar.unpacked",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources\\app-update.yml",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\default_app.asar",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\elevate.exe",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\icon.png",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\runtime",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources\\tray.ico",
+          "kind": "file"
+        }
+      ]
+    },
+    {
+      "root": "[WORKBUDDY_INSTALL_ROOT]",
+      "source": "WorkBuddy 5.7.7",
+      "files": [
+        {
+          "relativePath": "resources\\wb-guest-sdk\\wb.js",
+          "bytes": 61239,
+          "sha256": "9d6df2e4cd0b14851e0435f8246354d9fc7f5cfedfca6bc34630c6486e0e3f9b"
+        }
+      ],
+      "resourceEntries": [
+        {
+          "relativePath": "Assets",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "chrome_100_percent.pak",
+          "kind": "file"
+        },
+        {
+          "relativePath": "chrome_200_percent.pak",
+          "kind": "file"
+        },
+        {
+          "relativePath": "d3dcompiler_47.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "debug.log",
+          "kind": "file"
+        },
+        {
+          "relativePath": "dxcompiler.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "dxil.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "ffmpeg.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "ffmpeg.dll.bak",
+          "kind": "file"
+        },
+        {
+          "relativePath": "icudtl.dat",
+          "kind": "file"
+        },
+        {
+          "relativePath": "libEGL.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "libGLESv2.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "LICENSE.electron.txt",
+          "kind": "file"
+        },
+        {
+          "relativePath": "LICENSES.chromium.html",
+          "kind": "file"
+        },
+        {
+          "relativePath": "locales",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "Newtonsoft.Json.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "RepairApp.exe",
+          "kind": "file"
+        },
+        {
+          "relativePath": "RepairApp.exe.config",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources.pak",
+          "kind": "file"
+        },
+        {
+          "relativePath": "share-target",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "snapshot_blob.bin",
+          "kind": "file"
+        },
+        {
+          "relativePath": "System.ValueTuple.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "Uninstall WorkBuddy.exe",
+          "kind": "file"
+        },
+        {
+          "relativePath": "v8_context_snapshot.bin",
+          "kind": "file"
+        },
+        {
+          "relativePath": "version",
+          "kind": "file"
+        },
+        {
+          "relativePath": "vk_swiftshader.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "vk_swiftshader_icd.json",
+          "kind": "file"
+        },
+        {
+          "relativePath": "vulkan-1.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "WorkBuddy.exe",
+          "kind": "file"
+        },
+        {
+          "relativePath": "WorkBuddyShareTarget.msix",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\app.asar",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\app.asar.unpacked",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources\\conversation-report.html",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\default_app.asar",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\elevate.exe",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\file-icons",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources\\install-manifest.json",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\qimei.dll",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\qm",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources\\scripts",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources\\startup-report.html",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\vendor",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources\\wb-guest-sdk",
+          "kind": "directory"
+        },
+        {
+          "relativePath": "resources\\workbuddy-editor-sdk-supervisor.exe",
+          "kind": "file"
+        },
+        {
+          "relativePath": "resources\\wb-guest-sdk\\wb.js",
+          "kind": "file"
+        }
+      ]
+    }
+  ],
+  "cliPackages": [
+    {
+      "name": "@deepseek-ai/dsh",
+      "version": "0.1.1-rc.2",
+      "root": "[NPM_GLOBAL_PREFIX]\\node_modules\\@deepseek-ai\\dsh",
+      "hasReadme": true
+    }
+  ],
+  "note": "Missing entries do not prove absence. Paths may contain identifying information; review before sharing. File presence does not verify a control interface.",
+  "provenance": {
+    "source": "Locally captured during this run; original kept only on the execution machine.",
+    "originalFileName": "lam-windows-harness-layout.json",
+    "originalSha256": "9a84d9f0f1d3a3805cf828503566d7077fd4b4050c9ec3f379dc91b950bb2e6f",
+    "redaction": "Absolute install roots, npm global prefix, user profile and temp paths replaced with bracketed placeholders. Versions, relative paths, byte sizes and SHA-256 hashes unchanged."
+  },
+  "runId": "win-20261023T161616Z"
+}
