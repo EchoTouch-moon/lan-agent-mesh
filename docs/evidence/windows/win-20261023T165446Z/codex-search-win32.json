@@ -1,0 +1,39 @@
+{
+  "runId": "win-20261023T165446Z",
+  "taskId": "R2-F3",
+  "testedSourceSha": "da5eeeb37abbf2351fb9f843960db2cdf13e5da9",
+  "subject": "Locating a Codex CLI / control entry on Windows (read-only search)",
+  "method": "Read-only lookups: PATH search, npm global package listing, Start Menu and per-user program directories, MSIX package inventory (winget list), and top-level directory-name listing of the user's .codex home. No file contents under the user's .codex home were read; no application was launched.",
+  "findings": {
+    "pathSearch": "codex not found on PATH (where.exe)",
+    "npmGlobal": {
+      "prefix": "[NPM_GLOBAL_PREFIX]",
+      "openaiCodexPackage": false,
+      "observedAgentClis": ["@anthropic-ai/claude-code 2.1.1", "@deepseek-ai/dsh 0.1.1-rc.2", "@earendil-works/pi-coding-agent 0.82.1", "@google/gemini-cli 0.30.0", "@iflow-ai/iflow-cli 0.5.10", "@larksuite/cli 1.0.89", "@mimo-ai/cli 0.1.0", "@tencent-qqmail/agently-cli 1.0.6"]
+    },
+    "startMenuAndProgramDirs": "No codex-named entries in user or all-users Start Menu programs, nor in per-user LocalAppData Programs",
+    "msixInventory": {
+      "found": true,
+      "displayName": "ChatGPT",
+      "packageId": "MSIX OpenAI.Codex_26.825.6671.0_x64",
+      "version": "26.825.6671.0",
+      "note": "This is the ChatGPT desktop application carrying the OpenAI.Codex package identity, not the codex CLI binary verified on macOS."
+    },
+    "userCodexHome": {
+      "exists": true,
+      "path": "[USER_PROFILE]\\.codex",
+      "inspection": "Top-level directory names only (configuration and session-history files were NOT opened); names are consistent with prior Codex CLI/desktop use.",
+      "topLevelNamesSample": ["AGENTS.md", "archived_sessions", "attachments", "auth.json", "browser", "config.toml", "sessions"]
+    }
+  },
+  "conclusion": "No standalone codex CLI executable is located on this Windows machine by PATH, npm global, Start Menu, per-user program directories or MSIX inventory. The installed OpenAI surface is the ChatGPT desktop application (OpenAI.Codex MSIX 26.825.6671.0), and a user .codex home exists, so prior Codex use is likely, but the macOS-verified `codex app-server` stdio control surface is not established here. All Codex control capabilities remain unknown; this does not prove absence of other install channels.",
+  "capabilityStatus": {
+    "create": "unknown",
+    "resume": "unknown",
+    "send": "unknown",
+    "stream": "unknown",
+    "cancel": "unknown",
+    "permissions": "unknown",
+    "attachExistingGui": "unknown"
+  }
+}

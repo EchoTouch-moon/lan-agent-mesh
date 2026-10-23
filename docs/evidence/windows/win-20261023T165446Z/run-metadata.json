@@ -1,0 +1,52 @@
+{
+  "runId": "win-20261023T165446Z",
+  "startedUtc": "2026-10-23T16:54:46Z",
+  "endedUtc": "2026-10-23T17:02:00Z",
+  "claimComment": "https://github.com/EchoTouch-moon/lan-agent-mesh/issues/1#issuecomment-6370168396",
+  "repository": "EchoTouch-moon/lan-agent-mesh",
+  "workBranch": "windows/p0-followup-win-20261023T165446Z",
+  "branchBase": "windows/p0-validation-win-20261023T161616Z @ da5eeeb (PR #34 head, includes the Mac-side review commit); PR base remains feat/p0-foundation per convention",
+  "testedSourceSha": "da5eeeb37abbf2351fb9f843960db2cdf13e5da9",
+  "executionMachine": {
+    "platform": "win32",
+    "operatingSystem": "Microsoft Windows NT 10.0.22621.0",
+    "architecture": "AMD64",
+    "node": "v24.12.0",
+    "pnpm": "10.18.3"
+  },
+  "harnessVersions": {
+    "dshDesktop": "0.2.1-rc.2 (bundled headless CLI reports 0.2.1-rc.2; ACP agent identifies deepseek-harness-acp 0.0.1)",
+    "workbuddyDesktop": "5.7.7 (not launched)",
+    "chatGptDesktopMsix": "OpenAI.Codex 26.825.6671.0 (display name ChatGPT)",
+    "zcodeDesktop": "3.16.3 (unchanged this round; no re-test)"
+  },
+  "commandExitCodes": {
+    "dsh.cmd --version (isolated home)": 0,
+    "node scripts/probe-dsh-desktop.mjs": 0,
+    "node scripts/probe-workbuddy-inventory-win.mjs": 0,
+    "codex read-only searches": 0
+  },
+  "newScripts": [
+    "scripts/probe-dsh-desktop.mjs (drives the desktop's bundled dsh.cmd headless host through the metadata-only ACP lifecycle under an isolated disposable home)",
+    "scripts/probe-workbuddy-inventory-win.mjs (Windows mirror of the darwin WorkBuddy static inventory)"
+  ],
+  "evidence": [
+    "docs/evidence/windows/win-20261023T165446Z/SUMMARY.md",
+    "docs/evidence/windows/win-20261023T165446Z/run-metadata.json",
+    "docs/evidence/windows/win-20261023T165446Z/dsh-desktop-acp-runtime.json",
+    "docs/evidence/windows/win-20261023T165446Z/workbuddy-inventory-win32.json",
+    "docs/evidence/windows/win-20261023T165446Z/codex-search-win32.json"
+  ],
+  "originalsKeptLocal": [
+    { "file": "%TEMP%/dsh-desktop-probe.json", "sha256": "(recorded in dsh-desktop-acp-runtime.json provenance)" },
+    { "file": "%TEMP%/wb-inventory.json", "sha256": "(recorded in workbuddy-inventory-win32.json provenance)" }
+  ],
+  "redactionScope": "Probe outputs self-redact the temporary home and launcher path and were verified free of machine-identifying paths before committing. The codex search evidence replaces the npm prefix and user profile with placeholders; only top-level directory NAMES under the user's .codex home were observed, never file contents.",
+  "constraintsHeld": [
+    "The desktop's Electron GUI was never launched; the bundled CLI ran headlessly via ELECTRON_RUN_AS_NODE set by the desktop's own dsh.cmd.",
+    "command-path.ps1 (the PATH/registry installer) was NOT executed.",
+    "No prompts, no inference, no model calls (promptsSent=0, modelRequests=0 in the ACP probe).",
+    "The acp profile auto-initialized from templates shipped inside the desktop installation; nothing was installed from the network.",
+    "No application upgrade/downgrade, no plugin install, no existing chat or real user configuration read; WorkBuddy and the ChatGPT desktop were never launched."
+  ]
+}

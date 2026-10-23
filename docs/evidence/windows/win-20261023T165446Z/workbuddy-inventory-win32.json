@@ -1,0 +1,63 @@
+{
+  "harness": "workbuddy",
+  "platform": "win32",
+  "launchedApp": false,
+  "accessedUserSessions": false,
+  "results": {
+    "shippedGuestSdk": {
+      "sha256": "9d6df2e4cd0b14851e0435f8246354d9fc7f5cfedfca6bc34630c6486e0e3f9b",
+      "bytes": 61239,
+      "browserWindowGuardObserved": true,
+      "rendererInvokeBridgeObserved": true,
+      "hostPortBootstrapObserved": true,
+      "interpretation": "Renderer-host transport bootstrap is present; this is not evidence of a standalone supported harness-control API."
+    },
+    "create": {
+      "status": "unknown",
+      "reason": "No supported direct LAN/stdio control contract established by this metadata-only inspection"
+    },
+    "resume": {
+      "status": "unknown",
+      "reason": "No supported direct LAN/stdio control contract established by this metadata-only inspection"
+    },
+    "send": {
+      "status": "unknown",
+      "reason": "No supported direct LAN/stdio control contract established by this metadata-only inspection"
+    },
+    "stream": {
+      "status": "unknown",
+      "reason": "No supported direct LAN/stdio control contract established by this metadata-only inspection"
+    },
+    "cancel": {
+      "status": "unknown",
+      "reason": "No supported direct LAN/stdio control contract established by this metadata-only inspection"
+    },
+    "permissions": {
+      "status": "unknown",
+      "reason": "No supported direct LAN/stdio control contract established by this metadata-only inspection"
+    },
+    "attachExistingGui": {
+      "status": "unknown",
+      "reason": "No supported direct LAN/stdio control contract established by this metadata-only inspection"
+    }
+  },
+  "version": "5.7.7",
+  "documentedCandidates": [
+    {
+      "url": "https://open.workbuddy.cn/docs/connector",
+      "scope": "Outbound MCP/CLI extensions"
+    },
+    {
+      "url": "https://open.workbuddy.cn/docs/openapi",
+      "scope": "Hosted OAuth local-assistant and cloud-task API; requires separate developer application authorization"
+    }
+  ],
+  "provenance": {
+    "source": "Locally captured during this run; original kept only on the execution machine.",
+    "originalFileName": "wb-inventory.json",
+    "originalSha256": "55803a9cf1c1cc6d10fd6ee5b6fb01ac055bcdbe7f523d380ef62d5f13275321",
+    "redaction": "The probe itself redacts the temporary home and the launcher path; verified free of machine-identifying paths before committing."
+  },
+  "runId": "win-20261023T165446Z",
+  "testedSourceSha": "da5eeeb37abbf2351fb9f843960db2cdf13e5da9"
+}
