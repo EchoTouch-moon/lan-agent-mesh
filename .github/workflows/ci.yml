@@ -52,3 +52,6 @@ jobs:
           if ($entry.Count -ne 1 -or $entry[0].sha256 -ne (Get-FileHash $entryPath -Algorithm SHA256).Hash.ToLowerInvariant()) {
             throw 'Bundled CLI metadata did not match the static fixture.'
           }
+      - name: Validate Windows native probe launcher
+        if: runner.os == 'Windows'
+        run: node scripts/check-windows-probe-runner.mjs

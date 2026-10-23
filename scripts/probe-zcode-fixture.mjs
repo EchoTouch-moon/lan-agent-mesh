@@ -9,7 +9,7 @@ import { rpcProcess } from './rpc-probe.mjs';
 const entry = process.env.LAM_ZCODE_ENTRY ?? '/Applications/ZCode.app/Contents/Resources/glm/zcode.cjs';
 const root = await mkdtemp(join(tmpdir(), 'lam-zcode-fixture-'));
 const inherited = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('ZCODE_')));
-const env = { ...inherited, HOME: root, XDG_CONFIG_HOME: root, XDG_DATA_HOME: root, ZCODE_DATA_BASE_DIR: root, ZCODE_STORAGE_DIR: join(root, 'storage'), ZCODE_SESSION_DB_PATH: join(root, 'sessions.sqlite'), ZCODE_LOG_DIR: join(root, 'logs') };
+const env = { ...inherited, HOME: root, ...(process.platform === 'win32' ? { USERPROFILE: root, APPDATA: join(root, 'appdata'), LOCALAPPDATA: join(root, 'localappdata') } : {}), XDG_CONFIG_HOME: root, XDG_DATA_HOME: root, ZCODE_DATA_BASE_DIR: root, ZCODE_STORAGE_DIR: join(root, 'storage'), ZCODE_SESSION_DB_PATH: join(root, 'sessions.sqlite'), ZCODE_LOG_DIR: join(root, 'logs') };
 const report = { harness: 'zcode', platform: process.platform, inference: 'localhost deterministic fixture; no external model', externalModelRequests: 0, fixtureRequests: 0, results: {} };
 let rpc; let mode = 'text'; let permissionIssued = false;
 const observed = []; const listeners = new Set();
@@ -35,7 +35,8 @@ const fixture = createServer(async (request, response) => {
     const tool = body.tools?.find(tool => /^(bash|shell)$/i.test(tool.function?.name ?? ''));
     if (tool) {
       permissionIssued = true;
-      const args = { command: `printf fixture > '${join(root, 'denied-marker')}'`, description: 'Exercise temporary permission denial fixture' };
+      const command = process.platform === 'win32' ? 'echo fixture > denied-marker' : `printf fixture > '${join(root, 'denied-marker')}'`;
+      const args = { command, description: 'Exercise temporary permission denial fixture' };
       delta({ tool_calls: [{ index: 0, id: 'call_lam_permission', type: 'function', function: { name: tool.function.name, arguments: JSON.stringify(args) } }] });
       delta({}, 'tool_calls'); response.end('data: [DONE]\n\n'); return;
     }

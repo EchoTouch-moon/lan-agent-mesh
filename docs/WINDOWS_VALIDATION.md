@@ -36,3 +36,22 @@ powershell.exe -NoProfile -File .\inspect-windows-harness-layout.ps1 -Applicatio
 ```
 
 本次布局采集仍不能代替真实接口测试。工程检查的 `lam-windows-validation.log` 也尚未收到，可一起回传。
+
+## Windows 原生接口验证包
+
+布局报告已收到：ZCode 的入口文件与 Mac 实测文件哈希相同，因此验证包复用现有测试；Windows 的依赖和运行行为仍需单独验证。WorkBuddy SDK 与 Mac 版不同，暂不启动。DSH 桌面版和命令行仍分别记录。
+
+1. 将 `lam-windows-native-probe.zip` 复制到 Windows 并全部解压。
+2. 在解压目录打开终端，确认 `node --version` 为 22 或 24，然后运行：
+
+```powershell
+node .\probe-windows-harnesses.mjs
+```
+
+它默认读取 `%TEMP%\lam-windows-harness-layout.json`。若布局文件已移动，可将完整路径作为第一个参数传入。不要直接运行压缩包内的文件。此包只用 Node 标准库，无需安装项目依赖。
+
+回传 `%TEMP%\lam-windows-native-probe.json`，即使报告包含 unknown 或失败也请保留。若尚未生成文件，请回传终端报错。报告可能包含安装路径，回传前可遮盖。
+
+ZCode 会创建专属临时目录与会话，向本机环回地址发送固定测试请求，验证发送/流式输出、进程重启恢复、执行中取消和原生权限拒绝；权限测试只申请在临时工作目录写入一个标记文件，并回答拒绝。若实现意外执行了该操作，影响限于临时目录，并记录为失败。DSH CLI 只运行版本检查与 ACP 新建/关闭/列出/恢复，无提示词或推理请求；旧版本不支持时记录失败或 unknown，不升级。桌面 GUI、现有聊天、用户配置和真实模型账户均不使用。WorkBuddy 与未定位的 Codex 保持 unknown。
+
+工程验证日志仍独立回传，不能由接口报告替代。

@@ -8,6 +8,7 @@ export function rpcProcess(command, args, env, cwd, options = {}) {
   child.stderr.resume();
   function fail(error) { for (const entry of pending.values()) { clearTimeout(entry.timer); entry.reject(error); } pending.clear(); }
   child.on('error', fail);
+  child.stdin.on('error', fail);
   child.on('exit', code => fail(new Error(`process exited (${code})`)));
   const lines = createInterface({ input: child.stdout });
   lines.on('line', line => {
