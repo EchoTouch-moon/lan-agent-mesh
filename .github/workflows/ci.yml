@@ -29,12 +29,26 @@ jobs:
         if: runner.os == 'Windows'
         shell: powershell
         run: |
-          foreach ($helperFile in @('scripts/verify-windows.ps1', 'scripts/inventory-windows-harnesses.ps1')) {
+          foreach ($helperFile in (Get-ChildItem scripts/*.ps1)) {
             $parseTokens = $null
             $parseErrors = $null
-            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $helperFile), [ref]$parseTokens, [ref]$parseErrors) | Out-Null
+            [System.Management.Automation.Language.Parser]::ParseFile($helperFile.FullName, [ref]$parseTokens, [ref]$parseErrors) | Out-Null
             if ($parseErrors.Count -gt 0) { throw ($parseErrors | Out-String) }
           }
           $reportPath = Join-Path $env:RUNNER_TEMP 'lam-harness-inventory.json'
           & ./scripts/inventory-windows-harnesses.ps1 -OutputPath $reportPath
           Get-Content -Raw -Encoding UTF8 $reportPath | ConvertFrom-Json | Out-Null
+          $layoutRoot = Join-Path $env:RUNNER_TEMP 'LAM layout fixture'
+          $glmRoot = Join-Path $layoutRoot 'resources/glm'
+          New-Item -ItemType Directory -Path $glmRoot -Force | Out-Null
+          $entryPath = Join-Path $glmRoot 'zcode.cjs'
+          Set-Content -LiteralPath $entryPath -Value 'throw new Error("Static fixture must never execute");' -Encoding UTF8
+          $layoutReport = Join-Path $env:RUNNER_TEMP 'lam-harness-layout.json'
+          & ./scripts/inspect-windows-harness-layout.ps1 -ApplicationRoot $layoutRoot -OutputPath $layoutReport
+          $layout = Get-Content -Raw -Encoding UTF8 $layoutReport | ConvertFrom-Json
+          $fixture = @($layout.installations | Where-Object { $_.root -eq $layoutRoot })
+          if ($fixture.Count -ne 1) { throw 'Explicit application root was not inspected.' }
+          $entry = @($fixture[0].files | Where-Object { $_.relativePath -eq 'resources\glm\zcode.cjs' })
+          if ($entry.Count -ne 1 -or $entry[0].sha256 -ne (Get-FileHash $entryPath -Algorithm SHA256).Hash.ToLowerInvariant()) {
+            throw 'Bundled CLI metadata did not match the static fixture.'
+          }

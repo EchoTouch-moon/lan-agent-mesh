@@ -8,7 +8,11 @@ Evidence date: 2026-10-23. `verified` means the specific local probe succeeded. 
 | DSH 0.1.5-rc.1 / darwin arm64 | verified (ACP) | verified after process restart | verified with localhost fixture | verified during in-flight fixture request | verified native request + reject_once | unknown |
 | ZCode desktop 3.16.2 / bundled CLI 0.17.0 / darwin arm64 | verified after client preference reply | verified persisted turn after process restart | verified with localhost fixture | verified during in-flight fixture request | verified native request + deny in build mode | unknown |
 | WorkBuddy desktop 5.8.3 / darwin arm64 | unknown | unknown | documented cloud message API / not exercised | unknown | unknown | unknown |
-| Windows / unavailable in this environment | unknown | unknown | unknown | unknown | unknown | unknown |
+| DSH CLI 0.1.1-rc.2 / Windows AMD64 | unknown | unknown | unknown | unknown | unknown | unknown |
+| DSH desktop 0.2.1-rc.2 / Windows AMD64 | unknown | unknown | unknown | unknown | unknown | unknown |
+| ZCode desktop 3.16.2 / Windows AMD64 | unknown | unknown | unknown | unknown | unknown | unknown |
+| WorkBuddy desktop 5.7.7 / Windows AMD64 | unknown | unknown | unknown | unknown | unknown | unknown |
+| Codex / Windows (not found on PATH) | unknown | unknown | unknown | unknown | unknown | unknown |
 
 Desktop apps were found at /Applications/ZCode.app and /Applications/WorkBuddy.app after the user supplied their location. Their launchers are not on PATH. See [desktop metadata](evidence/desktop-apps-darwin.json). No GUI conversations were read, modified or attached by these probes. MCP outbound is separate from controlled inbound; no outbound MCP call was exercised for any harness.
 
@@ -44,6 +48,12 @@ Desktop apps were found at /Applications/ZCode.app and /Applications/WorkBuddy.a
 - [WorkBuddy connectors](https://open.workbuddy.cn/docs/connector) and [Open API](https://open.workbuddy.cn/docs/openapi).
 - [DeepSeek Harness upstream](https://github.com/deepseek-ai/deepseek-harness): official project identity. For version-specific ACP behavior this investigation used the READMEs shipped with the installed 0.1.5-rc.1 package (`node_modules/@deepseek-ai/dsh-acp/README.md` and `dsh-acp-app/README.md` under the dsh installation), rather than assuming upstream HEAD equals the installed version.
 
+## User Windows installation inventory
+
+The user returned the inventory captured at 2026-10-23T14:58:05Z on Windows AMD64 (OS build 22621). [Sanitized evidence](evidence/harness-inventory-win32.json) preserves the original SHA-256 and versions while redacting installation paths. DSH CLI 0.1.1-rc.2 and desktop 0.2.1-rc.2 are separate observed installations; neither can inherit the Mac CLI 0.1.5-rc.1 ACP result. ZCode desktop 3.16.2 matches the Mac desktop version, but its Windows bundled CLI version and framing remain untested. WorkBuddy 5.7.7 differs from Mac 5.8.3. Codex was not found on PATH; this does not prove it is absent.
+
+The inventory does not establish create/resume/send/stream/cancel/permission or GUI-attachment support. The next static layout helper inspects bounded installation directories inferred from uninstall registry entries, including DisplayIcon/UninstallString paths, without executing those commands. It records potential bundled entry files and DSH npm package versions; it does not run these files. See [Windows guide](WINDOWS_VALIDATION.md). The separate full-project Windows validation log is still pending.
+
 ## Remaining LAM-01 verification
 
-LAM-01 remains partial pending Windows installation-specific evidence. The Mac feasibility result is now: Codex, DSH and ZCode can be driven through their own native stdio interfaces; WorkBuddy direct inbound control remains unknown and the supported outbound/hosted candidates are recorded. Existing-GUI attachment also remains unknown. Actual paid-provider account access, model quality and production human authorization are separate from this interface-feasibility test; they are not prerequisites for the offline P0 foundation. Their installed app versions and documented candidate interfaces are now identified. Existing-GUI attachment remains unknown until a supported native interface and an explicit controlled test establish it. No current evidence permits advertising those features as verified or closing LAM-01.
+LAM-01 remains partial: Windows installation inventory is recorded, but Windows native control probes remain pending. The Mac feasibility result is now: Codex, DSH and ZCode can be driven through their own native stdio interfaces; WorkBuddy direct inbound control remains unknown and the supported outbound/hosted candidates are recorded. Existing-GUI attachment also remains unknown. Actual paid-provider account access, model quality and production human authorization are separate from this interface-feasibility test; they are not prerequisites for the offline P0 foundation. Their installed app versions and documented candidate interfaces are now identified. Existing-GUI attachment remains unknown until a supported native interface and an explicit controlled test establish it. No current evidence permits advertising those features as verified or closing LAM-01.
