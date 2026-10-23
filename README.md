@@ -2,7 +2,7 @@
 
 **A peer-to-peer local network for existing AI agent harnesses.** Discover, wake, message and delegate work across macOS and Windows while keeping each harness and machine's native execution permissions.
 
-> **Status: P0 merged; P1 Mac implementation ready for validation/review.** The P1 branch adds SQLite state, human-confirmed pairing, encrypted TCP/Noise/Yamux peers and a real Gateway process with Mock routing. Windows hardware work is [separated for later execution](docs/P1_WINDOWS_TASKS.md). Real Harness adapters/MCP and production approval UI remain P2/P3. See [P1 progress](docs/P1_PROGRESS.md).
+> **Status: P0 merged; P1 Mac implementation verified and ready for review.** The P1 branch adds SQLite state, human-confirmed pairing, encrypted TCP/Noise/Yamux peers and a real Gateway process with Mock routing. Windows hardware work is [separated for later execution](docs/P1_WINDOWS_TASKS.md). Real Harness adapters/MCP and production approval UI remain P2/P3. See [P1 progress](docs/P1_PROGRESS.md).
 
 ## Goal
 

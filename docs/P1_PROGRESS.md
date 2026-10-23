@@ -39,3 +39,21 @@ Before marking Mac work delivered: capture pnpm check plus independent-process a
 ## Mac evidence
 
 [mac-20261023T195045Z](evidence/p1/mac-20261023T195045Z/SUMMARY.md) records clean source 4714ed9, full checks (36 tests), independent-process bidirectional/crash/identity tests, and observed local mDNS. Both helpers exited successfully and removed their owned state/listeners. Implementation and separated Windows pack are published in [PR #38](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/38). Hosted cross-platform checks are inspected separately; physical Mac↔Windows gates remain pending by user request.
+
+## Mac delivery audit (2026-10-24)
+
+Mac-local work is complete and reviewable. [CI 40014756437](https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40014756437) on bf2c0bc passed all four macOS/Windows × Node22/24 jobs, including the independent Gateway process smoke. This proves hosted single-machine portability and does not replace physical Windows or Mac↔Windows tests. No real Harness/native account experiment is pending for this P1 Mac scope.
+
+| Task | Mac implementation and acceptance evidence | Deferred Windows gate |
+|---|---|---|
+| LAM-07 | SQLite migration, transaction rollback, reopen, unique key and UNKNOWN recovery tests | W1 physical filesystem validation |
+| LAM-08 | Actual Gateway process, authenticated loopback control, directory/port conflicts, graceful stop | W1 on user's Windows machine |
+| LAM-09 | Actual local mDNS observed; manual connection used by encrypted peer tests; expiry bounded | W2 Windows multicast and W3 cross-system discovery |
+| LAM-10 | Two-sided session/code confirmation, identity pinning, expiry, revocation and rotation tests | W3 independent human comparison on both physical devices |
+| LAM-11 | Real TCP/Noise/Yamux, encrypted frames, plaintext/oversize negatives, pinned reconnect | W3 actual LAN behavior |
+| LAM-12 | Export filtering, capability intersection, stale/offline/change invalidation | W3 physical registry exchange |
+| LAM-13 | Durable ACK/outbox retry, deduplication, crash UNKNOWN, budgets and cancel | W3 physical partition/retry observations |
+| LAM-14 | Persisted gateway/adapter/native mapping, busy protection, surviving-adapter resume and lost-Mock fail-closed | W3 physical session observations |
+| LAM-15 | Two independent processes, both directions, exact fixture output, crash/restart/no replay | W1/W2/W3 required before whole-P1 hardware acceptance |
+
+The user intentionally deferred these Windows gates. They are published in Issue #15 with source, safe commands and result contract, and do not block delivery of the requested Mac work. PR #38 remains unmerged for review; P1 issues stay open, and overall cross-platform P1 acceptance is not claimed. No persistent test listener is left on this Mac.
