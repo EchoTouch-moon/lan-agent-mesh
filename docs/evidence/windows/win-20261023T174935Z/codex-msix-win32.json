@@ -1,0 +1,122 @@
+{
+  "harness": "codex-windows-msix",
+  "platform": "win32",
+  "launchedApp": false,
+  "readUserConfiguration": false,
+  "findings": {
+    "package": {
+      "name": "OpenAI.Codex",
+      "version": "26.825.6671.0",
+      "packageFamilyName": "OpenAI.Codex_2p2nqsd0c76g0",
+      "publisher": "2p2nqsd0c76g0",
+      "architecture": 9,
+      "installLocation": "[MSIX_PACKAGES_ROOT]\\OpenAI.Codex_26.825.6671.0_x64__2p2nqsd0c76g0"
+    },
+    "manifestApplications": [
+      {
+        "entryPoint": null,
+        "aliases": []
+      },
+      {
+        "entryPoint": null,
+        "aliases": []
+      }
+    ],
+    "topLevelEntries": [
+      {
+        "name": "app",
+        "kind": "directory"
+      },
+      {
+        "name": "AppxBlockMap.xml",
+        "kind": "file"
+      },
+      {
+        "name": "AppxManifest.xml",
+        "kind": "file"
+      },
+      {
+        "name": "AppxMetadata",
+        "kind": "directory"
+      },
+      {
+        "name": "AppxSignature.p7x",
+        "kind": "file"
+      },
+      {
+        "name": "assets",
+        "kind": "directory"
+      },
+      {
+        "name": "microsoft.system.package.metadata",
+        "kind": "directory"
+      },
+      {
+        "name": "priconfig.xml",
+        "kind": "file"
+      },
+      {
+        "name": "resources.language-is-url.pri",
+        "kind": "file"
+      },
+      {
+        "name": "resources.language-is.pri",
+        "kind": "file"
+      },
+      {
+        "name": "resources.language-ms.pri",
+        "kind": "file"
+      },
+      {
+        "name": "resources.language-no.pri",
+        "kind": "file"
+      },
+      {
+        "name": "resources.pri",
+        "kind": "file"
+      },
+      {
+        "name": "resources.scale-200.pri",
+        "kind": "file"
+      }
+    ],
+    "executableNames": [
+      "app/ChatGPT.exe",
+      "app/chrome_proxy.exe",
+      "app/chrome_pwa_launcher.exe",
+      "app/Codex.exe",
+      "app/elevated_tracing_service.exe",
+      "app/elevation_service.exe",
+      "app/notification_helper.exe"
+    ],
+    "cliCandidates": [
+      "app/Codex.exe"
+    ],
+    "codexExecutableVersion": {
+      "ProductName": null,
+      "ProductVersion": null,
+      "FileVersion": null,
+      "FileDescription": null
+    }
+  },
+  "capabilityStatus": {
+    "create": "unknown",
+    "resume": "unknown",
+    "send": "unknown",
+    "stream": "unknown",
+    "cancel": "unknown",
+    "permissions": "unknown",
+    "attachExistingGui": "unknown"
+  },
+  "conclusion": "Static package metadata only. Whether this MSIX exposes a standalone Codex CLI or app-server stdio entry is determined by the manifest applications/extensions and executable names recorded above; nothing was launched. All control capabilities remain unknown until a supported interface is exercised.",
+  "provenance": {
+    "source": "Locally captured during this run; original kept only on the execution machine.",
+    "originalFileName": "codex-msix2.json",
+    "originalSha256": "4572ced0d6e34f261da76d940b54fa974aaf8f6b6923570426afdda6d6bf16ba",
+    "redaction": "The probe self-redacts the temporary home, launcher path and MSIX install root; verified free of machine-identifying paths before committing."
+  },
+  "runId": "win-20261023T174935Z",
+  "executedSourceSha": "a0818d847483871ba3a18cf33607a4753fa4c2da",
+  "probeScript": "scripts/probe-codex-msix-win.mjs",
+  "probeScriptSha256": "430b922ad6fd237520ce7d9afeae592e52bd41020d10c2d12cbe5f997afa419a"
+}
