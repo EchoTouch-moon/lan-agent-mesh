@@ -28,9 +28,11 @@ let mode = 'text'; let rpc; let notifyHeld; let permissionStage = 0;
 const notifications = [];
 
 const fixture = createServer(async (request, response) => {
-  if (request.method !== 'POST' || !request.url?.endsWith('/chat/completions')) { response.writeHead(404).end(); return; }
   let raw = ''; for await (const chunk of request) raw += chunk;
-  let body; try { body = JSON.parse(raw); } catch { response.writeHead(400).end(); return; }
+  let body; try { body = JSON.parse(raw); } catch { body = null; }
+  report.requestLog ??= [];
+  if (report.requestLog.length < 10) report.requestLog.push({ method: request.method, url: request.url, bodyKeys: body ? Object.keys(body) : null, stream: body?.stream ?? null, model: body?.model ?? null, tools: body?.tools?.map(tool => tool.function?.name ?? tool.name) ?? null });
+  if (request.method !== 'POST' || !request.url?.endsWith('/chat/completions')) { response.writeHead(404).end(); return; }
   report.fixtureRequests++;
   response.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-cache' });
   const delta = (value, finish = null) => response.write(`data: ${JSON.stringify({ id: 'chatcmpl-lam-fixture', object: 'chat.completion.chunk', created: 0, model: 'deepseek-v4-flash', choices: [{ index: 0, delta: value, finish_reason: finish }] })}\n\n`);
