@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join, win32 } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { pathToFileURL } from 'node:url';
 import { rpcProcess } from './rpc-probe.mjs';
 import { redactProbeText } from './probe-diagnostics.mjs';
 import { windowsCmdLauncher } from './windows-cmd-launcher.mjs';
@@ -33,7 +34,7 @@ const report = { harness: 'dsh-desktop', platform: process.platform, launcherKin
 function redact(text) {
   const installRoot = win32.resolve(win32.dirname(launcher), '../../../..');
   let value = String(text);
-  const aliases = ['file:///' + installRoot.replaceAll('\\', '/'), installRoot, installRoot.replaceAll('\\', '/')];
+  const aliases = [pathToFileURL(installRoot).href, 'file:///' + installRoot.replaceAll('\\', '/'), installRoot, installRoot.replaceAll('\\', '/')];
   for (const path of aliases) value = value.replaceAll(JSON.stringify(path).slice(1, -1), '[DSH_DESKTOP_INSTALL_ROOT]').replaceAll(path, '[DSH_DESKTOP_INSTALL_ROOT]');
   return redactProbeText(value, root);
 }

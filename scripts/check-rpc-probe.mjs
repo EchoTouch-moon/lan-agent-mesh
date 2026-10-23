@@ -4,6 +4,7 @@ import { redactProbeText, startupLogSummary } from './probe-diagnostics.mjs';
 import { tmpdir } from 'node:os';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const code = `
 process.stderr.write('x'.repeat(10000) + ' startup diagnostic');
@@ -41,6 +42,8 @@ try {
   assert.deepEqual(JSON.parse(redacted), { text: '<probe-or-user-home> <redacted> Bearer <redacted>' });
 } finally { if (prior === undefined) delete process.env[secretName]; else process.env[secretName] = prior; }
 const logs = await mkdtemp(join(tmpdir(), 'lam-diagnostic-log-check-'));
+const encodedRoot = join(tmpdir(), 'LAM percent encoded space');
+assert.equal(redactProbeText(pathToFileURL(encodedRoot).href + '/trace.json', encodedRoot), '<probe-or-user-home>/trace.json');
 try {
   await writeFile(join(logs, 'startup.jsonl'), [
     { event: 'zcode_protocol.session_create.started', level: 'info', message: 'Creating sess_12345678-1234-1234-1234-123456789abc', sessionId: 'do-not-copy', context: { prompt: 'do-not-copy', apiKey: 'do-not-copy' } },

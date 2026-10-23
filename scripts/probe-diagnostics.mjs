@@ -1,12 +1,13 @@
 import { open, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 export function redactProbeText(value, temporaryRoot) {
   let text = String(value);
   const paths = [temporaryRoot, process.env.USERPROFILE, process.env.HOME].filter(Boolean);
   const secrets = Object.entries(process.env).filter(([key, value]) => /key|token|password|secret|authorization|cookie/i.test(key) && value?.length >= 6).map(([, value]) => value);
   for (const path of paths) {
-    text = text.replaceAll(path, '<probe-or-user-home>').replaceAll(JSON.stringify(path).slice(1, -1), '<probe-or-user-home>');
+    text = text.replaceAll(pathToFileURL(path).href, '<probe-or-user-home>').replaceAll(path, '<probe-or-user-home>').replaceAll(JSON.stringify(path).slice(1, -1), '<probe-or-user-home>');
   }
   for (const secret of secrets) text = text.replaceAll(secret, '<redacted>');
   return text.replace(/(Bearer\s+)[\w.-]+/gi, '$1<redacted>')
