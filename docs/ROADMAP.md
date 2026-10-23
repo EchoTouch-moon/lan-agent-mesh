@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-P0 foundation code was merged in PR #33. The macOS/Windows feasibility evidence is reviewed, with unsupported or untested interfaces explicitly bounded; Windows follow-up integration is consolidated in PR #37. See the [acceptance audit](P0_ACCEPTANCE.md) and [P0 progress](P0_PROGRESS.md). P1 onward remains planned.
+P0 foundation code was merged in PR #33. The macOS/Windows feasibility evidence is reviewed, with unsupported or untested interfaces explicitly bounded; Windows follow-up integration was merged in PR #37. See the [acceptance audit](P0_ACCEPTANCE.md) and [P0 progress](P0_PROGRESS.md). P1 onward remains planned.
 
 | Phase | Deliverable | Planned IDs | Exit criteria |
 |---|---|---|---|

@@ -2,7 +2,7 @@
 
 **A peer-to-peer local network for existing AI agent harnesses.** Discover, wake, message and delegate work across macOS and Windows while keeping each harness and machine's native execution permissions.
 
-> **Status: P0 foundation merged; Windows evidence reviewed, with cumulative integration in [PR #37](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/37).** Domain schemas, protocol v1, Adapter SDK and a deterministic mock are available. P2P transport, real harness adapters and a working network Gateway are still planned. See [P0 progress](docs/P0_PROGRESS.md).
+> **Status: P0 foundation and reviewed Windows evidence merged in [PR #37](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/37).** Domain schemas, protocol v1, Adapter SDK and a deterministic mock are available. P2P transport, real harness adapters and a working network Gateway are still planned. See [P0 progress](docs/P0_PROGRESS.md).
 
 ## Goal
 

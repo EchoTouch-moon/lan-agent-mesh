@@ -105,4 +105,4 @@ The Windows LM run `win-20261023T190428Z` (claim: [#1 (comment)](https://github.
 
 The fourth-run [Mac review](evidence/windows/win-20261023T190428Z/REVIEW.md) accepts both targeted retests. The version-specific matrix and explicit unknowns satisfy the feasibility evidence criteria; unknown never grants a capability. Windows DSH desktop and ZCode have fixed-response control-chain evidence. Windows Codex, WorkBuddy inbound and existing-GUI attachment remain unknown; no further native experiment is scheduled. The earlier ZCode timeout cause remains unresolved. Real account access and production authorization are outside these probes.
 
-PRs #34–#37 share ancestry and overlap; they are not independent changes that can be merged in arbitrary order. The reviewed evidence and follow-up probes still require integration into main. No merge or parent-issue closure was performed.
+PRs #34–#37 share ancestry and overlap; they are not independent changes that can be merged in arbitrary order. The reviewed evidence and follow-up probes were integrated into main through PR #37 (merge 58a1f8d88c96b93a54cdd7af536875039f286992) after explicit user authorization.

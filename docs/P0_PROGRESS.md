@@ -1,6 +1,6 @@
 # P0 implementation record
 
-Updated 2026-10-24. The P0 foundation was merged in [PR #33](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/33), merge commit 31bde708511e1d902b5aa892c3303221250c9381 on 2026-10-23. Later Windows probes, diagnostics and GitHub handoff commits remain on feat/p0-foundation; [cumulative integration PR #37](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/37) includes those commits and all four reviewed Windows runs, targeting main; it is not merged. GitHub Issues remain open.
+Updated 2026-10-24. The P0 foundation was merged in [PR #33](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/33), merge commit 31bde708511e1d902b5aa892c3303221250c9381 on 2026-10-23. Later Windows probes, diagnostics and GitHub handoff commits were integrated by PR #37; [cumulative integration PR #37](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/37) includes those commits and all four reviewed Windows runs, merged to main at 58a1f8d88c96b93a54cdd7af536875039f286992 after explicit user authorization.
 
 ## Delivered locally
 
@@ -30,7 +30,7 @@ ZCode desktop 3.16.3 / CLI 0.17.0 passed create (3609 ms), fixed loopback send/s
 
 DSH CLI 0.1.1-rc.2 lacks ACP in its isolated default distribution; this is not Windows incompatibility. Desktop 0.2.1-rc.2 separately passed metadata lifecycle and fixed-response send/stream/restart-resume/in-flight-cancel/native reject_once. The [fourth-run review](evidence/windows/win-20261023T190428Z/REVIEW.md) accepts the corrected four-factor denied-write check and complete MSIX static projection. Windows Codex remains unknown: app/Codex.exe exists but is not registered as an application/alias in the inspected manifest; that does not establish its executable role. WorkBuddy inbound and existing-GUI attachment remain unknown and grant no dispatch capability. These bounded unknowns satisfy LAM-01's explicit unknown-reporting requirement; no additional Windows experiment is pending. WorkBuddy hosted OAuth remains an optional future candidate.
 
-[Mac-side review](evidence/windows/win-20261023T161616Z/REVIEW.md) checks source/version/hash/result consistency and the evidence-only diff. A remaining installation prefix in stderr was redacted while retaining the supplied original-file hash. This review does not rerun Windows native interfaces from macOS. PR #34 and the later research commits still need integration into main; no merge or parent-issue closure was performed by this review.
+[Mac-side review](evidence/windows/win-20261023T161616Z/REVIEW.md) checks source/version/hash/result consistency and the evidence-only diff. A remaining installation prefix in stderr was redacted while retaining the supplied original-file hash. This review does not rerun Windows native interfaces from macOS. The historical review did not merge or close tasks; subsequent user-authorized integration was completed through PR #37.
 
 ## Boundaries
 
@@ -38,4 +38,4 @@ P1 network transport, durable execution/replay records and pairing, P2 real adap
 
 ## Acceptance and integration
 
-[Requirement-by-requirement audit](P0_ACCEPTANCE.md) maps LAM-01..06 to implementation, tests and evidence. PR #37 is the cumulative integration route to main and contains #34/#35/#36 by ancestry. Existing evidence PRs need no independent patch application. No P1 work or new native experiment is included.
+[Requirement-by-requirement audit](P0_ACCEPTANCE.md) maps LAM-01..06 to implementation, tests and evidence. PR #37 is merged into main and contains #34/#35/#36 by ancestry. Existing evidence PRs need no independent patch application. No P1 work or new native experiment is included.
