@@ -1,0 +1,156 @@
+{
+  "harness": "codex-windows-msix",
+  "platform": "win32",
+  "launchedApp": false,
+  "readUserConfiguration": false,
+  "findings": {
+    "package": {
+      "name": "OpenAI.Codex",
+      "version": "26.825.6671.0",
+      "packageFamilyName": "OpenAI.Codex_2p2nqsd0c76g0",
+      "publisher": "2p2nqsd0c76g0",
+      "architecture": 9,
+      "installLocation": "[MSIX_INSTALL_ROOT]"
+    },
+    "manifestApplications": [
+      {
+        "id": "App",
+        "executable": "app/ChatGPT.exe",
+        "entryPoint": "Windows.FullTrustApplication",
+        "extensions": [
+          {
+            "category": "windows.comServer",
+            "executable": "",
+            "entryPoint": "",
+            "aliases": []
+          },
+          {
+            "category": "windows.fileExplorerContextMenus",
+            "executable": "",
+            "entryPoint": "",
+            "aliases": []
+          },
+          {
+            "category": "windows.protocol",
+            "executable": "",
+            "entryPoint": "",
+            "aliases": []
+          },
+          {
+            "category": "windows.fileTypeAssociation",
+            "executable": "",
+            "entryPoint": "",
+            "aliases": []
+          },
+          {
+            "category": "windows.fileTypeAssociation",
+            "executable": "",
+            "entryPoint": "",
+            "aliases": []
+          }
+        ]
+      }
+    ],
+    "manifestProjectionStatus": "verified-statically",
+    "topLevelEntries": [
+      {
+        "name": "app",
+        "kind": "directory"
+      },
+      {
+        "name": "AppxBlockMap.xml",
+        "kind": "file"
+      },
+      {
+        "name": "AppxManifest.xml",
+        "kind": "file"
+      },
+      {
+        "name": "AppxMetadata",
+        "kind": "directory"
+      },
+      {
+        "name": "AppxSignature.p7x",
+        "kind": "file"
+      },
+      {
+        "name": "assets",
+        "kind": "directory"
+      },
+      {
+        "name": "microsoft.system.package.metadata",
+        "kind": "directory"
+      },
+      {
+        "name": "priconfig.xml",
+        "kind": "file"
+      },
+      {
+        "name": "resources.language-is-url.pri",
+        "kind": "file"
+      },
+      {
+        "name": "resources.language-is.pri",
+        "kind": "file"
+      },
+      {
+        "name": "resources.language-ms.pri",
+        "kind": "file"
+      },
+      {
+        "name": "resources.language-no.pri",
+        "kind": "file"
+      },
+      {
+        "name": "resources.pri",
+        "kind": "file"
+      },
+      {
+        "name": "resources.scale-200.pri",
+        "kind": "file"
+      }
+    ],
+    "executableNames": [
+      "app/ChatGPT.exe",
+      "app/chrome_proxy.exe",
+      "app/chrome_pwa_launcher.exe",
+      "app/Codex.exe",
+      "app/elevated_tracing_service.exe",
+      "app/elevation_service.exe",
+      "app/notification_helper.exe"
+    ],
+    "cliCandidates": [
+      "app/Codex.exe"
+    ],
+    "codexExecutableFile": {
+      "relativePath": "app/Codex.exe",
+      "bytes": 1105200,
+      "sha256": "8f624c53c38a44a973460a127e5338b84f32c4a2423d705330835e12fea9bdd0"
+    },
+    "codexExecutableVersion": {
+      "ProductName": null,
+      "ProductVersion": null,
+      "FileVersion": null,
+      "FileDescription": null
+    }
+  },
+  "capabilityStatus": {
+    "create": "unknown",
+    "resume": "unknown",
+    "send": "unknown",
+    "stream": "unknown",
+    "cancel": "unknown",
+    "permissions": "unknown",
+    "attachExistingGui": "unknown"
+  },
+  "conclusion": "Static package metadata and candidate executable names only; these cannot establish a CLI or app-server contract. Nothing was launched. All control capabilities remain unknown until a supported interface is exercised.",
+  "provenance": {
+    "source": "Locally captured during this run; original kept only on the execution machine.",
+    "originalFileName": "codex-msix-r4.json",
+    "originalSha256": "85eacf3ab384f101f4feda4889cde273265e65e26038503e0af5f4a90bab8b4d",
+    "redaction": "The probe self-redacts the temporary home, launcher path and MSIX install root; verified free of machine-identifying paths before committing."
+  },
+  "runId": "win-20261023T190428Z",
+  "executedSourceSha": "4f17ff0bfe1dfa1bb4eb86d554a7afd4b4c4d910",
+  "probeScript": "scripts/probe-codex-msix-win.mjs"
+}

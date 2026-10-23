@@ -1,0 +1,45 @@
+{
+  "runId": "win-20261023T190428Z",
+  "startedUtc": "2026-10-23T19:04:28Z",
+  "endedUtc": "2026-10-23T19:25:00Z",
+  "claimComment": "https://github.com/EchoTouch-moon/lan-agent-mesh/issues/1#issuecomment-6372605613",
+  "repository": "EchoTouch-moon/lan-agent-mesh",
+  "workBranch": "windows/p0-followup3-win-20261023T190428Z",
+  "branchBase": "windows/p0-followup2-win-20261023T174935Z @ 4f17ff0 (round-3 review head carrying the corrected probes); PR base remains feat/p0-foundation",
+  "executedSourceSha": "4f17ff0bfe1dfa1bb4eb86d554a7afd4b4c4d910",
+  "processNote": "Targeted re-verification only, per round-3 REVIEW.md remaining tasks. The probes were corrected and committed by the Mac-side review before this run; no probe source was modified in this round. send/stream/resume/cancel, engineering and ZCode were not repeated.",
+  "scope": [
+    "LAM_DSH_FIXTURE_SCOPE=permissions: DSH desktop permissions path with the strict four-element contract (probe-owned positive control write, native reject_once, read-only sandbox denial observed, denied marker absent).",
+    "Corrected MSIX manifest projection: explicit XML attributes, namespace-aware ExecutionAlias traversal, candidate executable size/hash."
+  ],
+  "executionMachine": {
+    "platform": "win32",
+    "operatingSystem": "Microsoft Windows NT 10.0.22621.0",
+    "architecture": "AMD64",
+    "node": "v24.12.0"
+  },
+  "harnessVersions": {
+    "dshDesktop": "0.2.1-rc.2 (bundled headless CLI; unchanged since round 2)",
+    "codexMsix": "OpenAI.Codex 26.825.6671.0"
+  },
+  "commandExitCodes": {
+    "node scripts/probe-dsh-desktop-fixture.mjs (scope=permissions)": 0,
+    "node scripts/probe-codex-msix-win.mjs": 0
+  },
+  "evidence": [
+    "docs/evidence/windows/win-20261023T190428Z/SUMMARY.md",
+    "docs/evidence/windows/win-20261023T190428Z/run-metadata.json",
+    "docs/evidence/windows/win-20261023T190428Z/dsh-desktop-permissions-r4.json",
+    "docs/evidence/windows/win-20261023T190428Z/codex-msix-win32-r4.json"
+  ],
+  "originalsKeptLocal": [
+    { "file": "%TEMP%/dsh-perm-r4.json", "sha256": "recorded in dsh-desktop-permissions-r4.json provenance" },
+    { "file": "%TEMP%/codex-msix-r4.json", "sha256": "recorded in codex-msix-win32-r4.json provenance" }
+  ],
+  "redactionScope": "Probe outputs self-redact temporary homes, the desktop launcher path and the MSIX install root, and were verified free of machine-identifying paths before committing. The MSIX inspection read package metadata, manifest attributes, file names and one candidate executable's size/hash; nothing was launched and no user data was read.",
+  "constraintsHeld": [
+    "Only the permissions scope ran against the DSH desktop; no send/stream/resume/cancel repetition, no GUI launch, no external model (loopback fixture only).",
+    "The probe-owned positive control wrote and removed its own marker inside the disposable home; it is not a harness permission grant.",
+    "Codex.exe was not executed; its nature remains unestablished."
+  ]
+}
