@@ -1,0 +1,52 @@
+{
+  "harness": "zcode",
+  "platform": "darwin",
+  "inference": "localhost deterministic fixture; no external model",
+  "externalModelRequests": 0,
+  "fixtureRequests": 4,
+  "results": {
+    "create": {
+      "status": "verified"
+    },
+    "send": {
+      "status": "verified",
+      "eventType": "turn.completed",
+      "resultType": "success"
+    },
+    "stream": {
+      "status": "verified",
+      "matchingFixtureText": true,
+      "textDeltaCount": 1
+    },
+    "resume": {
+      "status": "verified",
+      "afterProcessRestart": true,
+      "retainsFixtureText": true,
+      "messageCount": 3
+    },
+    "cancel": {
+      "status": "verified",
+      "eventType": "turn.completed",
+      "resultType": "cancelled",
+      "inFlightFixtureRequest": true
+    },
+    "permissions": {
+      "status": "verified",
+      "nativeRequestMethod": "interaction/requestPermission",
+      "decision": "deny"
+    },
+    "permissionTurn": {
+      "eventType": "turn.completed",
+      "resultType": "success"
+    },
+    "deniedOperation": {
+      "status": "verified",
+      "markerCreated": false
+    },
+    "attachExistingGui": {
+      "status": "unknown",
+      "reason": "Only this probe-owned App Server session was controlled"
+    }
+  },
+  "version": "0.17.0"
+}

@@ -1,0 +1,46 @@
+{
+  "harness": "dsh",
+  "platform": "darwin",
+  "inference": "localhost deterministic fixture; no external model",
+  "externalModelRequests": 0,
+  "fixtureRequests": 5,
+  "results": {
+    "send": {
+      "status": "verified",
+      "stopReason": "end_turn"
+    },
+    "stream": {
+      "status": "verified",
+      "matchingFixtureText": true,
+      "observedUpdateTypes": [
+        "agent_message_chunk"
+      ]
+    },
+    "resume": {
+      "status": "verified",
+      "acceptedOriginalSessionIdAfterProcessRestart": true
+    },
+    "cancel": {
+      "status": "verified",
+      "stopReason": "cancelled",
+      "inFlightFixtureRequest": true
+    },
+    "permissions": {
+      "status": "verified",
+      "nativeRequestMethod": "session/request_permission",
+      "decision": "reject_once"
+    },
+    "permissionTurn": {
+      "stopReason": "end_turn"
+    },
+    "deniedOperation": {
+      "status": "verified",
+      "markerCreated": false
+    },
+    "attachExistingGui": {
+      "status": "unknown",
+      "reason": "Only this probe-owned ACP session was controlled"
+    }
+  },
+  "version": "0.1.5-rc.1"
+}

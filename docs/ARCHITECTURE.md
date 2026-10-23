@@ -1,6 +1,6 @@
 # LAN Agent Mesh Architecture
 
-Status: design proposal (not implemented).
+Status: target architecture. P0 domain/protocol/adapter/mock contracts are implemented locally; network Gateway components remain planned. See [ADR 0001](adr/0001-p0-contracts.md).
 
 ## Vision
 Each macOS/Windows machine runs an identical Gateway with peer-to-peer capabilities. Local harness adapters register Agents and Gateway-managed Sessions. Each node may discover, call, or delegate work to a paired node. No central coordinator is required on the LAN.

@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-Everything below is planned; no feature is implemented by these documents.
+P0 foundation code and its macOS/Windows hosted CI checks are implemented and passing in draft PR #33; the full version-specific Harness feasibility matrix remains partial. P1 onward remains planned. See [P0 progress](P0_PROGRESS.md).
 
 | Phase | Deliverable | Planned IDs | Exit criteria |
 |---|---|---|---|

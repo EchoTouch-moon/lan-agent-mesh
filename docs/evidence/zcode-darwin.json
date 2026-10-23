@@ -1,0 +1,78 @@
+{
+  "harness": "zcode",
+  "platform": "darwin",
+  "modelRequests": 0,
+  "results": {
+    "help": {
+      "status": "verified",
+      "advertisesAppServer": true,
+      "advertisesResume": true
+    },
+    "isolatedProviderPaths": {
+      "status": "configured",
+      "reason": "Bundled CLI default lookup misses the app Resources/config directory; use a disposable copy of the shipped builtin config."
+    },
+    "runtimeCapabilities": {
+      "status": "verified",
+      "response": {
+        "independentPlanState": true,
+        "historyFirst": true
+      }
+    },
+    "runtimePreferences": {
+      "status": "verified",
+      "repliedWithOptionalFeaturesDisabled": true
+    },
+    "create": {
+      "status": "verified",
+      "responseKeys": [
+        "messages",
+        "projection",
+        "protocol",
+        "runtime",
+        "session",
+        "settings",
+        "slashCommands",
+        "todos",
+        "todoGroups"
+      ],
+      "acceptedRequestedSessionId": true
+    },
+    "close": {
+      "status": "verified"
+    },
+    "sessionLifecycle": {
+      "status": "unknown",
+      "reason": "RPC -32004: Session not found: <session-id>"
+    },
+    "resume": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    },
+    "send": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    },
+    "stream": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    },
+    "cancel": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    },
+    "permissions": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    },
+    "attachExistingGui": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    }
+  },
+  "version": "0.17.0",
+  "observedServerMethods": [
+    "startup/storageState",
+    "session/requestRuntimePreferences"
+  ]
+}

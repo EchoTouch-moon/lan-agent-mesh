@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@lam/domain": [
+        "packages/domain/src/index.ts"
+      ],
+      "@lam/protocol": [
+        "packages/protocol/src/index.ts"
+      ],
+      "@lam/adapter-sdk": [
+        "packages/adapter-sdk/src/index.ts"
+      ],
+      "@lam/mock-adapter": [
+        "packages/mock-adapter/src/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "packages/*/src/**/*.ts",
+    "packages/*/test/**/*.ts",
+    "vitest.config.ts"
+  ]
+}

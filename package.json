@@ -1,0 +1,33 @@
+{
+  "name": "lan-agent-mesh",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.18.3",
+  "engines": {
+    "node": ">=22 <25"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck && tsc -p tsconfig.test.json",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "check": "pnpm build && pnpm typecheck && pnpm lint && pnpm test",
+    "demo": "pnpm build && node apps/cli/dist/index.js",
+    "probe:codex": "node scripts/probe-codex.mjs",
+    "probe:dsh": "node scripts/probe-dsh.mjs",
+    "probe:zcode": "node scripts/probe-zcode.mjs",
+    "probe:codex:fixture": "node scripts/probe-codex-fixture.mjs",
+    "probe:dsh:fixture": "node scripts/probe-dsh-fixture.mjs",
+    "probe:zcode:fixture": "node scripts/probe-zcode-fixture.mjs",
+    "probe:workbuddy:inventory": "node scripts/probe-workbuddy-inventory.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.1",
+    "@types/node": "22.19.0",
+    "eslint": "9.39.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.46.4",
+    "vitest": "3.2.4"
+  }
+}

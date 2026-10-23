@@ -1,0 +1,56 @@
+{
+  "harness": "workbuddy",
+  "platform": "darwin",
+  "launchedApp": false,
+  "accessedUserSessions": false,
+  "results": {
+    "shippedGuestSdk": {
+      "sha256": "b5dce3186b847a74029e009500e13e40450148cfc06d8bd10412ad9fd5050525",
+      "bytes": 18729,
+      "browserWindowGuardObserved": true,
+      "rendererInvokeBridgeObserved": true,
+      "hostPortBootstrapObserved": true,
+      "interpretation": "Renderer-host transport bootstrap is present; this is not evidence of a standalone supported harness-control API."
+    },
+    "create": {
+      "status": "unknown",
+      "reason": "No supported direct LAN/stdio control contract established by this metadata-only inspection"
+    },
+    "resume": {
+      "status": "unknown",
+      "reason": "No supported direct LAN/stdio control contract established by this metadata-only inspection"
+    },
+    "send": {
+      "status": "unknown",
+      "reason": "No supported direct LAN/stdio control contract established by this metadata-only inspection"
+    },
+    "stream": {
+      "status": "unknown",
+      "reason": "No supported direct LAN/stdio control contract established by this metadata-only inspection"
+    },
+    "cancel": {
+      "status": "unknown",
+      "reason": "No supported direct LAN/stdio control contract established by this metadata-only inspection"
+    },
+    "permissions": {
+      "status": "unknown",
+      "reason": "No supported direct LAN/stdio control contract established by this metadata-only inspection"
+    },
+    "attachExistingGui": {
+      "status": "unknown",
+      "reason": "No supported direct LAN/stdio control contract established by this metadata-only inspection"
+    }
+  },
+  "version": "5.8.3",
+  "bundleId": "com.tencent.workbuddy.mac",
+  "documentedCandidates": [
+    {
+      "url": "https://open.workbuddy.cn/docs/connector",
+      "scope": "Outbound MCP/CLI extensions"
+    },
+    {
+      "url": "https://open.workbuddy.cn/docs/openapi",
+      "scope": "Hosted OAuth local-assistant and cloud-task API; requires separate developer application authorization"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "harness": "codex",
+  "platform": "darwin",
+  "version": "codex-cli 0.146.0",
+  "modelRequests": 0,
+  "results": {
+    "initialize": {
+      "status": "verified",
+      "userAgent": "Codex Desktop/0.146.0 (Mac OS 27.0.0; arm64) dumb (lam-feasibility-probe; 0.0.0)"
+    },
+    "create": {
+      "status": "verified",
+      "returnedThreadId": true
+    },
+    "resume": {
+      "status": "unknown",
+      "reason": "RPC -32600: no rollout found for thread id <thread-id>"
+    },
+    "send": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    },
+    "stream": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    },
+    "cancel": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    },
+    "permissions": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    },
+    "attachExistingGui": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    }
+  }
+}

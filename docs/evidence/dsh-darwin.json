@@ -1,0 +1,69 @@
+{
+  "harness": "dsh",
+  "platform": "darwin",
+  "version": "0.1.5-rc.1",
+  "modelRequests": 0,
+  "results": {
+    "initialize": {
+      "status": "verified",
+      "response": {
+        "protocolVersion": 1,
+        "agentInfo": {
+          "name": "deepseek-harness-acp",
+          "version": "0.0.1"
+        },
+        "agentCapabilities": {
+          "mcpCapabilities": {
+            "http": true
+          },
+          "promptCapabilities": {
+            "image": false,
+            "audio": false,
+            "embeddedContext": false
+          },
+          "sessionCapabilities": {
+            "close": {},
+            "list": {},
+            "resume": {}
+          }
+        },
+        "authMethods": []
+      }
+    },
+    "create": {
+      "status": "verified",
+      "returnedSessionId": true
+    },
+    "close": {
+      "status": "verified"
+    },
+    "listInactive": {
+      "status": "verified",
+      "listedOriginalSession": true
+    },
+    "resume": {
+      "status": "verified",
+      "acceptedOriginalSessionId": true
+    },
+    "send": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    },
+    "stream": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    },
+    "cancel": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    },
+    "permissions": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    },
+    "attachExistingGui": {
+      "status": "unknown",
+      "reason": "Not exercised by the no-inference probe"
+    }
+  }
+}
