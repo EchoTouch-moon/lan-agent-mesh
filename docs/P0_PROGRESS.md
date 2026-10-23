@@ -1,13 +1,13 @@
 # P0 implementation record
 
-Updated 2026-10-23. Branch: `feat/p0-foundation`. Implementation commit d64ff980e0b33a271b83eb41fdb43903833a47c6 is in [draft PR #33](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/33). All four hosted CI matrix jobs passed on that implementation commit. Later research commits add the ZCode native fixture and WorkBuddy static inventory; the foundation code and the distributed Windows validation baseline remain unchanged. GitHub Issues remain open and the PR is not merged.
+Updated 2026-10-24. The P0 foundation was merged in [PR #33](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/33), merge commit 31bde708511e1d902b5aa892c3303221250c9381 on 2026-10-23. Later Windows probes, diagnostics and GitHub handoff commits remain on feat/p0-foundation; [cumulative integration PR #37](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/37) includes those commits and all four reviewed Windows runs, targeting main; it is not merged. GitHub Issues remain open.
 
 ## Delivered locally
 
 | Task | State | Evidence |
 |---|---|---|
-| LAM-01 feasibility | Partial | [Version-specific matrix](HARNESS_MATRIX.md), [Codex](evidence/codex-darwin.json), [DSH](evidence/dsh-darwin.json), [desktop app inventory](evidence/desktop-apps-darwin.json), [ZCode control](evidence/zcode-darwin.json), [Codex native fixture](evidence/codex-fixture-darwin.json), [DSH native fixture](evidence/dsh-fixture-darwin.json), [ZCode native fixture](evidence/zcode-fixture-darwin.json), [WorkBuddy inventory](evidence/workbuddy-inventory-darwin.json) |
-| LAM-02 workspace / CI | Local + hosted macOS/Windows checks pass | Pinned pnpm workspace, TS/lint/test/build, macOS+Windows / Node 22+24 workflow, [clean snapshot](evidence/clean-install-darwin.json), [hosted CI](evidence/ci-d64ff98.json) |
+| LAM-01 feasibility | Evidence reviewed; unknown capabilities bounded | [Version-specific matrix](HARNESS_MATRIX.md), [Codex](evidence/codex-darwin.json), [DSH](evidence/dsh-darwin.json), [desktop app inventory](evidence/desktop-apps-darwin.json), [ZCode control](evidence/zcode-darwin.json), [Codex native fixture](evidence/codex-fixture-darwin.json), [DSH native fixture](evidence/dsh-fixture-darwin.json), [ZCode native fixture](evidence/zcode-fixture-darwin.json), [WorkBuddy inventory](evidence/workbuddy-inventory-darwin.json) |
+| LAM-02 workspace / CI | Mac + user Windows + hosted CI pass | Pinned pnpm workspace, TS/lint/test/build, macOS+Windows / Node 22+24 workflow, [clean snapshot](evidence/clean-install-darwin.json), [hosted CI](evidence/ci-d64ff98.json), [Windows installation check](evidence/windows/win-20261023T161616Z/engineering-w01.json) |
 | LAM-03 domain | Implemented and tested | Strict schemas, relationship validation, expiring remote cache, graph fixture, [ADR](adr/0001-p0-contracts.md) |
 | LAM-04 protocol | Implemented and tested | Type-specific version 1 envelopes, errors, deadline/UTF-8/size validation |
 | LAM-05 Adapter SDK | Implemented and tested | Capability gates/negotiation, async streams, cancellation and scoped native approval hook |
@@ -22,12 +22,20 @@ Updated 2026-10-23. Branch: `feat/p0-foundation`. Implementation commit d64ff980
 
 - [Hosted PR CI run 39967637548](https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/39967637548): macOS and Windows on Node 22 and 24 all passed install/build/typecheck/lint/tests/demo. These hosted mock checks do not establish the user's Windows Harness capabilities.
 
-## Pending work and input
+## Windows delivery and remaining work
 
-The user confirmed ZCode and WorkBuddy are in /Applications, and can provide a Windows machine. App identification is complete. The user chose to run the local Windows validation script and return its report; the report is pending. [verify-windows.ps1](../scripts/verify-windows.ps1) is ready with a double-click CMD launcher and a Chinese guide, but has not been run on the user's Windows installation here. The separate [Harness inventory script](../scripts/inventory-windows-harnesses.ps1) collects installed version clues without starting real sessions; the user's report is also pending. Windows CI now includes parsing both PowerShell helpers and a smoke run of the inventory script; that hosted run does not identify the user's installed Harness versions.
+The user chose GitHub handoff to Windows LM. [Execution tasks](WINDOWS_AGENT_TASKS.md) are indexed by LAM-01, with engineering results also linked in LAM-02. Run [win-20261023T161616Z](evidence/windows/win-20261023T161616Z/SUMMARY.md) delivered evidence in PR #34, using source 6eadd08b10148be5f80f02b5b30712bdfb231e7e on Windows build 22621, Node 24.12.0 and pnpm 10.18.3. Install/check (27 tests), offline demo and both probe helpers passed. The previously requested user-machine engineering report is now supplied through GitHub; no manual file forwarding is pending.
 
-LAM-01 still needs Windows installation-specific evidence. Mac native control feasibility for Codex/DSH/ZCode is verified with deterministic local inference; WorkBuddy direct inbound and existing-GUI attachment remain explicitly unknown. Real paid-provider account access/model quality is outside this offline interface probe, rather than a newly added requirement. ZCode framing, runtime-preference callbacks and per-send reasoning selection have been identified. Read-only documentation distinguishes outbound MCP, optional hosted Open API routes and actual direct control. Hosted WorkBuddy access is a future optional integration candidate because it requires cloud coordination.
+ZCode desktop 3.16.3 / CLI 0.17.0 passed create (3609 ms), fixed loopback send/stream, process-restart resume, in-flight cancellation and native permission denial with no marker write. The desktop version and entry hash changed since the earlier 3.16.2 failure while the probe also changed; the old version's behavior under v2 and the cause of the earlier timeout remain unknown. No repository-side runtime fix was needed for this Windows run.
+
+DSH CLI 0.1.1-rc.2 lacks ACP in its isolated default distribution; this is not Windows incompatibility. Desktop 0.2.1-rc.2 separately passed metadata lifecycle and fixed-response send/stream/restart-resume/in-flight-cancel/native reject_once. The [fourth-run review](evidence/windows/win-20261023T190428Z/REVIEW.md) accepts the corrected four-factor denied-write check and complete MSIX static projection. Windows Codex remains unknown: app/Codex.exe exists but is not registered as an application/alias in the inspected manifest; that does not establish its executable role. WorkBuddy inbound and existing-GUI attachment remain unknown and grant no dispatch capability. These bounded unknowns satisfy LAM-01's explicit unknown-reporting requirement; no additional Windows experiment is pending. WorkBuddy hosted OAuth remains an optional future candidate.
+
+[Mac-side review](evidence/windows/win-20261023T161616Z/REVIEW.md) checks source/version/hash/result consistency and the evidence-only diff. A remaining installation prefix in stderr was redacted while retaining the supplied original-file hash. This review does not rerun Windows native interfaces from macOS. PR #34 and the later research commits still need integration into main; no merge or parent-issue closure was performed by this review.
 
 ## Boundaries
 
 P1 network transport, durable execution/replay records and pairing, P2 real adapters/MCP ingress, and P3 authenticated human approval/UI are not implemented. Mock permissions test binding and fail-closed outcomes; humanId metadata does not authenticate a human. No native adapter or existing-GUI attachment support is advertised as verified beyond the specific probes above.
+
+## Acceptance and integration
+
+[Requirement-by-requirement audit](P0_ACCEPTANCE.md) maps LAM-01..06 to implementation, tests and evidence. PR #37 is the cumulative integration route to main and contains #34/#35/#36 by ancestry. Existing evidence PRs need no independent patch application. No P1 work or new native experiment is included.

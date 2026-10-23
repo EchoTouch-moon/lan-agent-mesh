@@ -1,0 +1,51 @@
+{
+  "capturedAtUtc": "2026-10-23T15:49:11.448Z",
+  "platform": "win32",
+  "node": "v24.12.0",
+  "scope": "Probe-owned temporary sessions only. ZCode uses fixed loopback inference; DSH receives no prompts. No existing GUI attachment or WorkBuddy launch.",
+  "probes": {
+    "zcode": {
+      "entrySha256": "a055234a6ca3da0172616d3987cf3c617b6a26deb1332d69035300c2a0ae0de1",
+      "exitCode": 1,
+      "result": {
+        "harness": "zcode",
+        "platform": "win32",
+        "inference": "localhost deterministic fixture; no external model",
+        "externalModelRequests": 0,
+        "fixtureRequests": 0,
+        "results": {},
+        "version": "0.17.0",
+        "error": "session/create timed out",
+        "observedMethods": [
+          "startup/storageState",
+          "session/requestRuntimePreferences"
+        ],
+        "observedEventTypes": []
+      }
+    },
+    "dsh": {
+      "exitCode": 1,
+      "result": {
+        "harness": "dsh",
+        "platform": "win32",
+        "modelRequests": 0,
+        "results": {},
+        "version": "0.1.1-rc.2",
+        "error": "process exited (1)"
+      }
+    },
+    "workbuddy": {
+      "status": "unknown",
+      "reason": "Installed guest SDK metadata is recorded separately; no supported standalone control contract established. Application was not launched."
+    },
+    "codex": {
+      "status": "unknown",
+      "reason": "No Windows Codex CLI entry established by supplied inventory"
+    }
+  },
+  "provenance": {
+    "kind": "user_returned_native_probe_v1",
+    "sourceSha256": "f731d73340b749b14308228a0f980109a0bc7468616a7eef43fec8968eb3043f",
+    "sanitization": "No installation paths or native IDs were present; original file unchanged."
+  }
+}

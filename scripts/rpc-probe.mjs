@@ -1,17 +1,23 @@
-import { spawn } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
 
-/** Bounded JSON-lines probe; does not log credentials, stderr or native histories. */
+/** Bounded JSON-lines probe. Startup diagnostics are opt-in and redacted by callers. */
 export function rpcProcess(command, args, env, cwd, options = {}) {
-  const child = spawn(command, args, { env, cwd, stdio: ['pipe', 'pipe', 'pipe'] });
+  const child = spawn(command, args, { env, cwd, stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true, windowsVerbatimArguments: options.windowsVerbatimArguments ?? false });
   const pending = new Map(); let nextId = 1;
-  child.stderr.resume();
-  function fail(error) { for (const entry of pending.values()) { clearTimeout(entry.timer); entry.reject(error); } pending.clear(); }
+  let terminalError; let stderrTail = ''; let stdoutTextTail = ''; let exit;
+  child.stderr.on('data', chunk => { if (options.captureDiagnostics) stderrTail = (stderrTail + chunk.toString()).slice(-8192); });
+  function fail(error) { terminalError = error; for (const entry of pending.values()) { clearTimeout(entry.timer); entry.reject(error); } pending.clear(); }
   child.on('error', fail);
-  child.on('exit', code => fail(new Error(`process exited (${code})`)));
+  child.stdin.on('error', fail);
+  child.on('exit', (code, signal) => { exit = { code, signal }; fail(new Error(`process exited (${code})`)); });
   const lines = createInterface({ input: child.stdout });
   lines.on('line', line => {
-    let response; try { response = JSON.parse(line); } catch { return; }
+    let response; try { response = JSON.parse(line); } catch { if (options.captureDiagnostics) stdoutTextTail = (stdoutTextTail + line + '\n').slice(-4096); return; }
+    if (!response || typeof response !== 'object' || !('id' in response || 'method' in response)) {
+      if (options.captureDiagnostics) stdoutTextTail = (stdoutTextTail + line + '\n').slice(-4096);
+      return;
+    }
     options.onMessage?.(response);
     if (response.method) return;
     const entry = pending.get(response.id);
@@ -21,21 +27,27 @@ export function rpcProcess(command, args, env, cwd, options = {}) {
     else entry.resolve(response.result);
   });
   return {
-    call(method, params) {
+    call(method, params, callOptions = {}) {
+      if (terminalError) return Promise.reject(terminalError);
       const id = nextId++;
       return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => { pending.delete(id); reject(new Error(`${method} timed out`)); }, 15000);
+        const timer = setTimeout(() => { pending.delete(id); reject(new Error(`${method} timed out`)); }, callOptions.timeoutMs ?? 15000);
         pending.set(id, { resolve, reject, timer });
         child.stdin.write(JSON.stringify({ ...(options.jsonrpc === false ? {} : { jsonrpc: '2.0' }), id, method, params }) + '\n');
       });
     },
     reply(id, result) { child.stdin.write(JSON.stringify({ ...(options.jsonrpc === false ? {} : { jsonrpc: '2.0' }), id, result }) + '\n'); },
     notify(method, params = {}) { child.stdin.write(JSON.stringify({ ...(options.jsonrpc === false ? {} : { jsonrpc: '2.0' }), method, params }) + '\n'); },
+    diagnostics() { return { exit, stderrTail, stdoutTextTail }; },
     async close() {
       lines.close(); child.stdin.end();
       await new Promise(resolve => {
-        if (child.exitCode !== null) return resolve();
-        const timer = setTimeout(() => { child.kill('SIGKILL'); }, 2000);
+        if (child.exitCode !== null || child.signalCode !== null || !child.pid) return resolve();
+        const timer = setTimeout(() => {
+          if (process.platform === 'win32' && options.killTree) {
+            execFile('taskkill.exe', ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true, timeout: 5000 }, () => { if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL'); });
+          } else child.kill('SIGKILL');
+        }, 2000);
         child.once('exit', () => { clearTimeout(timer); resolve(); });
       });
     },

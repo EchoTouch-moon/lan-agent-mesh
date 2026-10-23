@@ -1,0 +1,60 @@
+{
+  "runId": "win-20261023T161616Z",
+  "taskId": "W-01",
+  "testedSourceSha": "6eadd08b10148be5f80f02b5b30712bdfb231e7e",
+  "branch": "windows/p0-validation-win-20261023T161616Z",
+  "environment": {
+    "platform": "win32",
+    "operatingSystem": "Microsoft Windows NT 10.0.22621.0",
+    "architecture": "AMD64",
+    "node": "v24.12.0",
+    "pnpm": "10.18.3",
+    "workspaceState": "Fresh clone of origin/feat/p0-foundation; no pre-existing node_modules or build output"
+  },
+  "commands": [
+    {
+      "command": "node --version",
+      "exitCode": 0,
+      "stdout": "v24.12.0"
+    },
+    {
+      "command": "pnpm.cmd --version",
+      "exitCode": 0,
+      "stdout": "10.18.3"
+    },
+    {
+      "command": "pnpm.cmd install --frozen-lockfile",
+      "exitCode": 0,
+      "notes": "Completed in 12.9s. pnpm warned that the esbuild postinstall build script was not approved; the binary is delivered via optional platform dependencies and all later build/test steps passed, so the skipped script had no effect on this workspace."
+    },
+    {
+      "command": "pnpm.cmd check",
+      "exitCode": 0,
+      "notes": "Ran clean of each package, workspace-wide source and test type-checks, eslint over the repository, and vitest run: 4 test files, 27 tests, all passed. No skipped or failed tests."
+    },
+    {
+      "command": "node apps/cli/dist/index.js",
+      "exitCode": 0,
+      "notes": "Offline demo emitted delta events and a completed mock:Hello LAN Agent Mesh task; no network or model access."
+    },
+    {
+      "command": "node scripts/check-rpc-probe.mjs",
+      "exitCode": 0,
+      "stdout": "RPC callback IDs, timeout, exit, bounded diagnostics and redaction passed."
+    },
+    {
+      "command": "node scripts/check-windows-probe-runner.mjs",
+      "exitCode": 0,
+      "stdout": "Windows direct-Node launcher, isolated home, and ACP lifecycle fixture passed."
+    }
+  ],
+  "testCounts": {
+    "contractTestFiles": 4,
+    "contractTests": 27,
+    "failed": 0,
+    "skippedKnown": 0
+  },
+  "verdict": "PASS",
+  "scope": "Offline engineering checks only; this pass does not by itself demonstrate real harness control.",
+  "linkedIssue": "https://github.com/EchoTouch-moon/lan-agent-mesh/issues/2"
+}

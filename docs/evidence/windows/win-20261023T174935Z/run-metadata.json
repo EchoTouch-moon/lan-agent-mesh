@@ -1,0 +1,61 @@
+{
+  "runId": "win-20261023T174935Z",
+  "startedUtc": "2026-10-23T17:49:35Z",
+  "endedUtc": "2026-10-23T18:12:00Z",
+  "claimComment": "https://github.com/EchoTouch-moon/lan-agent-mesh/issues/1#issuecomment-6371205275",
+  "repository": "EchoTouch-moon/lan-agent-mesh",
+  "workBranch": "windows/p0-followup2-win-20261023T174935Z",
+  "branchBase": "windows/p0-followup-win-20261023T165446Z @ 09ab3d9 (round-2 review head); PR base remains feat/p0-foundation",
+  "executedSourceSha": "a0818d847483871ba3a18cf33607a4753fa4c2da",
+  "scriptsFirstCommitSha": "a90f969bc91327fed93bc0ef2499cb1c8c45e8b4",
+  "processNote": "Per round-2 review guidance the probes were committed and pushed BEFORE the real run; the fixture shape then needed three committed iterations (request logging, endpoint identification, usage field). Every executed revision is in the branch history; the successful runs below used executedSourceSha with these script hashes.",
+  "executedScripts": [
+    {
+      "path": "scripts/probe-dsh-desktop-fixture.mjs",
+      "sha256": "404b607ced247860d4c6ad6418c4a8c3e730194015e3fc2f94ec03f8c28600d1"
+    },
+    {
+      "path": "scripts/probe-codex-msix-win.mjs",
+      "sha256": "430b922ad6fd237520ce7d9afeae592e52bd41020d10c2d12cbe5f997afa419a"
+    }
+  ],
+  "executionMachine": {
+    "platform": "win32",
+    "operatingSystem": "Microsoft Windows NT 10.0.22621.0",
+    "architecture": "AMD64",
+    "node": "v24.12.0"
+  },
+  "harnessVersions": {
+    "dshDesktop": "0.2.1-rc.2 (bundled headless CLI; ACP agent deepseek-harness-acp; fixture model id deepseek-v4-flash served locally)",
+    "codexMsix": "OpenAI.Codex 26.825.6671.0 (ChatGPT desktop package; contains app/Codex.exe without static VersionInfo fields)"
+  },
+  "commandExitCodes": {
+    "node scripts/probe-dsh-desktop-fixture.mjs": 0,
+    "node scripts/probe-codex-msix-win.mjs": 0
+  },
+  "evidence": [
+    "docs/evidence/windows/win-20261023T174935Z/SUMMARY.md",
+    "docs/evidence/windows/win-20261023T174935Z/run-metadata.json",
+    "docs/evidence/windows/win-20261023T174935Z/dsh-desktop-acp-fixture.json",
+    "docs/evidence/windows/win-20261023T174935Z/codex-msix-win32.json"
+  ],
+  "originalsKeptLocal": [
+    {
+      "file": "%TEMP%/dsh-desktop-fx5.json",
+      "sha256": "020e3b32f3ba31b2db3825a9558ad944f409336564a41ffc8e3222d20f625ce7"
+    },
+    {
+      "file": "%TEMP%/codex-msix2.json",
+      "sha256": "4572ced0d6e34f261da76d940b54fa974aaf8f6b6923570426afdda6d6bf16ba"
+    }
+  ],
+  "redactionScope": "Probe outputs self-redact temporary homes, the desktop launcher path and the MSIX install root, and were verified free of machine-identifying paths before committing. The MSIX inspection read package metadata, manifest and file names only; no user configuration, credentials or sessions were read; nothing was launched.",
+  "constraintsHeld": [
+    "All model inference came from the loopback fixture (fixtureRequests=5, externalModelRequests=0, promptsSent=3); no paid or external model was contacted.",
+    "The desktop's Electron GUI was never launched; the bundled CLI ran headlessly via its own dsh.cmd (ELECTRON_RUN_AS_NODE set by the launcher).",
+    "The permission path was answered reject_once by the probe client; the denied marker file was not created.",
+    "The MSIX package was inspected statically only (Get-AppxPackage, manifest, file names, one VersionInfo read of app/Codex.exe); Codex.exe was not executed.",
+    "No application upgrade/downgrade, plugin install, PATH/registry change, or existing chat/user configuration access."
+  ],
+  "reviewNote": "Original captured probe fields and raw-file hashes are retained. Mac review qualifies the denied-write effect and incomplete manifest projection separately; later probe fixes have not yet been rerun on this installation."
+}

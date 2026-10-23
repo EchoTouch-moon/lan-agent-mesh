@@ -1,0 +1,304 @@
+{
+  "harness": "dsh-desktop",
+  "platform": "win32",
+  "launcherKind": "bundled dsh.cmd (ELECTRON_RUN_AS_NODE headless host)",
+  "inference": "localhost deterministic fixture; no external model",
+  "externalModelRequests": 0,
+  "fixtureRequests": 5,
+  "promptsSent": 3,
+  "results": {
+    "create": {
+      "status": "verified",
+      "returnedSessionId": true
+    },
+    "send": {
+      "status": "verified",
+      "stopReason": "end_turn"
+    },
+    "stream": {
+      "status": "verified",
+      "matchingFixtureText": true,
+      "observedUpdateTypes": [
+        "agent_message_chunk",
+        "usage_update"
+      ]
+    },
+    "resume": {
+      "status": "verified",
+      "acceptedOriginalSessionIdAfterProcessRestart": true
+    },
+    "cancel": {
+      "status": "verified",
+      "stopReason": "cancelled",
+      "inFlightFixtureRequest": true
+    },
+    "permissions": {
+      "status": "verified",
+      "nativeRequestMethod": "session/request_permission",
+      "decision": "reject_once"
+    },
+    "permissionTurn": {
+      "stopReason": "end_turn"
+    },
+    "deniedOperation": {
+      "status": "verified",
+      "markerCreated": false
+    },
+    "attachExistingGui": {
+      "status": "unknown",
+      "reason": "Only this probe-owned ACP session was controlled"
+    }
+  },
+  "version": "0.2.1-rc.2",
+  "requestLog": [
+    {
+      "method": "POST",
+      "url": "/v1/messages",
+      "bodyKeys": [
+        "model",
+        "stream",
+        "messages",
+        "max_tokens",
+        "thinking",
+        "output_config",
+        "system",
+        "tools",
+        "dsh_session_log",
+        "dsh_plugin_packages"
+      ],
+      "stream": true,
+      "model": "deepseek-v4-flash",
+      "tools": [
+        "create_goal",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "pwsh",
+        "read",
+        "read_image",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "working_directory",
+        "write"
+      ]
+    },
+    {
+      "method": "POST",
+      "url": "/v1/messages",
+      "bodyKeys": [
+        "model",
+        "stream",
+        "messages",
+        "max_tokens",
+        "thinking",
+        "output_config",
+        "system",
+        "tools",
+        "dsh_session_log",
+        "dsh_plugin_packages"
+      ],
+      "stream": true,
+      "model": "deepseek-v4-flash",
+      "tools": [
+        "create_goal",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "pwsh",
+        "read",
+        "read_image",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "working_directory",
+        "write"
+      ]
+    },
+    {
+      "method": "POST",
+      "url": "/v1/messages",
+      "bodyKeys": [
+        "model",
+        "stream",
+        "messages",
+        "max_tokens",
+        "thinking",
+        "output_config",
+        "system",
+        "tools",
+        "dsh_session_log",
+        "dsh_plugin_packages"
+      ],
+      "stream": true,
+      "model": "deepseek-v4-flash",
+      "tools": [
+        "create_goal",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "pwsh",
+        "read",
+        "read_image",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "working_directory",
+        "write"
+      ]
+    },
+    {
+      "method": "POST",
+      "url": "/v1/messages",
+      "bodyKeys": [
+        "model",
+        "stream",
+        "messages",
+        "max_tokens",
+        "thinking",
+        "output_config",
+        "system",
+        "tools",
+        "dsh_session_log",
+        "dsh_plugin_packages"
+      ],
+      "stream": true,
+      "model": "deepseek-v4-flash",
+      "tools": [
+        "create_goal",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "pwsh",
+        "read",
+        "read_image",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "working_directory",
+        "write"
+      ]
+    },
+    {
+      "method": "POST",
+      "url": "/v1/messages",
+      "bodyKeys": [
+        "model",
+        "stream",
+        "messages",
+        "max_tokens",
+        "thinking",
+        "output_config",
+        "system",
+        "tools",
+        "dsh_session_log",
+        "dsh_plugin_packages"
+      ],
+      "stream": true,
+      "model": "deepseek-v4-flash",
+      "tools": [
+        "create_goal",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "pwsh",
+        "read",
+        "read_image",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "working_directory",
+        "write"
+      ]
+    }
+  ],
+  "diagnostics": {
+    "exit": {
+      "code": 0,
+      "signal": null
+    },
+    "stderrTail": "",
+    "stdoutTextTail": ""
+  },
+  "provenance": {
+    "source": "Locally captured during this run; original kept only on the execution machine.",
+    "originalFileName": "dsh-desktop-fx5.json",
+    "originalSha256": "020e3b32f3ba31b2db3825a9558ad944f409336564a41ffc8e3222d20f625ce7",
+    "redaction": "The probe self-redacts the temporary home, launcher path and MSIX install root; verified free of machine-identifying paths before committing."
+  },
+  "runId": "win-20261023T174935Z",
+  "executedSourceSha": "a0818d847483871ba3a18cf33607a4753fa4c2da",
+  "probeScript": "scripts/probe-dsh-desktop-fixture.mjs",
+  "probeScriptSha256": "404b607ced247860d4c6ad6418c4a8c3e730194015e3fc2f94ec03f8c28600d1",
+  "reviewAssessment": {
+    "nativePermissionRejection": "Verified by the recorded native request and reject_once response.",
+    "markerAbsence": "Observed in the original run; original probe output retained.",
+    "deniedWriteEffect": "unknown",
+    "reason": "Original pwsh fixture used printf without a portable-command control, and its verdict accepted marker absence even without native rejection. A corrected Set-Content command with a harmless positive control and a gated verdict needs a targeted Windows retest."
+  }
+}

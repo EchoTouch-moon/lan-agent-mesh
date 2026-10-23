@@ -1,0 +1,21 @@
+# P0 acceptance audit
+
+Audit date: 2026-10-24. Scope: the requested first development phase, LAM-01..06, as defined in the roadmap and GitHub Issues. P1 transport/Gateway, real production adapters, human UI and an independent GitHub Projects board are not P0 deliverables.
+
+| Requirement | Authoritative implementation / evidence | Assessment |
+|---|---|---|
+| LAM-01: Mac/Windows installed-version interface investigation; commands, versions and reproducible evidence | [Matrix](HARNESS_MATRIX.md), per-platform reports linked there, [Windows R4 review](evidence/windows/win-20261023T190428Z/REVIEW.md), optional probes in scripts/ | Evidence delivered and reviewed. Installed DSH/ZCode Windows and Codex/DSH/ZCode Mac have fixed-response control tests. WorkBuddy inbound, Windows Codex and GUI attachment remain explicitly unknown. |
+| LAM-01: unknown/unsupported explicit | Matrix capability rows and report capabilityStatus/results; SDK conservative capability gate | Met. Unknown is allowed by the issue's acceptance criteria; it never grants dispatch. No claim of universal harness support. |
+| LAM-02: apps and packages, TypeScript/lint/test/build, clean clone and cross-platform CI | Workspace/lockfile, apps/gateway + cli + console, .github/workflows/ci.yml; [Mac clean install](evidence/clean-install-darwin.json), [Windows clean install/check/demo](evidence/windows/win-20261023T161616Z/engineering-w01.json) | Met. Gateway/console are reserved entry points at this phase, CLI demo runs offline. |
+| LAM-03: IDs/types/schemas, ownership/cache, ADR/fixture; reject malformed fields | packages/domain/src/index.ts, packages/domain/fixtures/graph.json, [ADR](adr/0001-p0-contracts.md), domain.test.ts | Met. Tests cover invalid parents/owners, duplicate IDs, workspace traversal, strict fields, capability escalation and cache expiry. |
+| LAM-04: versioned envelopes, typed events/errors, deadline, correlation/idempotency keys, source/target, size and round-trip | packages/protocol/src/index.ts and protocol.test.ts | Met. 20 event types; 64 KiB UTF-8 boundary; deterministic errors for version/JSON/schema/deadline/size; UTF-8 round-trip test. Wire keys do not implement durable delivery. |
+| LAM-05: probe/discover/spawn/resume/send/watch/cancel/answerPermission, partial/full capability tests, unsupported rejection | packages/adapter-sdk/src/index.ts + sdk.test.ts; full supported control methods exercised by mock.test.ts | Met. Async streaming/AbortSignal, conservative negotiation and native approval hook. GUI attachment is a research declaration and cannot be advertised supported through this SDK. Human identity metadata is not authentication. |
+| LAM-06: model-independent multi-session/stream/permission/timeout/failure/cancel/repeated calls; denial/disconnect/replay | packages/mock-adapter/src/index.ts and mock.test.ts; apps/cli/src/index.ts | Met. Tests cover allow/deny scope and nonce reuse, permission expiry, active cancellation, concurrent sessions, conflicting retries, injected failure and UNKNOWN on disconnect without rerunning. Mock state is process-local. |
+
+The P0 implementation is already present in main through merged PR #33. Follow-up probes, review fixes and Windows evidence are consolidated in PR #37, which includes the complete ancestry of #34–#36 and the feature branch. They are not independent patches to merge in arbitrary order. This audit does not claim that the integration PR is merged or that issues are closed.
+
+## Verification scope
+
+The reviewed delivery ad1c1a1 passed [CI 40009363860](https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40009363860): macOS/Windows × Node 22/24, install/build/typecheck/lint, 27 contract cases, offline demo and relevant probe-helper/PowerShell fixtures. Those CI fixtures validate probe machinery, not real installed harnesses; separate Windows native reports establish the bounded product observations. Integration CI must also pass on the final PR head.
+
+No app binaries or real user configuration were accessed by this audit. Existing reports retain their original observations and limitations, including missing Windows pre-run script/launcher hash capture and author-reported coarse R4 end time. These are stated provenance limits rather than fabricated completion evidence.

@@ -1,0 +1,74 @@
+{
+  "runId": "win-20261023T161616Z",
+  "startedUtc": "2026-10-23T16:16:16Z",
+  "endedUtc": "2026-10-23T16:35:00Z",
+  "claimComment": "https://github.com/EchoTouch-moon/lan-agent-mesh/issues/1#issuecomment-6369432581",
+  "repository": "EchoTouch-moon/lan-agent-mesh",
+  "workBranch": "windows/p0-validation-win-20261023T161616Z",
+  "branchBase": "origin/feat/p0-foundation",
+  "testedSourceSha": "6eadd08b10148be5f80f02b5b30712bdfb231e7e",
+  "minimumBaselineSha": "83426402d22128ecd4d33e445679039fb5e1abd8",
+  "baselineIncluded": true,
+  "postFixSourceSha": null,
+  "postFixNote": "No repository-side fix was required this run; see SUMMARY.md W-02 for the version-change caveat.",
+  "executionMachine": {
+    "platform": "win32",
+    "operatingSystem": "Microsoft Windows NT 10.0.22621.0",
+    "architecture": "AMD64",
+    "node": "v24.12.0",
+    "pnpm": "10.18.3"
+  },
+  "harnessVersions": {
+    "zcodeDesktop": "3.16.3",
+    "zcodeBundledCli": "0.17.0",
+    "zcodeEntrySha256": "97490d0f06a7a225d54d47817acf4b4859cdb268b59f2490caaeda982bef063a",
+    "zcodeEntrySha256PreviousRun": "a055234a6ca3da0172616d3987cf3c617b6a26deb1332d69035300c2a0ae0de1",
+    "dshCli": "0.1.1-rc.2",
+    "dshDesktop": "0.2.1-rc.2",
+    "workbuddyDesktop": "5.7.7 (not launched)",
+    "codex": "not found on PATH; absence not established"
+  },
+  "commandExitCodes": {
+    "node --version": 0,
+    "pnpm.cmd --version": 0,
+    "pnpm.cmd install --frozen-lockfile": 0,
+    "pnpm.cmd check": 0,
+    "node apps/cli/dist/index.js": 0,
+    "node scripts/check-rpc-probe.mjs": 0,
+    "node scripts/check-windows-probe-runner.mjs": 0,
+    "powershell inventory-windows-harnesses.ps1": 0,
+    "powershell inspect-windows-harness-layout.ps1": 0,
+    "node scripts/probe-windows-harnesses.mjs": 0
+  },
+  "evidence": [
+    "docs/evidence/windows/win-20261023T161616Z/SUMMARY.md",
+    "docs/evidence/windows/win-20261023T161616Z/run-metadata.json",
+    "docs/evidence/windows/win-20261023T161616Z/engineering-w01.json",
+    "docs/evidence/windows/win-20261023T161616Z/native-probe-win32-v2.json",
+    "docs/evidence/windows/win-20261023T161616Z/harness-inventory-win32-v2.json",
+    "docs/evidence/windows/win-20261023T161616Z/harness-layout-win32-v2.json",
+    "docs/evidence/windows/win-20261023T161616Z/dsh-desktop-static-win32.json"
+  ],
+  "originalsKeptLocal": [
+    {
+      "file": "%TEMP%/lam-windows-harness-inventory.json",
+      "sha256": "3e3b123efb98c1c2f2dafc807b0e89da18b679ad5d3d10e37f4bdcb9ee17cf47"
+    },
+    {
+      "file": "%TEMP%/lam-windows-harness-layout.json",
+      "sha256": "9a84d9f0f1d3a3805cf828503566d7077fd4b4050c9ec3f379dc91b950bb2e6f"
+    },
+    {
+      "file": "%TEMP%/lam-windows-native-probe-v2.json",
+      "sha256": "409b6e6bca648603380eda40c3efe8eeb6856487c4e668d2bec2f9f88de3a6ac"
+    }
+  ],
+  "redactionScope": "Absolute install roots, npm global prefix, user profile and temp directory paths replaced with bracketed placeholders in committed evidence. No machine name, username, address, credential, real session ID, chat history or full user log is committed. The native probe applies initial redaction; Mac-side review additionally removed npm package file-URL prefixes from stderr in the committed sanitized copy. Original local-file hashes remain unchanged.",
+  "constraintsHeld": [
+    "No application upgrades, downgrades, plugin installs or profile installs were performed.",
+    "No paid or external model was called; ZCode inference used the loopback fixed-response fixture (fixtureRequests=4, externalModelRequests=0).",
+    "No existing chat, real user configuration, real user profile or GUI session was read or attached.",
+    "DSH desktop and WorkBuddy were never launched.",
+    "No P1 networking module or production adapter was started."
+  ]
+}

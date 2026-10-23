@@ -1,0 +1,12 @@
+{
+  "executedSourceSha": "4f17ff0bfe1dfa1bb4eb86d554a7afd4b4c4d910",
+  "calculatedBy": "Mac review from committed git bytes; not a claim of a Windows pre-run hash capture",
+  "sha256": {
+    "scripts/probe-dsh-desktop-fixture.mjs": "b0b0621ce2932e65bb5d402242a6250bcac2f6f2893b545083981e14b5a88afb",
+    "scripts/dsh-desktop-fixture-contract.mjs": "77ad164f90a7c938f1788c1dab1ae871d2c1c19e30a4f9ed8161119900f70e5a",
+    "scripts/probe-codex-msix-win.mjs": "f1a1802865c1a11287c462367bbdff55ee715c775223a628f53034c2121c5eb0",
+    "scripts/msix-manifest-projection.mjs": "c24cb120a29b545a0dbd3f8ff8857e9aa15735d5849ba654f18824f7009bf9ad",
+    "scripts/rpc-probe.mjs": "1f9795e909707b6a4e7a8e2dd9ac95f833b6e19072ff684a11e0bfe807806bcc",
+    "scripts/windows-cmd-launcher.mjs": "f257d8894334a50c1170f0ee5d10c8c946b39dd45334691a6c6fa0a5c373eeea"
+  }
+}

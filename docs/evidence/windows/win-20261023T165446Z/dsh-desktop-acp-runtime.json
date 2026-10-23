@@ -1,0 +1,76 @@
+{
+  "harness": "dsh-desktop",
+  "platform": "win32",
+  "launcherKind": "bundled dsh.cmd (ELECTRON_RUN_AS_NODE headless host)",
+  "modelRequests": 0,
+  "promptsSent": 0,
+  "results": {
+    "initialize": {
+      "status": "verified",
+      "agentInfo": {
+        "name": "deepseek-harness-acp",
+        "version": "0.0.1"
+      },
+      "protocolVersion": 1
+    },
+    "create": {
+      "status": "verified",
+      "returnedSessionId": true
+    },
+    "close": {
+      "status": "verified"
+    },
+    "listInactive": {
+      "status": "verified",
+      "listedOriginalSession": true
+    },
+    "resume": {
+      "status": "verified",
+      "acceptedOriginalSessionId": true
+    },
+    "send": {
+      "status": "unknown",
+      "reason": "Not exercised: metadata-only probe (no prompts, no inference)"
+    },
+    "stream": {
+      "status": "unknown",
+      "reason": "Not exercised: metadata-only probe (no prompts, no inference)"
+    },
+    "cancel": {
+      "status": "unknown",
+      "reason": "Not exercised: metadata-only probe (no prompts, no inference)"
+    },
+    "permissions": {
+      "status": "unknown",
+      "reason": "Not exercised: metadata-only probe (no prompts, no inference)"
+    },
+    "attachExistingGui": {
+      "status": "unknown",
+      "reason": "Not exercised: metadata-only probe (no prompts, no inference)"
+    }
+  },
+  "version": "0.2.1-rc.2",
+  "diagnostics": {
+    "exit": {
+      "code": 0,
+      "signal": null
+    },
+    "stderrTail": "",
+    "stdoutTextTail": ""
+  },
+  "provenance": {
+    "source": "Locally captured during this run; original kept only on the execution machine.",
+    "originalFileName": "dsh-desktop-probe.json",
+    "originalSha256": "cf5816e02e1bbe7d2a3d628e7e39c2f0c78f3be6be5d51e7ec6891de4b0fcbd7",
+    "redaction": "The probe itself redacts the temporary home and the launcher path; verified free of machine-identifying paths before committing."
+  },
+  "runId": "win-20261023T165446Z",
+  "testedSourceSha": "da5eeeb37abbf2351fb9f843960db2cdf13e5da9",
+  "testedSourceShaMeaning": "Repository checkout base before two new probe scripts were added; this SHA alone cannot reproduce their execution.",
+  "probeSourceArchive": {
+    "path": "scripts/probe-dsh-desktop.mjs",
+    "firstCommittedIn": "85a3c37515a19efb5dbeb5b2fac2b8eb767cd735",
+    "sha256": "78b91cb60f9602c5d5e660847bdb5bee8895a1a6fac20ed51ef10cb466e08b5a",
+    "qualification": "Hash of first committed report-associated source; no separate pre-execution source hash was recorded."
+  }
+}
