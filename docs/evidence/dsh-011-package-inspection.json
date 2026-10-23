@@ -1,0 +1,19 @@
+{
+  "package": "@deepseek-ai/dsh",
+  "version": "0.1.1-rc.2",
+  "source": "https://registry.npmjs.org/@deepseek-ai/dsh/-/dsh-0.1.1-rc.2.tgz",
+  "integrity": "sha512-UP1UIh6q3Gme/yXRn/QL2P8IsVlv8Shpg22TRJIZPsCRWLm4CBiA1MUvXmJAfsOEETBMLAl+xWPtFw6ICsN3wg==",
+  "inspection": "Read published tarball in memory; no install, dependency scripts or global changes. Archive SHA-512 matches registry integrity.",
+  "findings": {
+    "bin": {
+      "dsh": "lib/bin.js"
+    },
+    "readmeAutoInitializedProfiles": [
+      "web",
+      "headless"
+    ],
+    "readmeOtherProfiles": "Other profiles must be created through dsh plugin.",
+    "directDependencyDshAcp": false
+  },
+  "interpretation": "The previous probe assumed acp would auto-initialize under an empty DSH_HOME. That assumption does not hold for the published 0.1.1-rc.2 distribution. The user process exit is consistent with an absent profile, but stderr from the user installation is needed to confirm the immediate cause. This is not proof of Windows incompatibility or absence of user-configured profiles."
+}

@@ -5,12 +5,14 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { rpcProcess } from './rpc-probe.mjs';
+import { redactProbeText, startupLogSummary } from './probe-diagnostics.mjs';
 
 const entry = process.env.LAM_ZCODE_ENTRY ?? '/Applications/ZCode.app/Contents/Resources/glm/zcode.cjs';
 const root = await mkdtemp(join(tmpdir(), 'lam-zcode-fixture-'));
 const inherited = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('ZCODE_')));
 const env = { ...inherited, HOME: root, ...(process.platform === 'win32' ? { USERPROFILE: root, APPDATA: join(root, 'appdata'), LOCALAPPDATA: join(root, 'localappdata') } : {}), XDG_CONFIG_HOME: root, XDG_DATA_HOME: root, ZCODE_DATA_BASE_DIR: root, ZCODE_STORAGE_DIR: join(root, 'storage'), ZCODE_SESSION_DB_PATH: join(root, 'sessions.sqlite'), ZCODE_LOG_DIR: join(root, 'logs') };
 const report = { harness: 'zcode', platform: process.platform, inference: 'localhost deterministic fixture; no external model', externalModelRequests: 0, fixtureRequests: 0, results: {} };
+report.startup = { storageStates: [], preferenceRequests: [], preferenceReplies: 0 };
 let rpc; let mode = 'text'; let permissionIssued = false;
 const observed = []; const listeners = new Set();
 function observe(message) { observed.push(message); for (const listener of listeners) listener(message); }
@@ -59,25 +61,36 @@ try {
   await mkdir(join(root, '.zcode', 'cli'), { recursive: true });
   await writeFile(join(root, '.zcode', 'cli', 'config.json'), JSON.stringify({ features: { mcp: false, subagent: false, memory: false, skill: false }, plugins: { enabled: false }, hooks: { enabled: false } }));
   const connect = () => {
-    const connection = rpcProcess(process.execPath, [entry, 'app-server', '--cwd', root], env, root, { jsonrpc: false, onMessage: message => {
+    const connection = rpcProcess(process.execPath, [entry, 'app-server', '--cwd', root], env, root, { jsonrpc: false, captureDiagnostics: true, onMessage: message => {
       observe(message);
+      if (message.method === 'startup/storageState') report.startup.storageStates.push({ phase: message.params?.phase, elapsedMs: message.params?.elapsedMs, errorCode: message.params?.errorCode });
       if (message.method === 'interaction/requestPermission' && 'id' in message) {
         connection.reply(message.id, { decision: 'deny', reason: 'LAM fixture rejects this temporary operation.' });
         report.results.permissions = { status: 'verified', nativeRequestMethod: message.method, decision: 'deny' };
       }
-      if (message.method === 'session/requestRuntimePreferences' && 'id' in message)
+      if (message.method === 'session/requestRuntimePreferences' && 'id' in message) {
+        report.startup.preferenceRequests.push({ scope: message.params?.scope, idType: typeof message.id });
         connection.reply(message.id, { nativeSearchEnhancementsEnabled: false, toolSearchMode: 'off', subagentRuntimeConfigEnabled: false, memoryEnabled: false, askUserQuestionAutoResolutionEnabled: false, modelContextBudgetStrategy: 'preflight-v1' });
+        report.startup.preferenceReplies++;
+      }
     } });
     return connection;
   };
   rpc = connect();
+  report.stage = 'runtimeCapabilities';
   await rpc.call('runtime/capabilities', {});
+  report.results.runtimeCapabilities = { status: 'verified' };
   const sessionId = `sess_${randomUUID()}`;
   const workspace = { workspacePath: root, workspaceKey: root };
-  await rpc.call('session/create', { sessionId, workspace, model: selection, persistence: 'immediate', mode: 'plan', titleGenerationEnabled: false, mcpServers: [] });
+  report.stage = 'create';
+  const createStarted = Date.now();
+  try {
+    await rpc.call('session/create', { sessionId, workspace, model: selection, persistence: 'immediate', mode: 'plan', titleGenerationEnabled: false, mcpServers: [] }, { timeoutMs: 60000 });
+  } finally { report.startup.createElapsedMs = Date.now() - createStarted; }
   report.results.create = { status: 'verified' };
   await rpc.call('session/subscribe', { sessionId, deliveryKind: 'desktop-continuous' });
   const inputId = randomUUID();
+  report.stage = 'send';
   const accepted = await rpc.call('session/send', { sessionId, inputId, modelSelection: selection, content: 'Return a fixture greeting.' });
   const completed = await waitFor(message => message.method === 'session/event' && ['turn.completed', 'turn.failed'].includes(message.params?.type) && message.params.payload?.inputId === inputId);
   report.results.send = { status: accepted.accepted && completed.params.payload.resultType === 'success' ? 'verified' : 'unknown', eventType: completed.params.type, resultType: completed.params.payload.resultType };
@@ -85,17 +98,20 @@ try {
   const text = observed.filter(message => message.method === 'session/event' && message.params?.type === 'model.streaming' && message.params.payload.kind === 'text_delta').map(message => message.params.payload.delta).join('');
   report.results.stream = { status: text === 'LAM ZCode fixture response' ? 'verified' : 'unknown', matchingFixtureText: text === 'LAM ZCode fixture response', textDeltaCount: observed.filter(message => message.method === 'session/event' && message.params?.type === 'model.streaming' && message.params.payload.kind === 'text_delta').length };
   await rpc.call('session/close', { sessionId }); await rpc.close(); rpc = connect();
+  report.stage = 'resume';
   const resumed = await rpc.call('session/resume', { sessionId, workspace });
   const retainsFixtureText = JSON.stringify(resumed.messages).includes('LAM ZCode fixture response');
   report.results.resume = { status: retainsFixtureText ? 'verified' : 'unknown', afterProcessRestart: true, retainsFixtureText, messageCount: resumed.messages.length };
   await rpc.call('session/subscribe', { sessionId, deliveryKind: 'desktop-continuous' });
   mode = 'hold'; const cancelInputId = randomUUID();
+  report.stage = 'cancel';
   await rpc.call('session/send', { sessionId, inputId: cancelInputId, modelSelection: selection, content: 'Wait for cancellation fixture.' });
   await waitFor(message => message.method === 'fixture/holdStarted');
   await rpc.call('session/stop', { sessionId });
   const stopped = await waitFor(message => message.method === 'session/event' && ['turn.completed', 'turn.failed'].includes(message.params?.type) && message.params.payload?.inputId === cancelInputId);
   report.results.cancel = { status: stopped.params.payload.resultType === 'cancelled' ? 'verified' : 'unknown', eventType: stopped.params.type, resultType: stopped.params.payload.resultType, inFlightFixtureRequest: true };
   mode = 'permission';
+  report.stage = 'permissions';
   await rpc.call('session/setMode', { sessionId, mode: 'build' });
   const permissionInputId = randomUUID();
   await rpc.call('session/send', { sessionId, inputId: permissionInputId, modelSelection: selection, content: 'Exercise the denied fixture operation.' });
@@ -106,13 +122,17 @@ try {
   await rpc.call('session/close', { sessionId });
   report.results.permissions ??= { status: 'unknown', reason: 'Native approval was not reached' };
   report.results.attachExistingGui = { status: 'unknown', reason: 'Only this probe-owned App Server session was controlled' };
+  report.stage = 'complete';
 } catch (e) {
-  report.error = e.message.replaceAll(root, '<temporary-home>');
+  report.error = redactProbeText(e.message, root);
   report.observedMethods = [...new Set(observed.map(message => message.method).filter(Boolean))];
   report.observedEventTypes = [...new Set(observed.filter(message => message.method === 'session/event').map(message => message.params?.type))];
   process.exitCode = 1;
 } finally {
-  await rpc?.close(); fixture.closeAllConnections(); await new Promise(resolve => fixture.close(resolve));
+  await rpc?.close();
+  report.diagnostics = rpc ? JSON.parse(redactProbeText(JSON.stringify(rpc.diagnostics()), root)) : undefined;
+  report.startup.logs = await startupLogSummary(join(root, 'logs'), root).catch(() => []);
+  fixture.closeAllConnections(); await new Promise(resolve => fixture.close(resolve));
   await rm(root, { recursive: true, force: true });
 }
 console.log(JSON.stringify(report, null, 2));

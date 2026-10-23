@@ -8,16 +8,16 @@ import { spawnSync } from 'node:child_process';
 if (process.platform !== 'win32') throw new Error('Run this collector on Windows.');
 const here = dirname(fileURLToPath(import.meta.url));
 const layoutPath = process.argv[2] ?? join(tmpdir(), 'lam-windows-harness-layout.json');
-const outputPath = process.argv[3] ?? join(tmpdir(), 'lam-windows-native-probe.json');
+const outputPath = process.argv[3] ?? join(tmpdir(), 'lam-windows-native-probe-v2.json');
 const layout = JSON.parse((await readFile(layoutPath, 'utf8')).replace(/^\uFEFF/, ''));
 const report = {
-  capturedAtUtc: new Date().toISOString(), platform: process.platform, node: process.version,
+  probeRevision: 2, capturedAtUtc: new Date().toISOString(), platform: process.platform, node: process.version,
   scope: 'Probe-owned temporary sessions only. ZCode uses fixed loopback inference; DSH receives no prompts. No existing GUI attachment or WorkBuddy launch.',
   probes: {},
 };
 function runProbe(script, extraEnv) {
   const child = spawnSync(process.execPath, [join(here, script)], {
-    env: { ...process.env, ...extraEnv }, encoding: 'utf8', timeout: 120000, maxBuffer: 1024 * 1024,
+    env: { ...process.env, ...extraEnv }, encoding: 'utf8', timeout: 180000, maxBuffer: 1024 * 1024,
     windowsHide: true,
   });
   let result;
