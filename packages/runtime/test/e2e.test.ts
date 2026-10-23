@@ -261,3 +261,24 @@ it('expires remote cards, reports capability changes, and resumes an adapter tha
   if (resumed.type === 'session.event')
     expect(resumed.payload.nativeSessionId).toBe(session.nativeSessionId);
 });
+
+it('automatically reconnects a known fixed endpoint with the same identity and refreshes private cards', async () => {
+  const a = await gateway(),
+    b = await gateway();
+  await pair(a, b);
+  await a.sync(b.mesh.id);
+  const listen = b.mesh.addresses[0]!.split('/p2p/')[0]!;
+  const originalId = b.mesh.id;
+  await b.stop();
+  await expect.poll(() => a.remoteAgents(), { timeout: 3000 }).toEqual([]);
+  const next = await new Gateway({
+    directory: b.options.directory,
+    listen: [listen],
+    mock: true,
+  }).start();
+  gateways.push(next);
+  expect(next.mesh.id).toBe(originalId);
+  // No manual connect or sync call: exercise the running maintenance timer.
+  await expect.poll(() => a.remoteAgents().length, { timeout: 10000, interval: 100 }).toBe(1);
+  expect(a.remoteAgents()[0]!.nodeId).toBe(originalId);
+});

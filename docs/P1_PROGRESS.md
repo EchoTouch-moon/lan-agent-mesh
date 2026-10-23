@@ -16,7 +16,7 @@ Goal: implement LAM-07..15 on the local Mac; publish Windows-only and physical M
 
 ## Current state
 
-P1 storage, mesh transport and runtime packages plus the executable Gateway are implemented on feat/p1-mesh-core. Current checks cover 36 contract/integration cases, real encrypted loopback peers, code/identity/expiry/oversize/plaintext negatives, lost ACK replay, concurrent-session protection, default permission denial, key rotation, cache expiry/change, native mapping recovery, IPC authentication and startup conflicts. The independent-process smoke has passed an exploratory run; formal evidence will be captured from committed clean source. Windows tasks are separated in P1_WINDOWS_TASKS.md; no physical cross-platform result is claimed.
+P1 storage, mesh transport and runtime packages plus the executable Gateway are implemented on feat/p1-mesh-core. Current suite covers 37 contract/integration cases, real encrypted loopback peers, code/identity/expiry/oversize/plaintext negatives, lost ACK replay, concurrent-session protection, default permission denial, key rotation, cache expiry/change, native mapping recovery, IPC authentication and startup conflicts. The independent-process smoke has passed an exploratory run; formal evidence will be captured from committed clean source. Windows tasks are separated in P1_WINDOWS_TASKS.md; no physical cross-platform result is claimed.
 
 ## Decisions
 
@@ -57,3 +57,7 @@ Mac-local work is complete and reviewable. [CI 40014756437](https://github.com/E
 | LAM-15 | Two independent processes, both directions, exact fixture output, crash/restart/no replay | W1/W2/W3 required before whole-P1 hardware acceptance |
 
 The user intentionally deferred these Windows gates. They are published in Issue #15 with source, safe commands and result contract, and do not block delivery of the requested Mac work. PR #38 remains unmerged for review; P1 issues stay open, and overall cross-platform P1 acceptance is not claimed. No persistent test listener is left on this Mac.
+
+## Final reconnect audit
+
+The initial process smoke used explicit reconnect after a random-port restart. A focused added integration test now exercises the actual five-second maintenance timer with a restarted fixed endpoint, without manual connect/sync. It passed locally (same identity, private cards automatically refreshed; runtime suite 8/8). This adds one test, bringing the total to 37; production code and archived 4714ed9 smoke source are unchanged. Final hosted CI includes this test. Existing unmodified multicast/native process probes were not repeated for a test-only addition.
