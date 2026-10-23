@@ -1,5 +1,7 @@
 # Windows 本地验证
 
+**Windows LM 直接执行入口：[任务与 GitHub 回传约定](WINDOWS_AGENT_TASKS.md)。** 后续验证由 Windows 端从 GitHub 领取、执行并回传证据 PR，不再依赖用户中转文件。以下保留独立脚本的运行说明。
+
 此包包含当前 P0 源码及锁定依赖文件，在实现 PR 合并前，GitHub main 分支仍不包含这些代码；请使用此压缩包或对应实现分支。
 
 1. 将 `lan-agent-mesh-p0-windows.zip` 复制到 Windows，用系统“全部解压缩”解压到普通用户可写目录。不要直接在压缩包里运行。

@@ -79,3 +79,5 @@ Workspace layout:
 License selection is pending; do not assume a license grant until a LICENSE file is committed.
 
 Windows local verification: run `powershell -File scripts/verify-windows.ps1` from the checkout after installing Node and the pinned pnpm. It writes a report to the temporary directory, runs only the offline workspace checks/demo and does not start a real harness.
+
+Windows agent handoff: [execution tasks and GitHub result contract](docs/WINDOWS_AGENT_TASKS.md). Windows LM can take the tasks from LAM-01, publish evidence/fixes in a PR targeting `feat/p0-foundation`, and link the results back to the issue.
