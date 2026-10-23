@@ -15,6 +15,15 @@
       ],
       "@lam/mock-adapter": [
         "packages/mock-adapter/src/index.ts"
+      ],
+      "@lam/storage": [
+        "packages/storage/src/index.ts"
+      ],
+      "@lam/mesh": [
+        "packages/mesh/src/index.ts"
+      ],
+      "@lam/runtime": [
+        "packages/runtime/src/index.ts"
       ]
     }
   },

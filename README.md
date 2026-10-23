@@ -2,7 +2,7 @@
 
 **A peer-to-peer local network for existing AI agent harnesses.** Discover, wake, message and delegate work across macOS and Windows while keeping each harness and machine's native execution permissions.
 
-> **Status: P0 foundation and reviewed Windows evidence merged in [PR #37](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/37).** Domain schemas, protocol v1, Adapter SDK and a deterministic mock are available. P2P transport, real harness adapters and a working network Gateway are still planned. See [P0 progress](docs/P0_PROGRESS.md).
+> **Status: P0 merged; P1 Mac implementation ready for validation/review.** The P1 branch adds SQLite state, human-confirmed pairing, encrypted TCP/Noise/Yamux peers and a real Gateway process with Mock routing. Windows hardware work is [separated for later execution](docs/P1_WINDOWS_TASKS.md). Real Harness adapters/MCP and production approval UI remain P2/P3. See [P1 progress](docs/P1_PROGRESS.md).
 
 ## Goal
 
@@ -54,7 +54,7 @@ P0: interface feasibility + SDK (LAM-01..06) → P1: P2P core (07..15) → P2: M
 
 ## Local development
 
-Use Node.js 22 or 24 and pnpm 10.18.3 (pinned in packageManager). If Corepack is available, `corepack enable` makes the pinned pnpm available; otherwise install that pnpm version using your normal package manager.
+Use Node.js 22.13+ or 24 and pnpm 10.18.3 (pinned in packageManager). If Corepack is available, `corepack enable` makes the pinned pnpm available; otherwise install that pnpm version using your normal package manager.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -80,4 +80,18 @@ License selection is pending; do not assume a license grant until a LICENSE file
 
 Windows local verification: run `powershell -File scripts/verify-windows.ps1` from the checkout after installing Node and the pinned pnpm. It writes a report to the temporary directory, runs only the offline workspace checks/demo and does not start a real harness.
 
-Windows agent handoff: [execution tasks and GitHub result contract](docs/WINDOWS_AGENT_TASKS.md). The assigned Windows runs are delivered and reviewed. PR #37 consolidates their shared history for integration into main; no additional native run is pending.
+## P1 Gateway on a Mac
+
+After `pnpm install --frozen-lockfile` and `pnpm build`:
+
+```sh
+pnpm gateway serve --data /path/to/private-test-directory --mock
+pnpm gateway control --data /path/to/private-test-directory --command status
+node scripts/p1-process-smoke.mjs --output /tmp/lam-p1-process.json
+```
+
+The first command stays running. Use a second terminal for control commands. Default transport and all control traffic bind to loopback. `--mock` explicitly exports a deterministic test Agent; without it no Agent is exposed. For a scheduled LAN test add `--listen /ip4/0.0.0.0/tcp/48731 --mdns`, compare the pairing code on both machines, and confirm locally on each before reading private registry data or sending tasks. Do not publish control.json or identity.key.
+
+`control --command shutdown` stops the owned Gateway. Offline `rotate-identity --data <directory>` invalidates prior trust and requires pairing again. These commands run only the P1 test runtime and do not attach a GUI or start real inference. Node 22 may print its built-in SQLite experimental warning.
+
+[P1 design and recovery rules](docs/adr/0002-p1-mesh-runtime.md) cover UNKNOWN, exact-message outbox retries, cache expiry and limits. [Windows tasks](docs/P1_WINDOWS_TASKS.md) separate Windows same-host checks from the actual Mac↔Windows hardware gate. P0's [historical handoff](docs/WINDOWS_AGENT_TASKS.md) is complete.

@@ -1,0 +1,33 @@
+# ADR 0002 — P1 runtime, persistence and peer trust
+
+Status: implemented on the P1 branch; Mac verification and cross-platform gates are tracked in P1_PROGRESS.md.
+
+## Dependencies and wire contract
+
+Retain libp2p TCP + Noise + Yamux instead of implementing a custom cryptographic channel. Noise authenticates the Ed25519 peer identity before application streams; a persistent peer ID is the node ID. The pinned package versions and transitive integrity hashes are in pnpm-lock.yaml. The [official v3 migration guide](https://github.com/libp2p/js-libp2p/blob/main/doc/migrations/v2.0.0-v3.0.0.md) describes bounded length-prefixed stream helpers and async handlers. The transport accepts only /lan-agent-mesh/rpc/1.0.0, with at most 64 KiB per length-prefixed JSON frame, 10-second reads/writes, 16 concurrent handlers, 8 streams per connection and 240 requests per peer per minute. Incoming negotiation has a two-second timeout to bound silent/plaintext sockets. Noise is the sole connection encrypter; there is no plaintext fallback.
+
+RPC outer messages carry a request ID and pair.open/pair.confirm/mesh method. The mesh body is a strict discriminated union: registry snapshot, P0 envelope, or bounded persisted task-event cursor. P0 envelope validation remains authoritative for task/session operations: version, expiry, source bound to Noise identity, local target, correlation, idempotency, payload and UTF-8 limits. Outer framing adds overhead to the P0 maximum; the complete frame must fit 64 KiB. Polling task events transports one persisted event per request, preserving streaming order without an unbounded reconnect buffer. Delivery acceptance is distinct from task completion.
+
+## Discovery and pairing
+
+mDNS/DNS-SD advertises only identity and endpoints under _lam._udp.local. It never exports agents, sessions or tasks. Discoveries are untrusted and expire after 120 seconds. Manual host:port or multiaddr works with mDNS disabled. Listener defaults to random loopback TCP; exposing LAN transport requires explicit --listen. Local control always binds 127.0.0.1.
+
+A fresh 120-second pairing session uses a random session ID, random nonce from each peer and the two Noise-authenticated peer IDs. A SHA-256 transcript digest produces a 96-bit comparison code displayed through each local control endpoint. Each human must compare it using a trusted independent channel and confirm on their own device. No trust is persisted until both confirmations arrive; no private request is accepted before that. The remote cannot invoke the local confirmation command. Wrong session/identity/code, expired sessions and third-party confirmations fail closed. Pending sessions (16), discoveries (128) and trusted peers (128) are bounded.
+
+Trust grants access only to explicitly exported test agents/workspace aliases. P1 supports global export filtering; fine-grained per-peer policy and authenticated human approvals are P3. Revocation removes trust, invalidates cached registry availability and closes connections. Offline key rotation removes all trust before replacing the key; a crash between these writes fails closed. Rotation requires a stopped Gateway and new pairing. Existing session mappings are not silently rebound to a new identity.
+
+## SQLite and recovery
+
+Use the [Node built-in SQLite API](https://nodejs.org/download/release/v22.23.4/docs/api/sqlite.html), available without a flag from Node 22.13. Require Node >=22.13 and <25. The API remains experimental on Node 22; it avoids native-addon installers. Synchronous bounded transactions use WAL, FULL synchronous, foreign keys and busy timeout. user_version=1 migration creates nodes/agents/sessions/tasks/messages/approvals/audit_events/inbox/outbox. Future schema versions are rejected. The Gateway obtains an exclusive per-directory PID lock; a live process is not displaced.
+
+Unique (peer,idempotency key) and unique task IDs are committed before execution. Conflicting reuse rejects. Same-message inbox receipts cache responses; session-operation reservations are written before native spawn/resume, so an uncertain crash cannot trigger another spawn. Outbox persists the original envelope before transmission; explicit retry sends the identical message. It never manufactures another task/key or automatically retries an uncertain side effect. Inbox/outbox retain up to 10,000 records each; tasks 1,000; sessions 100. Capacity exhaustion rejects new work, without erasing deduplication history.
+
+On restart, QUEUED/RUNNING/WAITING_INPUT tasks become UNKNOWN, retain history and do not execute. UNKNOWN keeps the affected session busy because the native operation may still be alive; use a new explicitly created session pending future reconciliation. A lost ACK can be retried using the persisted original envelope, which returns the existing task even after restart. Known remote endpoints reconnect with the same pinned identity; registry keepalive refreshes every five seconds, stale cards expire after fifteen seconds and offline/revoked cards cannot dispatch. No automatic outbox side-effect replay is introduced.
+
+Gateway session ID, adapter session ID and native session ID are distinct persisted fields. Resume checks the native identity against the stored mapping. If a native adapter survives Gateway restart, it can resume; if a process-local Mock is lost, resume correctly fails rather than fabricating context. Session turns are mutually exclusive and independent sessions may proceed concurrently. Task budget is at most five minutes, delegation depth at most four, at most sixteen live executions, and bounded event history. Native permission requests are recorded and denied; no allow endpoint exists.
+
+## Process and local control
+
+The control endpoint requires a random per-process 256-bit bearer token held in control.json; it rejects browser Origin requests and has no CORS grant. Health exposes readiness only. Identity/control/database live in a private per-user data directory with POSIX 0700/0600; on Windows use a user-private ACL directory, not a shared folder. Token/identity contents must never enter reports. Local OS users with access to the directory are trusted; this is not P3 human authentication. SIGINT/SIGTERM or authenticated shutdown closes HTTP, cancels owned tasks, stops transport and releases the lock. No real Harness child, GUI, model, system service, firewall rule or installer is started.
+
+P1 verifies real local socket/process boundaries with Mock inference. It does not claim real Mac↔Windows hardware interoperability until the separate handoff succeeds. Real Harness adapters, MCP ingress and production human approval remain P2/P3.
