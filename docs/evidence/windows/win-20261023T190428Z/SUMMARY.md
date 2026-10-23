@@ -20,11 +20,13 @@
 显式读取 XML 属性 + 命名空间感知的 ExecutionAlias 遍历（区别于第三轮的空投影）：
 
 - 包内唯一注册应用：`Id=App`、`Executable=app/ChatGPT.exe`、FullTrust 入口；五个扩展类别（comServer、fileExplorerContextMenus、protocol、fileTypeAssociation ×2）**均无 ExecutionAlias**——这是被证明的清单事实，不再是缺失字段的默认值。
-- `app/Codex.exe`：1,105,200 字节，SHA-256 `8f624c53c38a44a973460a127e5338b84f32c4a2423d705330835e12fea9bdd0`；无静态 VersionInfo 字段。**存在但不是清单注册的独立入口或执行别名**——更支持"应用内部组件"的解释；在确定其性质前仍不执行，全部控制能力保持 unknown。
+- `app/Codex.exe`：1,105,200 字节，SHA-256 `8f624c53c38a44a973460a127e5338b84f32c4a2423d705330835e12fea9bdd0`；无静态 VersionInfo 字段。**存在但不是清单注册的独立入口或执行别名**；清单不能确定其 CLI/GUI/app-server 角色；在确定其性质前仍不执行，全部控制能力保持 unknown。
 - 证据：[codex-msix-win32-r4.json](codex-msix-win32-r4.json)（manifestProjectionStatus=verified-statically）。
 
 ## 矩阵影响与未解决项
 
 - HARNESS_MATRIX：DSH 桌面 Windows 行 permissions 注记补"含因果对照的写入阻止验证"；Codex Windows 行更新为"清单无 ExecutionAlias、Codex.exe 非注册入口"。
-- 未解决：Codex.exe 接口形态（需单独授权且可能仅 GUI 内部组件）；attach-existing-GUI 全平台；WorkBuddy 入站；ZCode 3.16.2 旧超时根因。
+- 未解决：Codex.exe 接口形态（unknown，清单不能确定其角色）；attach-existing-GUI 全平台；WorkBuddy 入站；ZCode 3.16.2 旧超时根因。
 - 需要 Mac 端接续：复核本 PR 后，Windows 侧待办已收敛至上述需授权项。
+
+Mac 端已接收两项补测，限制与溯源说明见 [REVIEW.md](REVIEW.md)。没有安排重复实测；PR 仍待集成。
