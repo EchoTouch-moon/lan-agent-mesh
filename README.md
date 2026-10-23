@@ -2,7 +2,7 @@
 
 **A peer-to-peer local network for existing AI agent harnesses.** Discover, wake, message and delegate work across macOS and Windows while keeping each harness and machine's native execution permissions.
 
-> **Status: P0 foundation merged; Windows follow-up evidence under review in [PR #34](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/34).** Domain schemas, protocol v1, Adapter SDK and a deterministic mock are available. P2P transport, real harness adapters and a working network Gateway are still planned. See [P0 progress](docs/P0_PROGRESS.md).
+> **Status: P0 foundation merged; Windows evidence reviewed, with cumulative integration in [PR #37](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/37).** Domain schemas, protocol v1, Adapter SDK and a deterministic mock are available. P2P transport, real harness adapters and a working network Gateway are still planned. See [P0 progress](docs/P0_PROGRESS.md).
 
 ## Goal
 
@@ -62,7 +62,7 @@ pnpm check
 pnpm demo
 ```
 
-`pnpm check` builds the packages, type-checks source and tests, runs lint and the offline contract tests. The demo prints mock response events and needs no model credentials. CI defines the same checks for macOS and Windows on Node 22/24. All four hosted jobs passed on the implementation commit; see [CI evidence](docs/evidence/ci-d64ff98.json) and [draft PR #33](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/33).
+`pnpm check` builds the packages, type-checks source and tests, runs lint and the offline contract tests. The demo prints mock response events and needs no model credentials. CI defines the same checks for macOS and Windows on Node 22/24. All four hosted jobs passed on the implementation commit; see [CI evidence](docs/evidence/ci-d64ff98.json) and [merged PR #33](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/33).
 
 Workspace layout:
 
@@ -80,4 +80,4 @@ License selection is pending; do not assume a license grant until a LICENSE file
 
 Windows local verification: run `powershell -File scripts/verify-windows.ps1` from the checkout after installing Node and the pinned pnpm. It writes a report to the temporary directory, runs only the offline workspace checks/demo and does not start a real harness.
 
-Windows agent handoff: [execution tasks and GitHub result contract](docs/WINDOWS_AGENT_TASKS.md). Windows LM can take the tasks from LAM-01, publish evidence/fixes in a PR targeting `feat/p0-foundation`, and link the results back to the issue.
+Windows agent handoff: [execution tasks and GitHub result contract](docs/WINDOWS_AGENT_TASKS.md). The assigned Windows runs are delivered and reviewed. PR #37 consolidates their shared history for integration into main; no additional native run is pending.

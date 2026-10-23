@@ -1,6 +1,6 @@
 # P0 implementation record
 
-Updated 2026-10-24. The P0 foundation was merged in [PR #33](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/33), merge commit 31bde708511e1d902b5aa892c3303221250c9381 on 2026-10-23. Later Windows probes, diagnostics and GitHub handoff commits remain on feat/p0-foundation; [Windows evidence PR #34](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/34) targets that branch and is not merged. GitHub Issues remain open.
+Updated 2026-10-24. The P0 foundation was merged in [PR #33](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/33), merge commit 31bde708511e1d902b5aa892c3303221250c9381 on 2026-10-23. Later Windows probes, diagnostics and GitHub handoff commits remain on feat/p0-foundation; [cumulative integration PR #37](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/37) includes those commits and all four reviewed Windows runs, targeting main; it is not merged. GitHub Issues remain open.
 
 ## Delivered locally
 
@@ -35,3 +35,7 @@ DSH CLI 0.1.1-rc.2 lacks ACP in its isolated default distribution; this is not W
 ## Boundaries
 
 P1 network transport, durable execution/replay records and pairing, P2 real adapters/MCP ingress, and P3 authenticated human approval/UI are not implemented. Mock permissions test binding and fail-closed outcomes; humanId metadata does not authenticate a human. No native adapter or existing-GUI attachment support is advertised as verified beyond the specific probes above.
+
+## Acceptance and integration
+
+[Requirement-by-requirement audit](P0_ACCEPTANCE.md) maps LAM-01..06 to implementation, tests and evidence. PR #37 is the cumulative integration route to main and contains #34/#35/#36 by ancestry. Existing evidence PRs need no independent patch application. No P1 work or new native experiment is included.
