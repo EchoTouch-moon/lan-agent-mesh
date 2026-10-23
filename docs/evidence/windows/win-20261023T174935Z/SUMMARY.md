@@ -30,3 +30,9 @@
 - HARNESS_MATRIX：DSH 桌面 0.2.1-rc.2 Windows 行的 send/stream/cancel/permissions 更新为 verified；Codex Windows 行更新为"app/Codex.exe 已定位、stdio 面未建立"。
 - 未解决：Windows Codex 控制接口（Codex.exe 形态未行使，需单独授权）；attach-existing-GUI 全平台；WorkBuddy 入站；ZCode 3.16.2 旧超时根因。
 - 需要 Mac 端接续：复核本 PR（重点是 fixture 端点契约结论与 Codex.exe 定位表述）。
+
+## Mac 端复核补充
+
+执行 SHA 与两份脚本哈希已逐一核对。发送、流式输出、进程重启后接受原 session ID、在途取消及原生 reject_once 有对应记录；marker 未创建是观察事实，但原 pwsh 工具命令使用 printf，且原判定在没有审批事件时也可能通过，不能把这一项作为有正向对照的写入阻止验证。修正版使用 PowerShell Set-Content 正向对照并要求原生拒绝、只读 sandbox 拒绝和 marker 缺失同时成立。
+
+MSIX 清单原投影丢失 Id/Executable 字段，其 aliases=[] 不能用于证明没有别名。静态文件名 app/Codex.exe 的发现保留；它不是已确认的独立 CLI。两项需要定点重验，其余已通过且未改动的能力不例行重复。完整复核见 [REVIEW.md](REVIEW.md)。原始报告及其哈希保留。

@@ -108,7 +108,7 @@
     "permissions": "unknown",
     "attachExistingGui": "unknown"
   },
-  "conclusion": "Static package metadata only. Whether this MSIX exposes a standalone Codex CLI or app-server stdio entry is determined by the manifest applications/extensions and executable names recorded above; nothing was launched. All control capabilities remain unknown until a supported interface is exercised.",
+  "conclusion": "Static package metadata and executable-name observations only. The captured manifest projection is incomplete, so its empty alias arrays cannot prove absent aliases. app/Codex.exe was not launched; its interface and all control capabilities remain unknown.",
   "provenance": {
     "source": "Locally captured during this run; original kept only on the execution machine.",
     "originalFileName": "codex-msix2.json",
@@ -118,5 +118,10 @@
   "runId": "win-20261023T174935Z",
   "executedSourceSha": "a0818d847483871ba3a18cf33607a4753fa4c2da",
   "probeScript": "scripts/probe-codex-msix-win.mjs",
-  "probeScriptSha256": "430b922ad6fd237520ce7d9afeae592e52bd41020d10c2d12cbe5f997afa419a"
+  "probeScriptSha256": "430b922ad6fd237520ce7d9afeae592e52bd41020d10c2d12cbe5f997afa419a",
+  "reviewAssessment": {
+    "executableName": "app/Codex.exe is observed; its GUI/CLI/app-server role remains unknown.",
+    "manifestProjection": "incomplete",
+    "reason": "The original manifest entries lack application ID and executable fields. Empty aliases in this projection do not prove absent execution aliases. Corrected XML attribute/namespace projection needs a static-only retest."
+  }
 }

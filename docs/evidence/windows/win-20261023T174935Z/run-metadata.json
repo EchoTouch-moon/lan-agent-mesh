@@ -10,8 +10,14 @@
   "scriptsFirstCommitSha": "a90f969bc91327fed93bc0ef2499cb1c8c45e8b4",
   "processNote": "Per round-2 review guidance the probes were committed and pushed BEFORE the real run; the fixture shape then needed three committed iterations (request logging, endpoint identification, usage field). Every executed revision is in the branch history; the successful runs below used executedSourceSha with these script hashes.",
   "executedScripts": [
-    { "path": "scripts/probe-dsh-desktop-fixture.mjs", "sha256": "404b607ced247860d4c6ad6418c4a8c3e730194015e3fc2f94ec03f8c28600d1" },
-    { "path": "scripts/probe-codex-msix-win.mjs", "sha256": "430b922ad6fd237520ce7d9afeae592e52bd41020d10c2d12cbe5f997afa419a" }
+    {
+      "path": "scripts/probe-dsh-desktop-fixture.mjs",
+      "sha256": "404b607ced247860d4c6ad6418c4a8c3e730194015e3fc2f94ec03f8c28600d1"
+    },
+    {
+      "path": "scripts/probe-codex-msix-win.mjs",
+      "sha256": "430b922ad6fd237520ce7d9afeae592e52bd41020d10c2d12cbe5f997afa419a"
+    }
   ],
   "executionMachine": {
     "platform": "win32",
@@ -34,8 +40,14 @@
     "docs/evidence/windows/win-20261023T174935Z/codex-msix-win32.json"
   ],
   "originalsKeptLocal": [
-    { "file": "%TEMP%/dsh-desktop-fx5.json", "sha256": "recorded in dsh-desktop-acp-fixture.json provenance" },
-    { "file": "%TEMP%/codex-msix2.json", "sha256": "recorded in codex-msix-win32.json provenance" }
+    {
+      "file": "%TEMP%/dsh-desktop-fx5.json",
+      "sha256": "020e3b32f3ba31b2db3825a9558ad944f409336564a41ffc8e3222d20f625ce7"
+    },
+    {
+      "file": "%TEMP%/codex-msix2.json",
+      "sha256": "4572ced0d6e34f261da76d940b54fa974aaf8f6b6923570426afdda6d6bf16ba"
+    }
   ],
   "redactionScope": "Probe outputs self-redact temporary homes, the desktop launcher path and the MSIX install root, and were verified free of machine-identifying paths before committing. The MSIX inspection read package metadata, manifest and file names only; no user configuration, credentials or sessions were read; nothing was launched.",
   "constraintsHeld": [
@@ -44,5 +56,6 @@
     "The permission path was answered reject_once by the probe client; the denied marker file was not created.",
     "The MSIX package was inspected statically only (Get-AppxPackage, manifest, file names, one VersionInfo read of app/Codex.exe); Codex.exe was not executed.",
     "No application upgrade/downgrade, plugin install, PATH/registry change, or existing chat/user configuration access."
-  ]
+  ],
+  "reviewNote": "Original captured probe fields and raw-file hashes are retained. Mac review qualifies the denied-write effect and incomplete manifest projection separately; later probe fixes have not yet been rerun on this installation."
 }

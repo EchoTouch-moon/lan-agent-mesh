@@ -26,6 +26,7 @@ jobs:
       - run: pnpm test
       - run: node apps/cli/dist/index.js
       - run: node scripts/check-rpc-probe.mjs
+      - run: node scripts/check-windows-evidence-probes.mjs
       - name: Validate Windows helper scripts
         if: runner.os == 'Windows'
         shell: powershell

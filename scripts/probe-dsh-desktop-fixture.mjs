@@ -3,7 +3,7 @@
 // is a local deterministic SSE fixture (no external model), following probe-dsh-fixture.mjs.
 // No GUI launch, no PATH/registry changes, no profile installs.
 import { createServer } from 'node:http';
-import { access, mkdtemp, rm } from 'node:fs/promises';
+import { access, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, win32 } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -12,6 +12,7 @@ import { promisify } from 'node:util';
 import { rpcProcess } from './rpc-probe.mjs';
 import { redactProbeText } from './probe-diagnostics.mjs';
 import { windowsCmdLauncher } from './windows-cmd-launcher.mjs';
+import { deniedWriteResult, permissionWriteCommand } from './dsh-desktop-fixture-contract.mjs';
 
 const execFileAsync = promisify(execFile);
 
@@ -20,10 +21,14 @@ if (process.platform !== 'win32') throw new Error('Run this probe on Windows.');
 if (!launcher) throw new Error('Set LAM_DSH_DESKTOP_CMD to the installed dsh.cmd launcher path.');
 const versionCommand = windowsCmdLauncher(launcher, ['--version']);
 const acpCommand = windowsCmdLauncher(launcher, ['--profile', 'acp']);
+const scope = process.env.LAM_DSH_FIXTURE_SCOPE ?? 'full';
+if (!['full', 'permissions'].includes(scope)) throw new Error('Expected fixture scope full or permissions.');
 const root = await mkdtemp(join(tmpdir(), 'lam-dsh-desktop-fx-'));
 
 const inherited = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^(DSH_|DEEPSEEK_|ELECTRON_)/i.test(key)));
 const report = { harness: 'dsh-desktop', platform: process.platform, launcherKind: 'bundled dsh.cmd (ELECTRON_RUN_AS_NODE headless host)', inference: 'localhost deterministic fixture; no external model', externalModelRequests: 0, fixtureRequests: 0, promptsSent: 0, results: {} };
+report.scope = scope;
+report.results.permissionSetup = { pwshAdvertised: false, initialSandboxDenialObserved: false };
 let mode = 'text'; let rpc; let notifyHeld; let permissionStage = 0;
 const notifications = [];
 
@@ -45,9 +50,11 @@ const fixture = createServer(async (request, response) => {
   }
   if (mode === 'permission' && permissionStage < 2) {
     const tool = body.tools?.find(tool => tool.name === 'pwsh' || tool.function?.name === 'pwsh');
-    const priorDenial = body.messages?.some(message => message.role === 'user' && JSON.stringify(message.content).includes('sandbox: file access denied'));
+    const priorDenial = body.messages?.some(message => message.role === 'user' && Array.isArray(message.content) && message.content.some(block => block.type === 'tool_result' && JSON.stringify(block.content).includes('sandbox: file access denied')));
+    report.results.permissionSetup.pwshAdvertised ||= Boolean(tool);
+    report.results.permissionSetup.initialSandboxDenialObserved ||= Boolean(priorDenial);
     if (tool && (permissionStage === 0 || priorDenial)) {
-      const args = { command: `printf fixture > '${join(root, 'denied-marker')}'`, description: 'Exercise temporary permission denial fixture', ...(permissionStage === 1 ? { sandbox_permissions: 'workspace-write', justification: 'Verify that the native ACP client can reject this temporary fixture operation.' } : {}) };
+      const args = { command: permissionWriteCommand(join(root, 'denied-marker')), description: 'Exercise temporary permission denial fixture', ...(permissionStage === 1 ? { sandbox_permissions: 'workspace-write', justification: 'Verify that the native ACP client can reject this temporary fixture operation.' } : {}) };
       permissionStage++;
       event('content_block_start', { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id: `toolu_lam_${permissionStage}`, name: 'pwsh', input: {} } });
       event('content_block_delta', { type: 'content_block_delta', index: 0, delta: { type: 'input_json_delta', partial_json: JSON.stringify(args) } });
@@ -55,7 +62,6 @@ const fixture = createServer(async (request, response) => {
       event('message_delta', { type: 'message_delta', delta: { stop_reason: 'tool_use' }, usage: { input_tokens: 1, output_tokens: 1 } });
       event('message_stop', { type: 'message_stop' }); response.end(); return;
     }
-    report.results.permissionSetup = { pwshAdvertised: Boolean(tool), initialSandboxDenialObserved: Boolean(priorDenial) };
   }
   event('content_block_start', { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } });
   event('content_block_delta', { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'LAM DSH fixture response' } });
@@ -84,6 +90,12 @@ const env = {
 };
 
 try {
+  const controlMarker = join(root, 'command-control-marker');
+  await execFileAsync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', permissionWriteCommand(controlMarker)], { env, cwd: root, timeout: 15000, windowsHide: true });
+  const commandControlVerified = (await readFile(controlMarker, 'utf8')).trim() === 'fixture';
+  await rm(controlMarker, { force: true });
+  report.results.permissionWriteCommand = { status: commandControlVerified ? 'verified' : 'unknown', wroteControlMarker: commandControlVerified, controlMarkerRemoved: true, scope: 'Probe-owned positive control only; not a harness permission grant' };
+  if (!commandControlVerified) throw new Error('PowerShell write command positive control failed');
   try {
     const { stdout } = await execFileAsync(versionCommand.command, versionCommand.args, { encoding: 'utf8', env, cwd: root, timeout: 60000, windowsHide: true, windowsVerbatimArguments: true });
     report.version = stdout.trim();
@@ -95,15 +107,18 @@ try {
     const connection = rpcProcess(acpCommand.command, acpCommand.args, env, root, { captureDiagnostics: true, windowsVerbatimArguments: true, killTree: true, onMessage: message => {
       if (message.method) notifications.push(message);
       if (message.method === 'session/request_permission' && 'id' in message) {
-        const reject = message.params.options.find(option => option.kind === 'reject_once') ?? message.params.options.find(option => option.kind === 'reject_always');
+        const options = Array.isArray(message.params?.options) ? message.params.options : [];
+        const reject = options.find(option => option.kind === 'reject_once') ?? options.find(option => option.kind === 'reject_always');
         connection.reply(message.id, { outcome: reject ? { outcome: 'selected', optionId: reject.optionId } : { outcome: 'cancelled' } });
-        report.results.permissions = { status: 'verified', nativeRequestMethod: message.method, decision: reject?.kind ?? 'cancelled' };
+        report.results.permissions = { status: reject ? 'verified' : 'unknown', nativeRequestMethod: message.method, decision: reject?.kind ?? 'cancelled' };
       }
     } });
-    const initialized = await connection.call('initialize', { protocolVersion: 1, clientCapabilities: {}, clientInfo: { name: 'lam-local-fixture', version: '0.0.0' } }, { timeoutMs: 60000 });
-    if (initialized?.protocolVersion !== 1 || typeof initialized?.agentInfo?.name !== 'string') throw new Error('Invalid ACP initialize response');
-    connection.notify('initialized');
-    return connection;
+    try {
+      const initialized = await connection.call('initialize', { protocolVersion: 1, clientCapabilities: {}, clientInfo: { name: 'lam-local-fixture', version: '0.0.0' } }, { timeoutMs: 60000 });
+      if (initialized?.protocolVersion !== 1 || typeof initialized?.agentInfo?.name !== 'string') throw new Error('Invalid ACP initialize response');
+      connection.notify('initialized');
+      return connection;
+    } catch (error) { await connection.close(); throw error; }
   };
 
   rpc = await connect();
@@ -112,6 +127,7 @@ try {
   report.results.create = { status: 'verified', returnedSessionId: true };
   const sessionId = created.sessionId;
 
+  if (scope === 'full') {
   report.promptsSent++;
   const prompt = await rpc.call('session/prompt', { sessionId, prompt: [{ type: 'text', text: 'Return a fixture greeting.' }] }, { timeoutMs: 120000 });
   report.results.send = { status: prompt.stopReason === 'end_turn' ? 'verified' : 'unknown', stopReason: prompt.stopReason };
@@ -135,13 +151,15 @@ try {
   rpc.notify('session/cancel', { sessionId });
   const cancelled = await pendingPrompt;
   report.results.cancel = { status: cancelled.stopReason === 'cancelled' ? 'verified' : 'unknown', stopReason: cancelled.stopReason, inFlightFixtureRequest: true };
+  }
 
   mode = 'permission';
   report.promptsSent++;
   const permissionDone = await rpc.call('session/prompt', { sessionId, prompt: [{ type: 'text', text: 'Exercise the denied fixture operation.' }] }, { timeoutMs: 120000 });
   report.results.permissionTurn = { stopReason: permissionDone.stopReason };
-  try { await access(join(root, 'denied-marker')); report.results.deniedOperation = { status: 'failed', markerCreated: true }; }
-  catch { report.results.deniedOperation = { status: 'verified', markerCreated: false }; }
+  let markerCreated;
+  try { await access(join(root, 'denied-marker')); markerCreated = true; } catch (error) { if (error.code !== 'ENOENT') throw error; markerCreated = false; }
+  report.results.deniedOperation = deniedWriteResult({ markerCreated, commandControlVerified, nativeRejection: report.results.permissions?.status === 'verified', initialSandboxDenialObserved: report.results.permissionSetup.initialSandboxDenialObserved });
   await rpc.call('session/close', { sessionId });
   report.results.permissions ??= { status: 'unknown', reason: 'Native approval was not reached; see permissionSetup' };
   report.results.attachExistingGui = { status: 'unknown', reason: 'Only this probe-owned ACP session was controlled' };

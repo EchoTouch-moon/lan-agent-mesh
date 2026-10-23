@@ -294,5 +294,11 @@
   "runId": "win-20261023T174935Z",
   "executedSourceSha": "a0818d847483871ba3a18cf33607a4753fa4c2da",
   "probeScript": "scripts/probe-dsh-desktop-fixture.mjs",
-  "probeScriptSha256": "404b607ced247860d4c6ad6418c4a8c3e730194015e3fc2f94ec03f8c28600d1"
+  "probeScriptSha256": "404b607ced247860d4c6ad6418c4a8c3e730194015e3fc2f94ec03f8c28600d1",
+  "reviewAssessment": {
+    "nativePermissionRejection": "Verified by the recorded native request and reject_once response.",
+    "markerAbsence": "Observed in the original run; original probe output retained.",
+    "deniedWriteEffect": "unknown",
+    "reason": "Original pwsh fixture used printf without a portable-command control, and its verdict accepted marker absence even without native rejection. A corrected Set-Content command with a harmless positive control and a gated verdict needs a targeted Windows retest."
+  }
 }
