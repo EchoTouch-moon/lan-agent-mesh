@@ -1,0 +1,39 @@
+{
+  "runId": "win-priv-20261024T145925Z",
+  "kind": "Actual Windows host re-verification of the main private-storage gate (#41); fills the physical-host gap left by private-storage-20261024T104801Z (hosted runners only)",
+  "testedSourceSha": "8f549f2c3b12df99b0a35a790aa09aab1bcf8259",
+  "branch": "main clone at a local path containing spaces; git status --porcelain empty before every scripted run",
+  "platform": "win32",
+  "os": "Windows 10.0.22621 x64 (zh-CN host whose default user temp/profile inherit Everyone:Full and foreign-user ACEs — the environment from PR #39 w2-isolation-acl.json)",
+  "node": "v24.12.0",
+  "pnpm": "10.18.3",
+  "commands": [
+    { "command": "git clone <repo> <path-with-space> (branch main)", "exitCode": 0, "evidence": "HEAD 8f549f2c3b12df99b0a35a790aa09aab1bcf8259, clean status" },
+    { "command": "pnpm install --frozen-lockfile", "exitCode": 0, "logSha256": "aa05aee10d9272ab0f6598f0aa0f17b873e214a5c6e669c3cf96efe8653d45db" },
+    { "command": "pnpm build (compiles the native C# helper DLL)", "exitCode": 0, "logSha256": "d6cdba6c723a88b53e3d4601f4016b21213927f85f8df86d1e1116812b0efb91" },
+    { "command": "pnpm check with default TEMP/TMP (unsafe inherited host policy)", "exitCode": 1, "result": "environment blocker recorded, not weakened: 18 tests fail closed because temporary Gateways refuse the unsafe temp lineage; build/typecheck/lint and the remaining tests pass", "logSha256": "825161dc0d2eef3757a35296cf3033ed718340e3458ea1905a642fffef42b473" },
+    { "command": "pnpm check with TEMP/TMP set only for the test process to a checker-verified private directory", "exitCode": 0, "result": "48 tests passed, 1 POSIX-only skipped; no permanent user/machine environment variable changed", "logSha256": "ed729e0a2b35cdb8cdce9b6c1b1654c9393e563dce9e1dbcbd8563c049f3e7c1" },
+    { "command": "node packages/mcp-server/dist/windows-private-smoke.js --parent C:\\lam-private-parent --output <local-original>.json", "exitCode": 0, "report": "windows-private-smoke.json" }
+  ],
+  "operatorParentDirectory": {
+    "note": "explicitly created and tightened by the operator per docs/WINDOWS_PRIVATE_STORAGE.md (user-managed ACL of a brand-new directory; no existing host directory, profile, firewall or ACL was modified, no elevation)",
+    "acl": "[HOST]\\w:(OI)(CI)(F); BUILTIN\\Administrators:(OI)(CI)(F); NT AUTHORITY\\SYSTEM:(OI)(CI)(F)",
+    "lineage": "C:\\ root ancestors were accepted by the native checker; the default TEMP lineage is rejected by the same checker, which is the correct fail-closed behaviour on this host"
+  },
+  "scriptSha256": {
+    "packages/mcp-server/src/windows-private-smoke.ts": "6ca878387b5b7c90e38abc09a6c10f984c8dbc8916d35946cf6357b446b6662f",
+    "packages/mcp-server/dist/windows-private-smoke.js": "431bd59185cfc740f885ba3677a5bd43b09545008384afbd254fcb5e4600977d"
+  },
+  "nativeHelperSha256": "20aae7faf6276929ed2e8a19154a335f1af0f87b2838b60ee3b7a41f7e7ce915 (compiled by pnpm build in this run; the report embeds the DLL hash of the exact execution)",
+  "originalReportsSha256": {
+    "win-priv-20261024T145925Z.json": "a9990e3af130dbe691738c82d9ebb7056067e2a2a0dafe6ec11acf7841262d51",
+    "win-priv-20261024T145925Z-check-default-temp.log": "825161dc0d2eef3757a35296cf3033ed718340e3458ea1905a642fffef42b473",
+    "win-priv-20261024T145925Z-check-safe-temp.log": "ed729e0a2b35cdb8cdce9b6c1b1654c9393e563dce9e1dbcbd8563c049f3e7c1"
+  },
+  "cleanup": "smoke-verified: owned Gateways/ACL leases stopped and disposable fixtures removed; operator parent directory retained for future G2 work (contains no secrets)",
+  "constraints": [
+    "physical W3 Mac-Windows gate (#15) remains pending and is not substituted by this run",
+    "no real model, GUI, installer, system service, existing user configuration, firewall rule or existing host ACL was touched; no elevation",
+    "PR #45 (the alternative SDDL gate on old P1) stays open-but-not-merged per maintainer review; this run uses only main's committed native checker"
+  ]
+}
