@@ -1,6 +1,6 @@
 import { parseArgs } from 'node:util';
-import { readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { join, resolve, dirname } from 'node:path';
 import { Gateway } from '@lam/runtime';
 import { rotateIdentity } from '@lam/mesh';
 const { values, positionals } = parseArgs({
@@ -15,12 +15,13 @@ const { values, positionals } = parseArgs({
     command: { type: 'string' },
     args: { type: 'string' },
     'args-file': { type: 'string' },
+    output: { type: 'string' },
     help: { type: 'boolean' },
   },
 });
 if (values.help || !values.data) {
   console.log(
-    'LAM Gateway (Node 22.13+ / 24)\nserve --data <private-directory> [--listen /ip4/0.0.0.0/tcp/port] [--mdns] [--mock]\ncontrol --data <directory> --command <status|peers|pair|pairings|confirm|connect|registry|spawn|resume|send|events|cancel|outbox|retry|revoke|shutdown> [--args <JSON>]\nDefault listen: random loopback TCP port; control always authenticated loopback. --mock explicitly exports the deterministic test agent.',
+    'LAM Gateway (Node 22.13+ / 24)\nserve --data <private-directory> [--listen /ip4/0.0.0.0/tcp/port] [--mdns] [--mock]\ncontrol --data <directory> --command <status|peers|pair|pairings|confirm|connect|registry|spawn|resume|send|events|cancel|outbox|retry|revoke|shutdown> [--args <JSON>]\nMCP: control --command mcp-grant --args-file <scope.json> --output <private-file>; revoke with mcp-revoke and grantId.\nDefault listen: random loopback TCP port; control always authenticated loopback. --mock explicitly exports the deterministic test agent.',
   );
   if (!values.help) process.exitCode = 1;
 } else {
@@ -29,6 +30,10 @@ if (values.help || !values.data) {
   if (action === 'rotate-identity') {
     console.log(JSON.stringify(await rotateIdentity(directory)));
   } else if (action === 'control') {
+    if (values.command === 'mcp-grant' && !values.output)
+      throw new Error(
+        'mcp-grant requires --output <private-credential-file>; credentials are never printed',
+      );
     const config = JSON.parse(readFileSync(join(directory, 'control.json'), 'utf8')) as {
       url: string;
       token: string;
@@ -49,8 +54,41 @@ if (values.help || !values.data) {
       }),
       signal: AbortSignal.timeout(15000),
     });
-    console.log(await response.text());
-    if (!response.ok) process.exitCode = 1;
+    if (values.command === 'mcp-grant' && response.ok) {
+      const output = resolve(values.output!);
+      mkdirSync(dirname(output), { recursive: true, mode: 0o700 });
+      const credential = (await response.json()) as { grantId: string; expiresAt: string };
+      try {
+        writeFileSync(output, JSON.stringify(credential, null, 2) + '\n', {
+          mode: 0o600,
+          flag: 'wx',
+        });
+      } catch (error) {
+        const revoked = await fetch(url.origin + '/command', {
+          method: 'POST',
+          headers: { authorization: `Bearer ${config.token}`, 'content-type': 'application/json' },
+          body: JSON.stringify({ command: 'mcp-revoke', args: { grantId: credential.grantId } }),
+          signal: AbortSignal.timeout(5000),
+        })
+          .then((r) => r.ok)
+          .catch(() => false);
+        if (!revoked)
+          process.stderr.write(
+            'Credential write failed and revocation was not confirmed; restart the caller Gateway before issuing another credential.\n',
+          );
+        throw error;
+      }
+      console.log(
+        JSON.stringify({
+          grantId: credential.grantId,
+          expiresAt: credential.expiresAt,
+          credentialFileWritten: true,
+        }),
+      );
+    } else {
+      console.log(await response.text());
+      if (!response.ok) process.exitCode = 1;
+    }
   } else if (action === 'serve') {
     const port = Number(values['control-port'] ?? 0),
       delay = Number(values['mock-delay-ms'] ?? 0);

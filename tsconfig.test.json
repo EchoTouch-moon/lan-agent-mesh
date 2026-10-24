@@ -24,6 +24,12 @@
       ],
       "@lam/runtime": [
         "packages/runtime/src/index.ts"
+      ],
+      "@lam/mcp-contract": [
+        "packages/mcp-contract/src/index.ts"
+      ],
+      "@lam/mcp-server": [
+        "packages/mcp-server/src/index.ts"
       ]
     }
   },

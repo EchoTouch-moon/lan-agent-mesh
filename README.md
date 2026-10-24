@@ -95,3 +95,13 @@ The first command stays running. Use a second terminal for control commands. Def
 `control --command shutdown` stops the owned Gateway. Offline `rotate-identity --data <directory>` invalidates prior trust and requires pairing again. These commands run only the P1 test runtime and do not attach a GUI or start real inference. Node 22 may print its built-in SQLite experimental warning.
 
 [P1 design and recovery rules](docs/adr/0002-p1-mesh-runtime.md) cover UNKNOWN, exact-message outbox retries, cache expiry and limits. [Windows tasks](docs/P1_WINDOWS_TASKS.md) separate Windows same-host checks from the actual Mac↔Windows hardware gate. P0's [historical handoff](docs/WINDOWS_AGENT_TASKS.md) is complete.
+
+## Local MCP caller (P2 / LAM-16)
+
+A local stdio MCP server now exposes seven scoped tools for remote Agent discovery, owned sessions, asynchronous turns/tasks, result cursors and cancellation. It has no pairing, policy-change or approval tool. The operator issues a separate expiring credential; the MCP process never reads the admin control token. See [MCP setup and permission boundary](docs/MCP_INGRESS.md) and [P2 progress](docs/P2_PROGRESS.md).
+
+```text
+node packages/mcp-server/dist/cli.js --credentials <explicit-private-credential-file>
+```
+
+No existing host configuration is changed automatically. The caller chain is validated against a paired remote Mock; Codex/ACP native adapters and physical cross-host acceptance remain separate tasks.
