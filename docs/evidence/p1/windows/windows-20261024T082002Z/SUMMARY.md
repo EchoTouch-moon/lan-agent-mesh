@@ -9,4 +9,4 @@ Executed source: `d68fa6ac8eca1678745fb44813b27a1126d605a3` (branch `feat/p1-mes
 
 Cleanup: every helper and CLI-started Gateway was stopped through its authenticated control endpoint or owned teardown; temporary directories were removed and ports released; nothing was left listening.
 
-Result PR: this branch (see PR linked from Issue #15). Mac evidence in [mac-20261023T195045Z](../mac-20261023T195045Z/SUMMARY.md) is untouched. No real model, Harness, installer, system service, GUI, firewall rule or user configuration was involved, and no parent issue/PR was merged or closed.
+Result PR: [#39](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/39). Mac evidence in [mac-20261023T195045Z](../mac-20261023T195045Z/SUMMARY.md) is untouched. No real model, Harness, installer, system service, GUI, firewall rule or user configuration was involved, and no parent issue/PR was merged or closed.
