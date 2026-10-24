@@ -63,3 +63,20 @@ it.skipIf(process.platform !== 'win32')('Windows: directory lease prevents renam
   renameSync(path, path + '-moved'); renameSync(path + '-moved', path);
   await expect(privateDirectory('\\\\server\\share')).rejects.toThrow(PRIVATE_STORAGE_ERROR);
 }, 60000);
+it.skipIf(process.platform !== 'win32')('Windows: unexpected ACL helper loss shuts down Gateway and blocks further commands', async () => {
+  const path = await root();
+  for (const l of leases.splice(0)) await l.close();
+  const gateway = await new Gateway({ directory: path }).start();
+  try {
+    // Inspect/kill only this test process's owned ACL child, never another host process.
+    const code = `$children = @(Get-CimInstance Win32_Process -Filter "ParentProcessId = ${process.pid}" | Where-Object { $_.CommandLine -like '*windows-acl.ps1*' }); if ($children.Count -ne 1) { throw 'Expected exactly one owned helper' }; Stop-Process -Id $children[0].ProcessId -Force`;
+    execFileSync(resolve(process.env.SystemRoot!, 'System32/WindowsPowerShell/v1.0/powershell.exe'), [
+      '-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(code, 'utf16le').toString('base64'),
+    ], { windowsHide: true, env: { ...process.env, PSModulePath: resolve(process.env.SystemRoot!, 'System32/WindowsPowerShell/v1.0/Modules') } });
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    await expect(gateway.command('status', {})).rejects.toThrow(PRIVATE_STORAGE_ERROR);
+    await gateway.stop();
+    await expect(fetch(gateway.url + '/health')).rejects.toThrow();
+    expect(existsSync(join(path, 'gateway.lock'))).toBe(false);
+  } finally { await gateway.stop(); }
+}, 60000);

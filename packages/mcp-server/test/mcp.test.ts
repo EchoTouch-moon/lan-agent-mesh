@@ -50,8 +50,12 @@ async function connect(root: string, grant: McpCredential, versions?: string[]) 
     stderr: 'pipe',
     maxBufferSize: 262144,
   });
-  transport.stderr?.on('data', () => {});
-  await client.connect(transport);
+  let diagnostic = '';
+  transport.stderr?.on('data', (b) => {
+    const text = String(b);
+    if (/^Private storage rejected: [a-z_]+[\r\n]*$/.test(text)) diagnostic += text.trim();
+  });
+  try { await client.connect(transport); } catch { throw new Error(`MCP start failed: ${diagnostic || 'no storage reason reported'}`); }
   return client;
 }
 async function call(client: Client, name: string, args: Record<string, unknown> = {}) {

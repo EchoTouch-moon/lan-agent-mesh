@@ -57,7 +57,8 @@ public sealed class LamPrivateLease : IDisposable {
   SafeFileHandle Open(string path, bool ancestor, bool directory) {
     // Share READ/WRITE but never DELETE. Existing delete handles also make this fail.
     // Retain directory handles until the owning Node process releases this lease.
-    var h = CreateFileW(path, 0x20080, 3, IntPtr.Zero, 3, 0x02200000, IntPtr.Zero);
+    // Include READ_DATA/LIST_DIRECTORY: metadata-only opens do not enforce share access.
+    var h = CreateFileW(path, 0x20081, 3, IntPtr.Zero, 3, 0x02200000, IntPtr.Zero);
     if (h.IsInvalid) { h.Dispose(); throw new Exception("cannot_lock_object"); }
     try { Verify(h, ancestor, directory); return h; } catch { h.Dispose(); throw; }
   }
@@ -105,6 +106,12 @@ public sealed class LamPrivateLease : IDisposable {
   } finally { $lease.Dispose() }
 } catch {
   # Neither paths, ACLs, configuration contents nor exceptions go to stdout/stderr.
-  [Console]::Out.WriteLine('{"version":1,"private":false}')
+  $reason = 'verification_failed'
+  $errorValue = $_.Exception
+  while ($null -ne $errorValue) {
+    if ($errorValue.Message -in @('unsafe_object','acl_unavailable','unsafe_owner_or_dacl','unsupported_ace','unsafe_allow_ace','cannot_lock_object','directory_create_failed','unsupported_path','invalid_file_name')) { $reason = $errorValue.Message }
+    $errorValue = $errorValue.InnerException
+  }
+  [Console]::Out.WriteLine('{"version":1,"private":false,"reason":"' + $reason + '"}')
   exit 1
 }

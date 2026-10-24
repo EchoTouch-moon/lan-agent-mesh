@@ -50,6 +50,7 @@ export class Gateway {
   private storageLease?: PrivateLease;
   private locked = false;
   private stopping = false;
+  private shutdown?: Promise<void>;
   readonly registryEvents: { type: string; peer: string; at: string }[] = [];
   private readonly remotes = new Map<string, RemoteRegistry>();
   private keepalive?: ReturnType<typeof setInterval>;
@@ -473,8 +474,10 @@ export class Gateway {
         throw new MeshError('unsupported', 'Unknown local command');
     }
   }
-  async stop() {
-    if (this.stopping) return;
+  stop(): Promise<void> {
+    return this.shutdown ??= this.close();
+  }
+  private async close() {
     this.stopping = true;
     try {
       if (this.keepalive) clearInterval(this.keepalive);

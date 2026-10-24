@@ -74,10 +74,11 @@ try {
   report.results.unsafeOutputRefusedAndGrantRevoked = 'verified';
   const publicCredential = join(unsafe, 'fixture.json');
   // Public, nonfunctional sentinel only; no real bearer is put into the unsafe fixture.
-  writeFileSync(publicCredential, '{"fixture":"PUBLIC_SENTINEL_DO_NOT_LOG"}');
-  await assert.rejects(run(process.execPath, [resolve('packages/mcp-server/dist/cli.js'), '--credentials', publicCredential]), (e: unknown) => {
-    const error = e as { stdout?: string; stderr?: string };
-    return error.stdout === '' && !String(error.stderr).includes('PUBLIC_SENTINEL_DO_NOT_LOG');
+  const publicBearer = `mcp.${randomUUID()}.${'0'.repeat(64)}`;
+  writeFileSync(publicCredential, JSON.stringify({ version: 1, gatewayNodeId: 'public-fixture', url: 'http://127.0.0.1:1', token: publicBearer, grantId: randomUUID(), expiresAt: new Date(Date.now() + 60000).toISOString() }));
+  await assert.rejects(run(process.execPath, [resolve('packages/mcp-server/dist/cli.js'), '--credentials', publicCredential], { timeout: 30000 }), (e: unknown) => {
+    const error = e as { stdout?: string; stderr?: string; code?: number; killed?: boolean };
+    return error.code === 1 && !error.killed && error.stdout === '' && !String(error.stderr).includes(publicBearer);
   });
   report.results.unsafeMcpReadRejectedBeforeParsing = 'verified';
   report.status = 'passed';

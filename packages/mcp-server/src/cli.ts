@@ -1,7 +1,7 @@
 import { readFileSync, lstatSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import { serveStdio, StdioServerTransport } from '@modelcontextprotocol/server/stdio';
-import { privateFile } from '@lam/private-storage';
+import { privateFile, PrivateStorageError } from '@lam/private-storage';
 import { credential } from '@lam/mcp-contract';
 import { createMeshMcpServer } from './index.js';
 
@@ -30,7 +30,8 @@ try {
   };
   process.once('SIGINT', stop);
   process.once('SIGTERM', stop);
-} catch {
+} catch (error) {
+  if (error instanceof PrivateStorageError) process.stderr.write(`Private storage rejected: ${error.reason}\n`);
   process.stderr.write('Cannot start LAM MCP: select a valid private scoped credential file.\n');
   process.exitCode = 1;
 }

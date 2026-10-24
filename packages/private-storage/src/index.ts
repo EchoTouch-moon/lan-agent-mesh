@@ -5,6 +5,10 @@ import { fileURLToPath } from 'node:url';
 
 export const PRIVATE_STORAGE_ERROR =
   'Private storage verification failed; choose an exclusive local directory. Existing ACLs were not changed.';
+const REASONS = new Set(['verification_failed', 'unsafe_object', 'acl_unavailable', 'unsafe_owner_or_dacl', 'unsupported_ace', 'unsafe_allow_ace', 'cannot_lock_object', 'directory_create_failed', 'unsupported_path', 'invalid_file_name', 'helper_timeout', 'helper_unavailable']);
+export class PrivateStorageError extends Error {
+  constructor(readonly reason: string) { super(PRIVATE_STORAGE_ERROR); }
+}
 export interface PrivateLease {
   /** Fails once a Windows namespace lock is lost. Never log paths or credentials. */
   assertActive(): void;
@@ -35,20 +39,20 @@ export async function privateDirectory(
     return { assertActive() { }, onLost() { }, async close() { } };
   }
   // Use the OS Windows PowerShell, never PATH, an interactive profile or shell quoting.
-  const windowsRoot = process.env.SystemRoot;
+  const windowsRoot = Object.entries(process.env).find(([key]) => key.toLowerCase() === 'systemroot')?.[1];
   if (!windowsRoot || !/^[a-z]:\\/i.test(windowsRoot)) throw new Error(PRIVATE_STORAGE_ERROR);
   const child = spawn(resolve(windowsRoot, 'System32/WindowsPowerShell/v1.0/powershell.exe'), [
     '-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File',
     fileURLToPath(new URL('../src/windows-acl.ps1', import.meta.url)),
-  ], { windowsHide: true, stdio: 'pipe' });
-  let active = false, closing = false;
+  ], { windowsHide: true, stdio: 'pipe', env: { ...process.env, PSModulePath: resolve(windowsRoot, 'System32/WindowsPowerShell/v1.0/Modules') } });
+  let active = false, closing = false, reason = 'verification_failed';
   const lost = new Set<() => void>();
   child.stderr.resume(); // Never forward diagnostics (which may contain private paths).
   const done = waitForExit(child);
   try {
     await new Promise<void>((accept, reject) => {
       let buffer = '';
-      const timeout = setTimeout(() => reject(new Error(PRIVATE_STORAGE_ERROR)), 20000);
+      const timeout = setTimeout(() => { reason = 'helper_timeout'; reject(new PrivateStorageError(reason)); }, 20000);
       const fail = () => { clearTimeout(timeout); reject(new Error(PRIVATE_STORAGE_ERROR)); };
       child.once('error', fail);
       child.once('exit', fail);
@@ -60,7 +64,10 @@ export async function privateDirectory(
         clearTimeout(timeout);
         try {
           const result = JSON.parse(buffer.trim());
-          if (result.version !== 1 || result.private !== true) return fail();
+          if (result.version !== 1 || result.private !== true) {
+            if (REASONS.has(result.reason)) reason = result.reason;
+            return fail();
+          }
           active = true;
           accept();
         } catch { fail(); }
@@ -70,7 +77,7 @@ export async function privateDirectory(
     });
   } catch {
     child.stdin.destroy(); child.kill(); await done;
-    throw new Error(PRIVATE_STORAGE_ERROR);
+    throw new PrivateStorageError(reason);
   }
   child.stdout.removeAllListeners('data');
   child.stdout.resume();

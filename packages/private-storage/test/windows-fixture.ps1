@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 [Console]::InputEncoding = [Text.UTF8Encoding]::new($false)
 $request = [Console]::In.ReadLine() | ConvertFrom-Json
 $path = [string]$request.path
-$acl = Get-Acl -LiteralPath $path
+if ([IO.Directory]::Exists($path)) { $acl = [IO.Directory]::GetAccessControl($path) } else { $acl = [IO.File]::GetAccessControl($path) }
 $sid = [Security.Principal.SecurityIdentifier]::new('S-1-1-0')
 $rights = [Security.AccessControl.FileSystemRights]::ReadAndExecute
 if ($request.write) { $rights = [Security.AccessControl.FileSystemRights]::FullControl }
@@ -13,4 +13,4 @@ if ($request.inheritOnly) {
   $rule = [Security.AccessControl.FileSystemAccessRule]::new($sid, $rights, 'Allow')
 }
 $acl.AddAccessRule($rule)
-Set-Acl -LiteralPath $path -AclObject $acl
+if ([IO.Directory]::Exists($path)) { [IO.Directory]::SetAccessControl($path, $acl) } else { [IO.File]::SetAccessControl($path, $acl) }

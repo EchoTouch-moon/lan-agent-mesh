@@ -14,7 +14,7 @@ Windows 不以 0600/0700 推断机密性。没有 PowerShell、无法读取安�
 - 缺失的目录可创建，使用原生 CreateDirectoryW 的 SECURITY_ATTRIBUTES **原子携带**当前 SID、SYSTEM、Administrators 的受保护、可继承 full-control DACL。不先在宽松目录中创建密钥再收紧权限。
 - 已有目录、文件和其 ACL 均不修改。验证现有 identity/control/lock/SQLite/WAL/SHM；现有秘密文件必须为普通文件、单硬链接，owner 和 allow ACE 只能属于上述主体。新文件继承已经验证的目录 DACL。
 - 验证磁盘根至目标的整条路径；拒绝 UNC、设备/ADS、超长路径、不支持的 owner、任何 reparse point（包括 junction）。祖先目录允许普通读取/遍历及创建兄弟项，但不允许其他主体删除、改 owner/DACL、写属性/EA 等可能替换路径的权限。祖先中的 TrustedInstaller 按系统维护主体处理，最终私有目录仍使用三主体规则。
-- PowerShell 中的固定 C# helper 通过 **句柄**读取 owner/DACL/属性，所有祖先/目标目录句柄不共享 DELETE，整个 Gateway 生命周期保持；已有 DELETE 句柄导致开锁失败。因此拒绝路径替换竞态，而非先 stat 后在任意可改的父目录中使用路径。对同 SID/受信任管理员的竞态不作跨主体防护承诺。
+- PowerShell 中的固定 C# helper 通过请求 LIST_DIRECTORY/READ_DATA 的 **句柄**读取 owner/DACL/属性，所有祖先/目标目录句柄不共享 DELETE，整个 Gateway 生命周期保持；已有 DELETE 句柄导致开锁失败。因此拒绝路径替换竞态，而非先 stat 后在任意可改的父目录中使用路径。对同 SID/受信任管理员的竞态不作跨主体防护承诺。
 - Helper 通过 stdin 读取参数，不拼接 shell 命令，不读用户配置、不接受 ACL 修复指令。stdout 只发固定协议；不转发 PowerShell 诊断。Node 退出/关闭 stdin 后释放句柄；helper 意外退出会使 Gateway 停止服务，后续命令拒绝，异步密钥生成与 control 发布前也再次检查 lease。
 - `control` 读取管理 token、离线 rotate-identity、MCP 读取 credential、CLI 签发 credential 的输出目录都使用同一门槛。输出失败则撤销刚创建的 grant；不输出 bearer。MCP 启动异常、Gateway CLI 异常不打印配置 JSON 或原始异常。
 - POSIX 保持 UID 与私有 mode 检查；拒绝所选目录/敏感文件为符号链接，以及秘密文件多硬链接。Windows 的句柄/全祖先保证不作为 POSIX 新增保证。
@@ -56,3 +56,5 @@ node packages/mcp-server/dist/windows-private-smoke.js --parent 'C:\SAFE_PARENT'
 若宿主不能提供安全 lineage，仍尝试记录负例，报告 `blocked`、exit 1，正例保持未验证。所有自有 Gateway/目录句柄和测试目录必须清理；清理失败报告 failed，不能声称通过。若有失败，不上传配置文件或原始私有错误；仅提交固定 schema 的脱敏报告。
 
 单元测试额外覆盖 inherit-only 危险 ACE、宽松祖先、现有 key 宽松 DACL、junction/hardlink、目录在 lease 持有时不能改名、lease 释放后可改名，以及 POSIX 回归。Hosted Windows 与实体宿主证据必须分别标注。
+
+Win32 sharing 不能由仅查询属性的 metadata-only handle 推断成立；因此目录 lease 请求 LIST_DIRECTORY，测试必须实际尝试 rename。[Microsoft 文件系统行为说明](https://download.microsoft.com/download/4/3/8/43889780-8d45-4b2e-9d3a-c696a890309f/file%20system%20behavior%20overview.pdf)区分 metadata 与 data access；未以“传了 share flags”代替实测证据。
