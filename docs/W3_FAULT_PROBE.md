@@ -18,6 +18,8 @@
 ```sh
 pnpm build
 node scripts/p1-w3-fault-probe.mjs --self-test
+# 可选：按实体接收方的最大延迟验证轮询和限流余量
+node scripts/p1-w3-fault-probe.mjs --self-test --self-test-delay-ms 10000
 ```
 
 自测只创建两个临时 loopback Mock 节点，自动配对仅发生在这两个自己创建的节点之间；报告明确标为 same-host，CI 也不把它算成实体 W3。

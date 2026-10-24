@@ -16,7 +16,7 @@ const { values } = parseArgs({ options: {
   'self-test': { type: 'boolean' }, help: { type: 'boolean' }, role: { type: 'string' },
   data: { type: 'string' }, output: { type: 'string' }, peer: { type: 'string' }, address: { type: 'string' },
   'expected-source': { type: 'string' }, 'peer-platform': { type: 'string' },
-  'wait-ms': { type: 'string' }, listen: { type: 'string' },
+  'wait-ms': { type: 'string' }, listen: { type: 'string' }, 'self-test-delay-ms': { type: 'string' },
 } });
 if (values.help) {
   console.log('Build first. --self-test | --role prepare|receiver|runner --data <outside-repo private directory> --output <new private report> --expected-source <full SHA> [--peer ID --address host:port --peer-platform win32|darwin] [--listen /ip4/0.0.0.0/tcp/48731] [--wait-ms 1200000]');
@@ -108,7 +108,8 @@ async function collect(g, peer, taskId, predicate = b => ['COMPLETED', 'CANCELLE
     const batch = await g.events(peer, taskId, cursor);
     events.push(...batch.events); cursor = batch.next;
     if (predicate(batch) && batch.events.length === 0) return { state: batch.state, events, cursor };
-    await delay(25);
+    // The real Mesh allows 240 requests/minute. Leave room for registry/keepalive traffic.
+    await delay(250);
   }
   throw new Error('Bounded event wait expired');
 }
@@ -196,8 +197,11 @@ try {
   if (values['self-test']) {
     assert.equal(values.role, undefined); assert.equal(values.data, undefined); assert.equal(values.output, undefined);
     temporaryRoot = mkdtempSync(join(tmpdir(), 'LAM W3 self-test & '));
+    const receiverDelay = Number(values['self-test-delay-ms'] ?? 1000);
+    assert.ok(Number.isInteger(receiverDelay) && receiverDelay >= 1000 && receiverDelay <= 10000);
     let a = await start(join(temporaryRoot, 'caller'), 'prepare', '/ip4/127.0.0.1/tcp/0', 1000);
-    const b = await start(join(temporaryRoot, 'receiver'), 'self-test', '/ip4/127.0.0.1/tcp/0', 1000);
+    const b = await start(join(temporaryRoot, 'receiver'), 'self-test', '/ip4/127.0.0.1/tcp/0', receiverDelay);
+    report.selfTestReceiverDelayMs = receiverDelay;
     const observer = observe(b.gateway);
     const pairing = await a.gateway.mesh.beginPairing(b.gateway.mesh.addresses[0], b.gateway.mesh.id);
     const other = b.gateway.mesh.pendingPairings().find(p => p.id === pairing.id); assert.equal(pairing.code, other.code);
