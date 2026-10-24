@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@lam/runtime": "workspace:*",
-    "@lam/mesh": "workspace:*"
+    "@lam/mesh": "workspace:*",
+    "@lam/private-storage": "workspace:*"
   }
 }

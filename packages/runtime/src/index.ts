@@ -1,7 +1,7 @@
 import { createServer, type Server } from 'node:http';
 import { once } from 'node:events';
 import { randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
-import { chmodSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
 import { RegistrySchema, SessionSchema, type Session } from '@lam/domain';
@@ -12,6 +12,7 @@ import { Store } from '@lam/storage';
 import { Mesh } from '@lam/mesh';
 import { Sessions } from './sessions.js';
 import { Router } from './router.js';
+import { privateDirectory, type PrivateLease } from '@lam/private-storage';
 import { McpAccess } from './mcp-access.js';
 export { Sessions, Router };
 const Peer = z.string().min(1).max(128),
@@ -46,34 +47,45 @@ export class Gateway {
   server?: Server;
   token = '';
   url = '';
+  private storageLease?: PrivateLease;
   private locked = false;
   private stopping = false;
   readonly registryEvents: { type: string; peer: string; at: string }[] = [];
   private readonly remotes = new Map<string, RemoteRegistry>();
   private keepalive?: ReturnType<typeof setInterval>;
   private maintenance: Promise<void> | undefined;
-  constructor(readonly options: GatewayOptions) {}
+  constructor(readonly options: GatewayOptions) { }
   async start() {
-    mkdirSync(this.options.directory, { recursive: true, mode: 0o700 });
-    chmodSync(this.options.directory, 0o700);
-    const lock = join(this.options.directory, 'gateway.lock');
+    this.storageLease = await privateDirectory(this.options.directory, {
+      create: true,
+      files: ['identity.key', 'control.json', 'gateway.lock', 'mesh.sqlite', 'mesh.sqlite-wal', 'mesh.sqlite-shm'],
+    });
+    let started = false;
+    this.storageLease.onLost(() => { if (started) void this.stop().catch(() => {}); });
+    this.storageLease.assertActive();
     try {
-      writeFileSync(lock, String(process.pid), { flag: 'wx', mode: 0o600 });
-      this.locked = true;
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
-      const pid = Number(readFileSync(lock, 'utf8'));
-      if (!Number.isSafeInteger(pid) || pid < 1)
-        throw new MeshError('busy', 'Invalid Gateway lock; inspect manually');
+      const lock = join(this.options.directory, 'gateway.lock');
       try {
-        process.kill(pid, 0);
-        throw new MeshError('busy', 'Gateway data directory is already in use');
-      } catch (e) {
-        if ((e as NodeJS.ErrnoException).code !== 'ESRCH') throw e;
+        writeFileSync(lock, String(process.pid), { flag: 'wx', mode: 0o600 });
+        this.locked = true;
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+        const pid = Number(readFileSync(lock, 'utf8'));
+        if (!Number.isSafeInteger(pid) || pid < 1)
+          throw new MeshError('busy', 'Invalid Gateway lock; inspect manually');
+        try {
+          process.kill(pid, 0);
+          throw new MeshError('busy', 'Gateway data directory is already in use');
+        } catch (e) {
+          if ((e as NodeJS.ErrnoException).code !== 'ESRCH') throw e;
+        }
+        unlinkSync(lock);
+        writeFileSync(lock, String(process.pid), { flag: 'wx', mode: 0o600 });
+        this.locked = true;
       }
-      unlinkSync(lock);
-      writeFileSync(lock, String(process.pid), { flag: 'wx', mode: 0o600 });
-      this.locked = true;
+    } catch (error) {
+      await this.storageLease.close();
+      throw error;
     }
     try {
       this.store = new Store(join(this.options.directory, 'mesh.sqlite'));
@@ -81,6 +93,7 @@ export class Gateway {
       this.mesh = new Mesh({
         directory: this.options.directory,
         store: this.store,
+        assertPrivate: () => this.storageLease!.assertActive(),
         ...(this.options.listen ? { listen: this.options.listen } : {}),
         mdns: this.options.mdns ?? false,
         onMessage: (peer, value) => this.receive(peer, value),
@@ -105,6 +118,7 @@ export class Gateway {
         const peer = event.detail.remotePeer.toString();
         if (!this.mesh.connected(peer)) this.invalidate(peer, 'offline');
       });
+      this.storageLease.assertActive();
       this.token = randomBytes(32).toString('hex');
       this.server = createServer((req, res) => {
         void (async () => {
@@ -113,6 +127,7 @@ export class Gateway {
             res.end(JSON.stringify({ status: this.stopping ? 'stopping' : 'ready' }));
             return;
           }
+          this.storageLease?.assertActive();
           const scoped = req.url === '/mcp/command';
           const bearer = req.headers.authorization?.startsWith('Bearer ')
             ? req.headers.authorization.slice(7)
@@ -173,6 +188,7 @@ export class Gateway {
       const address = this.server.address();
       if (!address || typeof address === 'string') throw new Error('Missing control endpoint');
       this.url = `http://127.0.0.1:${address.port}`;
+      this.storageLease.assertActive();
       writeFileSync(
         join(this.options.directory, 'control.json'),
         JSON.stringify({ url: this.url, token: this.token }),
@@ -182,12 +198,13 @@ export class Gateway {
       this.keepalive = setInterval(() => {
         if (!this.maintenance)
           this.maintenance = this.maintain()
-            .catch(() => {})
+            .catch(() => { })
             .finally(() => {
               this.maintenance = undefined;
             });
       }, 5000);
       this.keepalive.unref();
+      started = true;
       return this;
     } catch (error) {
       await this.stop();
@@ -334,6 +351,7 @@ export class Gateway {
     return this.mesh.request(peer, { kind: 'events', taskId, cursor });
   }
   async command(command: string, args: unknown): Promise<unknown> {
+    this.storageLease?.assertActive();
     switch (command) {
       case 'mcp-grant':
         return this.mcp.create(args);
@@ -458,23 +476,25 @@ export class Gateway {
   async stop() {
     if (this.stopping) return;
     this.stopping = true;
-    if (this.keepalive) clearInterval(this.keepalive);
-    if (this.server) {
-      this.server.closeAllConnections();
-      await new Promise<void>((resolve) => this.server!.close(() => resolve()));
-    }
-    if (this.router) await this.router.stop();
-    if (this.mesh) await this.mesh.stop();
-    if (this.maintenance) await this.maintenance;
-    if (this.store) this.store.close();
-    if (this.locked) {
-      unlinkSync(join(this.options.directory, 'gateway.lock'));
-      this.locked = false;
-    }
     try {
-      unlinkSync(join(this.options.directory, 'control.json'));
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
-    }
+      if (this.keepalive) clearInterval(this.keepalive);
+      if (this.server) {
+        this.server.closeAllConnections();
+        await new Promise<void>((resolve) => this.server!.close(() => resolve()));
+      }
+      if (this.router) await this.router.stop();
+      if (this.mesh) await this.mesh.stop();
+      if (this.maintenance) await this.maintenance;
+      if (this.store) this.store.close();
+      if (this.locked) {
+        unlinkSync(join(this.options.directory, 'gateway.lock'));
+        this.locked = false;
+      }
+      try {
+        unlinkSync(join(this.options.directory, 'control.json'));
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+      }
+    } finally { await this.storageLease?.close(); }
   }
 }

@@ -29,6 +29,9 @@ jobs:
         run: node scripts/p1-process-smoke.mjs
       - name: P2 actual stdio MCP to remote Mock smoke
         run: node packages/mcp-server/dist/smoke.js
+      - name: Windows private directory and credential gate (controlled ACL fixtures)
+        if: runner.os == 'Windows'
+        run: node packages/mcp-server/dist/windows-private-smoke.js
       - run: node scripts/check-rpc-probe.mjs
       - run: node scripts/check-windows-evidence-probes.mjs
       - name: Validate Windows helper scripts

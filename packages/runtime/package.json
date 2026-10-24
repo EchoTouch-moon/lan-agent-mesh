@@ -19,6 +19,7 @@
     "@lam/protocol": "workspace:*",
     "@lam/storage": "workspace:*",
     "zod": "3.25.76",
-    "@lam/mcp-contract": "workspace:*"
+    "@lam/mcp-contract": "workspace:*",
+    "@lam/private-storage": "workspace:*"
   }
 }
