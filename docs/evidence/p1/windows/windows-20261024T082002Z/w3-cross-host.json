@@ -1,0 +1,10 @@
+{
+  "kind": "W3 physical Mac<->Windows cross-host integration (LAM-15 hardware gate)",
+  "platform": "win32",
+  "testedSourceSha": "d68fa6ac8eca1678745fb44813b27a1126d605a3",
+  "status": "pending",
+  "reason": "Requires the user and both physical hosts in one coordinated window: the Windows host was available, but no Mac peer Gateway was provided, and the pair/confirm protocol requires the user to compare the full pairing code independently on both machines, which cannot be performed autonomously",
+  "notSatisfiedBy": "same-host Windows CI, the local two-process smoke (W1) or the local multicast smoke (W2); per the work pack these cannot substitute for the hardware gate",
+  "nextStep": "Coordinate one short test window with the user and a Mac host running the same committed source, then execute the eight-step sequence in docs/P1_WINDOWS_TASKS.md (pair with expectedPeer, independent code comparison, registry/spawn/send to COMPLETED with exact mock:cross-host fixture text in both directions, idempotent replay via original key/taskId/deadline, resume semantics across restart, revoke rejection of registry/task requests and cached cards, shutdown with port release)",
+  "reportedUtc": "2026-10-24T08:30:00Z"
+}
