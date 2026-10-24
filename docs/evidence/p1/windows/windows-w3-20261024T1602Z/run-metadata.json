@@ -1,0 +1,27 @@
+{
+  "runId": "windows-w3-20261024T1602Z",
+  "kind": "W3 physical Mac<->Windows hardware gate — Windows-side evidence (issue #15)",
+  "testedSourceSha": "d226c2cc4bdea624e3807078a5b17f29aa380fa9",
+  "sourceState": "clean checkout of main at the coordinator-specified SHA; git status --porcelain empty",
+  "platform": "win32",
+  "os": "Windows 10.0.22621 x64",
+  "node": "v24.12.0",
+  "pnpm": "10.18.3",
+  "window": "coordinated through issue #15 comments (pairing confirmed 2026-10-24T16:02:41Z; crash drill ~16:16-16:20Z; revoke/shutdown ~16:2xZ)",
+  "localOriginalsSha256": {
+    "w3-send-args.json": "31cea699994a4cfdeb647b5b47d30b0040e8d1fba77de19d5bd2680c218939aa",
+    "w3-send-min.json": "35bb54b4e3cce632ac31ab46ed4890dac6dc508cf2b037d7a36c7afc483041b2",
+    "w3-send-retry2.json": "1f7b0e8b0f9048b3178bb26c0c2f9956493a738d7e3f3abc2e23a172b496261c",
+    "w3-crash-send.json": "0a8a4c0273163d213935696a0b1d8c0845c7efb074aa3ceed844a48da5623ed0",
+    "w3-gateway-stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "w3-gateway-stderr.log": "368458fdee26f0d9e4545aa0877640b85d346541e15e2d52e7e8ce6dc96504fc"
+  },
+  "redactionNote": "originals stay local; the committed transcript omits private IPs, tokens, keys, pairing codes and machine paths",
+  "macSideCounterpart": "Mac-side caller records are reported independently on issue #15 by the Mac executor (same SHA d226c2c, same announced peer ID); this directory is the Windows half",
+  "constraints": [
+    "Mock-only round; no real Harness/model/GUI/installer/service; no firewall or existing-ACL change; no elevation; external model calls: 0",
+    "mDNS discovery failed on this host (multicast unanswered, TUN-proxy fake-accept pollution) — manual addressing fallback used, recorded honestly",
+    "gateway process exit code not captured (output redirection mis-wired to an earlier failed launch); graceful stop evidenced by shutdown ack + process disappearance + port release + lock/control cleanup",
+    "Mac->Win caller-direction results are the Mac side's records; Windows observed no inbound caller task during its watch window"
+  ]
+}
