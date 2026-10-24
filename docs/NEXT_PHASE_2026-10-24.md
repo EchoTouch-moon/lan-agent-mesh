@@ -17,7 +17,7 @@
 
 ## 2. 下一阶段战略：只走一个核心闭环
 
-> **首个完整体验：Mac Codex 通过 MCP → Mac Gateway → Windows Gateway → Windows DSH（ACP）；反向 Windows DSH → Windows Gateway → Mac Gateway → Mac Codex。**
+> **目标体验：Mac Codex 通过 MCP → Mac Gateway → Windows Gateway → Windows DSH（ACP）；反向由 Windows 上具备经验证的 MCP/工具调用能力的 Harness 发起 → Windows Gateway → Mac Gateway → Mac Codex。** Windows DSH 的入站 ACP 能力不自动证明它具有出站 MCP 调用能力；在确认该能力前，先用 Windows 本地 MCP 测试客户端证明反向 Mesh，再另外验收真正的 Harness 反向调用。
 
 坚持对等节点、Gateway-mediated 接入、零中心服务、只暴露经授权的 Agent 和 workspace alias。优先 Gateway 自己创建的会话，不把“注入已有 GUI 聊天窗口”作为本轮阻塞项。
 
@@ -67,10 +67,10 @@
 
 1. **先 Codex App Server Adapter（Mac）**：Gateway-owned thread/start/resume/turn/start，事件游标、取消/超时、native permissions 默认拒绝；使用隔离 home 和固定 localhost inference。公开能力按版本 probe 实测，unsupported fail closed。
 2. **再 DSH ACP Adapter（Windows）**：针对已验证的 DSH desktop bundled ACP 路径；session/new、prompt、resume（受版本能力限制）、cancel 与 `session/request_permission` 拒绝语义；不暴露 stdio 到 LAN。
-3. **跨机桥接**：先让 Mac 的 MCP → Win DSH，反向 Win DSH → Mac Codex；两边带 task/session 关联信息的文本、事件、取消和恢复具备可检查证据。跨进程继续同一会话时使用原生绑定映射，绝不换 ID 伪造上下文。
+3. **跨机桥接**：Mac Codex MCP → Windows DSH ACP；反向先由 Windows 本地 MCP SDK 测试客户端 → Mac Codex，验证对等网络与网关会话。之后单独确认 Windows DSH/ZCode/Codex 哪个拥有可靠的出站 MCP/工具调用接口，才将其标记为“真实 Windows Harness 主动发起”；不能以测试客户端代替真实 Harness。两边 task/session 事件、取消和恢复均须有证据，绝不换 ID 伪造上下文。
 4. **真实模型试用需要另外明确操作授权**，不在纯固定响应证据里混入用户已有 GUI 对话/账号。Windows Codex 当前为 `unknown`，不强制假定可用；可另设实验支线补其真实双向适配，不能声称 Win Codex 完成。
 
-**G3 完成判定**：两台真实机器的真实 harness（先用固定推理响应）可双向收发；native permission 拒绝有效；工具调用、恢复、取消状态有证据；G2 必须先通过才启用生产凭据和长期真实 agent。
+**G3 完成判定**：两台真实机器上 Mac Codex→Win DSH 的 Harness-to-Harness 路径已验证，同时 Windows→Mac 网关反向 MCP 路径已验证；要声称“真实 Harness 双向主动协作”还必须有 Windows Harness 出站调用证据。Native permission 拒绝有效；工具调用、恢复、取消均有证据；G2 必须先通过才启用生产凭据和长期真实 Agent。
 
 ### Gate G4 — 可日常使用的审批与 Alpha
 
