@@ -1,0 +1,38 @@
+{
+  "runId": "mac-20261024T092555Z",
+  "executedSourceSha": "0ad588001a46d3302a9805f061efc9a80bb2115a",
+  "sourceState": "clean committed source",
+  "node": "v22.23.2",
+  "pnpm": "10.18.3",
+  "platform": "darwin",
+  "checks": {
+    "command": "pnpm check",
+    "exitCode": 0,
+    "tests": 43,
+    "covers": [
+      "build",
+      "source/test typecheck",
+      "lint",
+      "contracts and real socket/stdio integration"
+    ],
+    "logSha256": "d6f7534e2b522b5579d7d35336e62bf1e0b79bed171f50dded0c869534dccbb6",
+    "completedUtc": "2026-10-24T09:24:54.108115+00:00"
+  },
+  "sourceSha256": {
+    "packages/runtime/src/mcp-access.ts": "8f8fd228952ba7983cfc3ce553008df9e0c26c9b3bf8afca899fab1a165fafaa",
+    "packages/runtime/src/index.ts": "63b1e0e18c3edb68959c7c868b665aea6cac19d39b453a0d3f8a725aa16a5a4e",
+    "packages/mcp-contract/src/index.ts": "f922d9e86f0f0db4e5a6aae84d6eed56f76b1eccba39fc88286f8a4b98ad7073",
+    "packages/mcp-server/src/index.ts": "51aa62e043e13fe32c4b7886ae15ff0534cf698a079e4cb6ac3f5e028e3d104a",
+    "packages/mcp-server/src/cli.ts": "49bc9267afd55f30a95db57ab3f6972c241250d711ac1a2b9807928f984aba4e",
+    "packages/mcp-server/src/smoke.ts": "10cc0b914c9ef899200fcf12cb0ca136f92d814b947e194691b7ba7f8858768d",
+    "apps/gateway/src/index.ts": "77cf775ddadcf4d6c38db6828fd9aa3e57dc2b85298cfe0a17e129ef8ed3417e"
+  },
+  "originalReportSha256": "0ddf09c81b974dfe335dad01a5c7feb414c32e329200db2c1834df9717ae9aed",
+  "privacy": "No raw tokens, private directories, host configuration or user prompts are included. All services/configuration belong to the temporary probe.",
+  "limitations": [
+    "Remote inference is deterministic Mock, not real Codex/DSH",
+    "Physical Windows and actual Mac-Windows transport remain separate",
+    "General P3 policy engine and human approval console are not implemented"
+  ],
+  "cleanup": "SDK stdio clients and owned Gateways were closed; temporary data removed; no real host MCP configuration was edited."
+}

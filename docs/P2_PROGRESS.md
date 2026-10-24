@@ -25,3 +25,7 @@ Current state: seven tools, a shared strict contract, scoped loopback endpoint, 
 ## Delivery map
 
 LAM-16 is the selected local task. Tests exercise all tools with actual stdio, scope/resource negatives, expiry/revocation, native default deny, ID races, dropped ACK, MCP/Gateway restart and operator CLI private-file behavior. The compatibility path also exercises a 2025-06-18 client. Hosted Windows can run the same deterministic checks; the user's physical Windows tasks remain separately deferred. LAM-17/18/19 are not marked complete and no Harness binary or user configuration is used here.
+
+## Mac delivery evidence
+
+Formal [mac-20261024T092555Z](evidence/p2/mac-20261024T092555Z/SUMMARY.md) was captured after committing and pushing source 0ad5880. All seven tools and the private credential boundary passed against a real stdio SDK client and encrypted remote Mock, with 43 full-suite cases. The implementation is in [PR #40](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/40), stacked on PR #38. Hosted CI includes the same clean-source smoke. Physical Windows/real Harness tests remain explicitly separate; nothing was merged or closed.
