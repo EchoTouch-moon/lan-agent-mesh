@@ -1,0 +1,32 @@
+{
+  "kind": "W3 physical Mac-Windows cross-host Mock E2E — Windows side transcript (sanitized)",
+  "testedSourceSha": "d226c2cc4bdea624e3807078a5b17f29aa380fa9",
+  "platform": "win32",
+  "os": "Windows 10.0.22621 x64",
+  "node": "v24.12.0",
+  "pnpm": "10.18.3",
+  "clone": "independent checkout at a path containing spaces; git status --porcelain empty before the run; install --frozen-lockfile and build (incl. native private-storage DLL) exit 0",
+  "windowsPeerId": "12D3KooWQLnQfNd2ENTtLgYGXjUrNzdsX9Xjn3rhAS9jEGBZgPtN",
+  "macPeerId": "12D3KooWDybXuFm2LSe9j7tUoSRdiFQAYurvAShX6i6vzT2n25qh",
+  "dataDirectory": "fresh private subdirectory under the #46 operator-managed exclusive parent; created by the Gateway through the native checker",
+  "listen": "/ip4/0.0.0.0/tcp/48731 (released after shutdown), --mdns --mock --mock-delay-ms 1000",
+  "steps": [
+    { "step": "mdns_discovery", "result": "failed", "detail": "gateway peers empty for 30s; direct _lam._udp.local multicast query from the physical NIC also unanswered; TCP port sweep polluted by a TUN proxy fake-accepting the whole segment. Manual-address fallback used instead (Mac initiated pairing to Windows:48731). No firewall/ACL change, no elevation" },
+    { "step": "pairing", "result": "verified", "detail": "Mac-initiated pairing received on Windows with the announced Mac peer ID; full short code displayed to the on-site user only (never posted); first code expired during human comparison and was refused (permission_denied) — recorded as an honest negative; Mac re-issued, second code independently compared on both machines by the user and confirmed at 2026-10-24T16:02:41Z, trusted:true" },
+    { "step": "win_to_mac_registry", "result": "verified", "detail": "darwin node registry fetched over the physical LAN; mock agent capabilities complete" },
+    { "step": "win_to_mac_spawn", "result": "verified", "detail": "cross-host session created; nativeSessionId recorded" },
+    { "step": "win_to_mac_task", "result": "verified", "detail": "send 'cross-host fixture' -> events streamed started -> delta 'mock:' -> delta 'cross-host fixture' -> completed; final state COMPLETED with exact text 'mock:cross-host fixture' (verified twice: 1s-delay receiver and later 10s-delay restarted receiver)" },
+    { "step": "exact_retry", "result": "verified", "detail": "first attempt with an already-expired deadline was refused (documented operator error, not a defect); corrected test on a fresh session with a full saved deadline: identical key/taskId/deadline resend accepted returning the same taskId, event cursor unchanged — no re-execution; receiver independently confirmed two accepted receipts and exactly four events for the logical task" },
+    { "step": "cancel", "result": "accepted_with_race", "detail": "task.cancel accepted and acked; the 1000ms mock task had already COMPLETED before the cancel took effect — timing recorded honestly" },
+    { "step": "resume_running_receiver", "result": "verified", "detail": "resume of the same session returned the identical nativeSessionId" },
+    { "step": "resume_after_receiver_restart", "result": "verified_refused", "detail": "after the Mac receiver restarted, resume of the pre-restart session returned not_found — no silent new context" },
+    { "step": "controlled_crash_unknown_no_replay", "result": "verified", "detail": "independent session sent exact text 'w3 controlled crash fixture' (full key/taskId/deadline saved), state RUNNING observed; Mac hard-killed its receiver mid-run and restarted same directory/identity; original-parameter retry accepted; events show started -> unknown ('Gateway restarted; execution outcome uncertain, never auto-replay'); state UNKNOWN with no second started and no new completed — no replay" },
+    { "step": "unpaired_negative", "result": "verified", "detail": "registry and spawn against a never-paired peer ID both refused with permission_denied" },
+    { "step": "revoke", "result": "verified", "detail": "revoke of the Mac peer succeeded; subsequent registry and spawn both refused with permission_denied; cached peer cards unavailable" },
+    { "step": "shutdown_and_cleanup", "result": "verified_with_note", "detail": "control shutdown returned stopping:true; node process gone, port 48731 released (no LISTEN), gateway.lock and control.json removed, only identity.key and mesh.sqlite remain in the private data directory. Honest note: the gateway process exit code was not captured because the long-running instance's output redirection was mis-wired to an earlier failed (EADDRINUSE) launch attempt; graceful stop is evidenced by the shutdown ack, process disappearance, port release and lock/control cleanup" },
+    { "step": "mac_to_win_direction", "result": "recorded_by_mac_side", "detail": "Mac-side caller records its own half; Windows observed no inbound caller task from Mac during its watch window (both sides coordinated through issue #15)" }
+  ],
+  "redaction": "no private IPs, control tokens, keys or pairing codes are included; session/task/peer identifiers are runtime-random test identifiers kept for cross-side correlation",
+  "externalModels": 0,
+  "no_real_harness": "Mock-only round per the window rules; no real model/GUI/installer/service, no firewall or existing-ACL change, no elevation"
+}
