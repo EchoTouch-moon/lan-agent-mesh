@@ -19,15 +19,17 @@ export interface AclAudit {
 }
 export type DataDirectoryPolicy = 'enforce' | 'warn';
 const SENSITIVE_FILES = ['identity.key', 'control.json'] as const;
-// SYSTEM (SY / S-1-5-18) and BUILTIN\Administrators (BA / S-1-5-32-544) are
-// natural administrative principals, not "other ordinary users".
-const ALLOWED_SIDS = new Set(['SY', 'BA', 'S-1-5-18', 'S-1-5-32-544']);
+// SYSTEM (SY / S-1-5-18), BUILTIN\Administrators (BA / S-1-5-32-544) and the
+// built-in local Administrator account (LA, RID 500) are natural administrative
+// principals, not "other ordinary users".
+const ALLOWED_SIDS = new Set(['SY', 'BA', 'LA', 'S-1-5-18', 'S-1-5-32-544']);
 const ACCOUNT_NAMES: Record<string, string> = {
   WD: 'Everyone',
   AU: 'Authenticated Users',
   BU: 'BUILTIN\\Users',
   SY: 'NT AUTHORITY\\SYSTEM',
   BA: 'BUILTIN\\Administrators',
+  LA: 'Local Administrator account',
   'S-1-5-18': 'NT AUTHORITY\\SYSTEM',
   'S-1-5-32-544': 'BUILTIN\\Administrators',
   'S-1-5-32-545': 'BUILTIN\\Users',

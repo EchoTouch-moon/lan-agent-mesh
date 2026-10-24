@@ -20,10 +20,11 @@ its sensitive files; ownership by a different ordinary user (the owner can
 rewrite the DACL).
 
 Out of scope as attackers (natural system privilege, per issue #41):
-`NT AUTHORITY\SYSTEM` (`SY`/S-1-5-18) and `BUILTIN\Administrators`
-(`BA`/S-1-5-32-544), which remain allow-listed. Other processes running **as the
-same user** are not separated by any filesystem ACL; that boundary belongs to
-future work (enhanced isolation below).
+`NT AUTHORITY\SYSTEM` (`SY`/S-1-5-18), `BUILTIN\Administrators`
+(`BA`/S-1-5-32-544) and the built-in local Administrator account (`LA`, RID
+500), which remain allow-listed. Other processes running **as the same user**
+are not separated by any filesystem ACL; that boundary belongs to future work
+(enhanced isolation below).
 
 ## Effective ACL audit (what is checked)
 
