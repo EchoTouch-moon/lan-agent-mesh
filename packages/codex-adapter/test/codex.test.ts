@@ -77,6 +77,9 @@ describe.skipIf(process.platform !== 'darwin')('Codex adapter protocol invariant
       rmSync(options.home, { recursive: true }); adapter = await CodexAdapter.open(options);
       await expect(CodexAdapter.open(options)).rejects.toThrow('initialization refused');
       expect((await adapter.probe()).available).toBe(true);
+      await adapter.close(); adapter = undefined;
+      writeFileSync(join(options.home, 'adapter.lock'), '2147483647', { mode: 0o600 });
+      await expect(CodexAdapter.open(options)).rejects.toThrow('initialization refused');
     } finally { await adapter?.close(); rmSync(root, { recursive: true, force: true }); }
   });
 });

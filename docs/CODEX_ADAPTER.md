@@ -7,6 +7,7 @@
 ## 会话、失败和权限
 
 - Adapter session ID、Gateway session ID 与 Codex native thread ID 独立；原生映射及任务记录写入 adapter 专用 SQLite，不接触 Codex 内部数据库。
+- 正常关闭后可恢复自己的 home；若 Gateway 父进程崩溃留下 lock，即使该 PID 已不存在也拒绝自动清除。父 PID 消失不证明原生子进程或工具已退出；必须由操作者确认清理后再恢复。UNKNOWN 任务不会因此重放。
 - `home` 必须是明确指定的独占目录。首次仅接受空目录，写入与 node/executable/workspace/version 绑定的所有权标记；拒绝非空未标记目录。使用私有目录检查和单进程锁；重启只恢复自己的目录。环境不继承 OPENAI/CODEX 凭据、代理或用户配置根，HOME/CODEX_HOME/XDG 根均为该专用目录。
 - 工作区由本机操作者注册为规范绝对路径，远端只传 alias。每 session 只允许一个 turn；100 个 session、1000 个保留 task、4090 个 delta、32768 字符输出和 1 MiB stdio 缓冲有明确上限，达到上限拒绝继续。
 - 发送前持久保留原始幂等键与输入。完全相同的重试返回原 task；不同输入不能复用键。丢连接、超时、未确认接收或进程停止均保留 UNKNOWN；含 UNKNOWN 的 session 不允许 resume 或新 turn，禁止猜测和自动重放。重启后的已完成 session 要显式 resume；不对任意外部 thread ID 提供恢复入口。

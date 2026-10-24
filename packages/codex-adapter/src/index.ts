@@ -94,11 +94,9 @@ export class CodexAdapter implements HarnessAdapter {
     try { writeFileSync(lock, String(process.pid), { mode: 0o600, flag: 'wx' }); }
     catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
-      const pid = Number(readFileSync(lock, 'utf8'));
-      if (!Number.isSafeInteger(pid) || pid < 1) throw new Error('Invalid lock');
-      try { process.kill(pid, 0); throw new Error('Home already active'); }
-      catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw error; }
-      unlinkSync(lock); writeFileSync(lock, String(process.pid), { mode: 0o600, flag: 'wx' });
+      // A dead parent PID does not prove its native child or tools have stopped.
+      // Refuse stale locks too; never restart a second app-server against uncertain history.
+      throw new Error('Home is active or requires operator crash cleanup');
     }
     this.locked = true;
     this.lease.assertActive();
