@@ -178,6 +178,19 @@ function snapshot(observation) {
   });
   return { deliveries: observation.deliveries.map(({ taskId, ...d }) => ({ ...d, taskIdSha256: sha(taskId) })), tasks, revocations: observation.revocations };
 }
+function receiverVerified(r) {
+  if (!r) return false;
+  const ack = r.deliveries.filter(d => d.text === ACK_TEXT), cancel = r.deliveries.filter(d => d.text === CANCEL_TEXT);
+  if (ack.length !== 2 || cancel.length !== 1 || r.tasks.length !== 2 ||
+      ack[0].taskIdSha256 !== ack[1].taskIdSha256 || ack[0].taskIdSha256 === cancel[0].taskIdSha256 ||
+      ack[0].envelopeSha256 !== ack[1].envelopeSha256 || ack[0].replySha256 !== ack[1].replySha256) return false;
+  const completed = r.tasks.find(t => t.taskIdSha256 === ack[0].taskIdSha256);
+  const cancelled = r.tasks.find(t => t.taskIdSha256 === cancel[0].taskIdSha256);
+  return completed?.state === 'COMPLETED' && JSON.stringify(completed.eventTypes) === JSON.stringify(['started', 'delta', 'delta', 'completed']) &&
+    cancelled?.state === 'CANCELLED' && cancelled.eventTypes.includes('started') && cancelled.eventTypes.at(-1) === 'cancelled' &&
+    !cancelled.eventTypes.includes('completed') &&
+    r.revocations.some(v => v.cacheWasPopulatedDuringRun && v.cachedAfter === 0 && v.registryRefused);
+}
 async function waitForOperator(g, waitMs) {
   if (!g.server?.listening) return 'already_stopped';
   return new Promise(resolve => {
@@ -195,7 +208,7 @@ process.once('SIGINT', () => { interrupted = true; for (const e of owned) void e
 process.once('SIGTERM', () => { interrupted = true; for (const e of owned) void e.gateway.stop().catch(() => {}); });
 try {
   if (values['self-test']) {
-    assert.equal(values.role, undefined); assert.equal(values.data, undefined); assert.equal(values.output, undefined);
+    for (const key of ['role', 'data', 'output', 'peer', 'address', 'peer-platform', 'listen', 'wait-ms']) assert.equal(values[key], undefined);
     temporaryRoot = mkdtempSync(join(tmpdir(), 'LAM W3 self-test & '));
     const receiverDelay = Number(values['self-test-delay-ms'] ?? 1000);
     assert.ok(Number.isInteger(receiverDelay) && receiverDelay >= 1000 && receiverDelay <= 10000);
@@ -223,6 +236,13 @@ try {
     assert.equal(ack.length, 2); assert.equal(ack[0].envelopeSha256, ack[1].envelopeSha256); assert.equal(ack[0].replySha256, ack[1].replySha256);
     assert.equal(observed.tasks.length, 2); assert.equal(observed.tasks.filter(t => t.state === 'COMPLETED').length, 1); assert.equal(observed.tasks.filter(t => t.state === 'CANCELLED').length, 1);
     assert.equal(observed.revocations[0].cacheWasPopulatedDuringRun, true); assert.equal(observed.revocations[0].cachedAfter, 0);
+    assert.equal(receiverVerified(observed), true);
+    const swapped = globalThis.structuredClone(observed);
+    for (const task of swapped.tasks) task.state = task.state === 'COMPLETED' ? 'CANCELLED' : 'COMPLETED';
+    assert.equal(receiverVerified(swapped), false, 'Aggregate terminal counts must not allow swapped ACK/cancel task identities');
+    const changedEnvelope = globalThis.structuredClone(observed);
+    changedEnvelope.deliveries.filter(d => d.text === ACK_TEXT)[1].envelopeSha256 = 'changed';
+    assert.equal(receiverVerified(changedEnvelope), false, 'A different envelope is not an original-envelope retry');
     const closedSnapshot = new Promise(resolveSnapshot => b.gateway.server.once('close', () => resolveSnapshot(snapshot(observer))));
     const receiverStop = waitForOperator(b.gateway, 10000);
     await b.gateway.command('shutdown', {});
@@ -230,6 +250,7 @@ try {
     assert.deepEqual(await closedSnapshot, observed);
     report.results.receiver = observed; report.results.receiverCloseSnapshot = 'verified before Store teardown'; report.status = 'passed';
   } else {
+    assert.equal(values['self-test-delay-ms'], undefined);
     assert.ok(['darwin', 'win32'].includes(process.platform));
     assert.ok(['prepare', 'receiver', 'runner'].includes(values.role));
     assert.equal(values['expected-source'], source, 'Physical roles require an explicit full source SHA');
@@ -255,10 +276,7 @@ try {
       entry.preserve = values.role === 'prepare' && reason === 'control_shutdown' && !interrupted;
       report.stopReason = reason; report.status = entry.preserve ? 'prepared' : 'partial';
       if (observer && reason === 'control_shutdown') {
-        const r = report.results.receiver, ack = r.deliveries.filter(d => d.text === ACK_TEXT);
-        if (ack.length === 2 && ack[0].envelopeSha256 === ack[1].envelopeSha256 && ack[0].replySha256 === ack[1].replySha256 &&
-            r.tasks.length === 2 && r.tasks.some(t => t.state === 'COMPLETED') && r.tasks.some(t => t.state === 'CANCELLED') &&
-            r.revocations.some(v => v.cacheWasPopulatedDuringRun && v.cachedAfter === 0 && v.registryRefused)) report.status = 'passed';
+        if (receiverVerified(report.results.receiver)) report.status = 'passed';
       }
     }
   }
