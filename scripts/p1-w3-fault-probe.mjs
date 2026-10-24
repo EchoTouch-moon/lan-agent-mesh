@@ -64,6 +64,12 @@ async function start(data, role, listen, delayMs) {
     } finally { await lease.close(); }
   }
   const entry = { data, marker, role, gateway: new Gateway({ directory: data, listen: [listen], mdns: !values['self-test'], mock: true, scenario: { delayMs } }), started: false };
+  const command = entry.gateway.command.bind(entry.gateway);
+  entry.gateway.command = async (name, args) => {
+    const result = await command(name, args); // Keep the real authenticated control handler and validation.
+    if (name === 'shutdown') entry.operatorShutdownRequested = true;
+    return result;
+  };
   owned.push(entry);
   const g = await entry.gateway.start(); entry.started = true;
   if (adopted) assert.equal(marker.nodeId, g.mesh.id, 'Prepared identity changed');
@@ -195,7 +201,10 @@ async function waitForOperator(g, waitMs) {
   if (!g.server?.listening) return 'already_stopped';
   return new Promise(resolve => {
     const timer = setTimeout(() => resolve('window_expired'), waitMs);
-    g.server.once('close', () => { clearTimeout(timer); resolve('control_shutdown'); });
+    g.server.once('close', () => {
+      clearTimeout(timer);
+      resolve(owned.find(entry => entry.gateway === g)?.operatorShutdownRequested ? 'control_shutdown' : 'unexpected_stop');
+    });
   });
 }
 async function portReleased(port) {
