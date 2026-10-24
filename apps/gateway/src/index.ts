@@ -1,7 +1,7 @@
 import { parseArgs } from 'node:util';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { Gateway } from '@lam/runtime';
+import { Gateway, MeshError } from '@lam/runtime';
 import { rotateIdentity } from '@lam/mesh';
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -63,28 +63,38 @@ if (values.help || !values.data) {
       delay > 10000
     )
       throw new Error('Invalid port/delay');
-    const gateway = await new Gateway({
-      directory,
-      controlPort: port,
-      mock: values.mock ?? false,
-      mdns: values.mdns ?? false,
-      scenario: { delayMs: delay },
-      ...(values.listen ? { listen: [values.listen] } : {}),
-    }).start();
-    console.log(
-      JSON.stringify({
-        ready: true,
-        nodeId: gateway.mesh.id,
-        addresses: gateway.mesh.addresses,
-        controlUrl: gateway.url,
-      }),
-    );
-    const stop = () => {
-      void gateway.stop().catch(() => {
+    let gateway: Gateway | undefined;
+    try {
+      gateway = await new Gateway({
+        directory,
+        controlPort: port,
+        mock: values.mock ?? false,
+        mdns: values.mdns ?? false,
+        scenario: { delayMs: delay },
+        ...(values.listen ? { listen: [values.listen] } : {}),
+      }).start();
+    } catch (error) {
+      if (error instanceof MeshError) {
+        console.error(JSON.stringify({ error: error.code, message: error.message }));
         process.exitCode = 1;
-      });
-    };
-    process.once('SIGINT', stop);
-    process.once('SIGTERM', stop);
+      } else throw error;
+    }
+    if (gateway) {
+      console.log(
+        JSON.stringify({
+          ready: true,
+          nodeId: gateway.mesh.id,
+          addresses: gateway.mesh.addresses,
+          controlUrl: gateway.url,
+        }),
+      );
+      const stop = () => {
+        void gateway.stop().catch(() => {
+          process.exitCode = 1;
+        });
+      };
+      process.once('SIGINT', stop);
+      process.once('SIGTERM', stop);
+    }
   } else throw new Error('Unknown action');
 }

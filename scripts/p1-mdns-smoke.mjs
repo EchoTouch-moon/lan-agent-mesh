@@ -25,11 +25,13 @@ try {
     directory: join(directory, 'A'),
     listen: ['/ip4/0.0.0.0/tcp/0'],
     mdns: true,
+    dataDirectoryPolicy: 'warn',
   }).start();
   b = await new Gateway({
     directory: join(directory, 'B'),
     listen: ['/ip4/0.0.0.0/tcp/0'],
     mdns: true,
+    dataDirectoryPolicy: 'warn',
   }).start();
   let seen = false;
   for (let i = 0; i < 250; i++) {

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { AgentSchema, CapabilitiesSchema, IdSchema, RegistrySchema, SessionSchema, TaskStateSchema, TimestampSchema, WorkspaceAliasSchema } from '@lam/domain';
 export const MAX_MESSAGE_BYTES = 64 * 1024;
-export const ErrorCodeSchema = z.enum(['invalid_json', 'invalid_message', 'unsupported_version', 'message_too_large', 'deadline_exceeded', 'unsupported', 'not_found', 'busy', 'permission_denied', 'cancelled', 'disconnected', 'conflict', 'internal']);
+export const ErrorCodeSchema = z.enum(['invalid_json', 'invalid_message', 'unsupported_version', 'message_too_large', 'deadline_exceeded', 'unsupported', 'not_found', 'busy', 'permission_denied', 'cancelled', 'disconnected', 'conflict', 'unsafe_directory', 'internal']);
 export type ErrorCode = z.infer<typeof ErrorCodeSchema>;
 export class MeshError extends Error {
   constructor(public readonly code: ErrorCode, message: string) { super(message); this.name = 'MeshError'; }
