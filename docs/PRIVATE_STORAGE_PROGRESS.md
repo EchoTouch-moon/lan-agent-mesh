@@ -14,3 +14,5 @@
 - 第三轮 40086194783 将剩余 MCP 失败定位为 helper_timeout_compile；原生正负例及租约断言继续通过。改为 Windows 构建阶段编译受版本控制的 C#，运行时固定加载构建 DLL，保持权限门槛和原启动上限；报告记录 DLL SHA-256。补 final directory 必须有当前 SID 的私有 OI/full-control 继承规则，避免新文件回退 token default DACL；新增无继承负例。
 
 - 第四轮 40086716124 的 native 构建与 Mac 检查通过，Windows 主机脚本拒绝例/私有根通过但后续失败，报告仍标 failed。补每个阶段与白名单原因；runtime PS helper 移除 Join-Path/ConvertFrom-Json 等 cmdlet 自动模块加载，以纯 .NET 加载及有界 base64 行协议传递路径，继续避免 MCP 精简环境下的冷启动模块发现。未输出路径/凭据作为诊断。
+
+- 第五轮 40087036656（执行 head ecf3037）四组 CI 全部通过：Windows 权限主机脚本和 stdio Mock 链路成功，原有/新增边界断言均保留。补强最后的因果判定：负例必须返回 ACL/owner/继承策略原因而非任意启动失败；公开假凭据先经过同一 contract 校验，再验证 MCP 仅因存储政策拒绝。后续收集最终源与对应 CI 证据。

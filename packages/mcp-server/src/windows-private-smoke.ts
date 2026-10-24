@@ -7,6 +7,7 @@ import { execFile, execFileSync } from 'node:child_process';
 import { promisify, parseArgs } from 'node:util';
 import { createHash, randomUUID } from 'node:crypto';
 import assert from 'node:assert/strict';
+import { credential as validateCredential } from '@lam/mcp-contract';
 import { Gateway } from '@lam/runtime';
 import { privateDirectory, privateFile, PrivateStorageError } from '@lam/private-storage';
 import { Client } from '@modelcontextprotocol/client';
@@ -34,7 +35,7 @@ try {
   // The rejection case remains testable even if the host cannot offer a safe lineage.
   const unsafe = mkdtempSync(join(tmpdir(), 'LAM ACL reject & ')); roots.push(unsafe);
   widen(unsafe);
-  await assert.rejects(new Gateway({ directory: unsafe }).start());
+  await assert.rejects(new Gateway({ directory: unsafe }).start(), (error: unknown) => error instanceof PrivateStorageError && ['unsafe_allow_ace', 'unsafe_owner_or_dacl', 'missing_private_inheritance'].includes(error.reason));
   assert.deepEqual(readdirSync(unsafe), []);
   report.results.unsafeGatewayBeforeSecretCreation = 'verified';
   const parent = resolve(values.parent ?? tmpdir());
@@ -88,10 +89,10 @@ try {
   const publicCredential = join(unsafe, 'fixture.json');
   // Public, nonfunctional sentinel only; no real bearer is put into the unsafe fixture.
   const publicBearer = `mcp.${randomUUID()}.${'0'.repeat(64)}`;
-  writeFileSync(publicCredential, JSON.stringify({ version: 1, gatewayNodeId: 'public-fixture', url: 'http://127.0.0.1:1', token: publicBearer, grantId: randomUUID(), expiresAt: new Date(Date.now() + 60000).toISOString() }));
+  writeFileSync(publicCredential, JSON.stringify(validateCredential({ version: 1, gatewayNodeId: 'public-fixture', url: 'http://127.0.0.1:1', token: publicBearer, grantId: randomUUID(), expiresAt: new Date(Date.now() + 60000).toISOString() })));
   await assert.rejects(run(process.execPath, [resolve('packages/mcp-server/dist/cli.js'), '--credentials', publicCredential], { timeout: 30000 }), (e: unknown) => {
     const error = e as { stdout?: string; stderr?: string; code?: number; killed?: boolean };
-    return error.code === 1 && !error.killed && error.stdout === '' && !String(error.stderr).includes(publicBearer);
+    return error.code === 1 && !error.killed && error.stdout === '' && /Private storage rejected: (unsafe_allow_ace|unsafe_owner_or_dacl|missing_private_inheritance)/.test(String(error.stderr)) && !String(error.stderr).includes(publicBearer);
   });
   report.results.unsafeMcpReadRejectedBeforeParsing = 'verified';
   report.status = 'passed';
