@@ -1,0 +1,40 @@
+{
+  "testedSourceSha": "91772b1902c5950465bc80f1c46b1fe5173e04fe",
+  "sourceCleanBeforeExecution": true,
+  "startedUtc": "2026-10-24T15:28:07.263Z",
+  "endedUtc": "2026-10-24T15:28:08.737Z",
+  "commands": [
+    {
+      "command": "pnpm check",
+      "exitCode": 0,
+      "tests": {
+        "defined": 54,
+        "passed": 51,
+        "skipped": 3
+      },
+      "logSha256": "2dfccc72408a32dc8140c788addbe6a72ae0d668d69b604861ebef94326b64b5"
+    },
+    {
+      "command": "LAM_CODEX_BIN=<explicit-verified-cli> node scripts/codex-adapter-smoke.mjs",
+      "exitCode": 0
+    }
+  ],
+  "sha256": {
+    "scripts/codex-adapter-smoke.mjs": "f04b9578e8923733ea0c65493e2cf7d19a8d92750b47f3ee1eccf9ed8a7ad212",
+    "packages/codex-adapter/src/index.ts": "c86bdc4b14daf89c8f0b352e83a952e3ad074f4311eb164a89e6af9e0364d518",
+    "packages/codex-adapter/src/rpc.ts": "e251f89e822c9626f0abf0347a088a80afec5a30fbf01efd9dc3e10d5f5202e7",
+    "packages/adapter-sdk/src/index.ts": "7d9f25ac3ebc999169119ddf423731b24df5db44a781b69924bcd4be8987e44e",
+    "packages/runtime/src/index.ts": "3d8efa8528e550b1cf06a734a5151aafb03b666d820221e8c9f80535cc0c3b45",
+    "packages/runtime/src/sessions.ts": "26590bf9ca4cfdbbbb934d07935efdbcf1aa955232f879bb57ce53863997a904",
+    "packages/codex-adapter/dist/index.js": "0d150cb173d543be8084698e6ae02f02c05d60019c83108fd63a514c04f75895",
+    "packages/codex-adapter/dist/rpc.js": "248e38f992a475d099744156e2c89c04283d914c3d38f15d2c7be0c8c5ba2aab"
+  },
+  "originalReportSha256": "40c1fe2e4c1dcc19d29480a4bb385880e4ed4cba783bb12a83dc5c5aa429bb9a",
+  "executableSha256": "134063e133f0b4244fa3b251acf973d4fe4b4aeeacbdc135211bf480f59f1477",
+  "notes": [
+    "Source hashes are raw Git/file LF bytes; no CRLF projection.",
+    "dist hashes record local build outputs; source was committed and pushed before native execution.",
+    "The model provider is configured only to a loopback deterministic fixture, without imported credentials. No network packet capture is claimed.",
+    "Native Windows Codex and physical W3 were not exercised."
+  ]
+}
