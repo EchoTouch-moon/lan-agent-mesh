@@ -33,6 +33,9 @@
       ],
       "@lam/private-storage": [
         "packages/private-storage/src/index.ts"
+      ],
+      "@lam/codex-adapter": [
+        "packages/codex-adapter/src/index.ts"
       ]
     }
   },

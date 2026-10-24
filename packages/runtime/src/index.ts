@@ -32,7 +32,8 @@ export interface GatewayOptions {
   mock?: boolean;
   scenario?: MockScenario;
   adapters?: HarnessAdapter[];
-  exportAgents?: string[];
+  adapterFactories?: ((context: { nodeId: string; directory: string }) => Promise<HarnessAdapter>)[];
+  exportAgents?: string[] | ((nodeId: string) => string[]);
 }
 interface RemoteRegistry {
   registry: z.infer<typeof RegistrySchema>;
@@ -55,6 +56,7 @@ export class Gateway {
   private readonly remotes = new Map<string, RemoteRegistry>();
   private keepalive?: ReturnType<typeof setInterval>;
   private maintenance: Promise<void> | undefined;
+  private readonly ownedAdapters: HarnessAdapter[] = [];
   constructor(readonly options: GatewayOptions) { }
   async start() {
     this.storageLease = await privateDirectory(this.options.directory, {
@@ -100,8 +102,11 @@ export class Gateway {
         onMessage: (peer, value) => this.receive(peer, value),
       });
       await this.mesh.start();
-      const exported = new Set(this.options.exportAgents ?? []);
-      const adapters = [...(this.options.adapters ?? [])];
+      const exported = new Set(typeof this.options.exportAgents === 'function' ? this.options.exportAgents(this.mesh.id) : this.options.exportAgents ?? []);
+      const adapters = this.ownedAdapters;
+      adapters.push(...(this.options.adapters ?? []));
+      for (const factory of this.options.adapterFactories ?? [])
+        adapters.push(await factory({ nodeId: this.mesh.id, directory: this.options.directory }));
       if (this.options.mock) {
         adapters.push(
           createMockAdapter({
@@ -250,8 +255,8 @@ export class Gateway {
       harnesses: [...new Set(this.sessions.exported().map((a) => a.harnessId))].map((id) => ({
         id,
         nodeId: this.mesh.id,
-        kind: 'mock',
-        version: 'mock/1',
+        kind: this.sessions.harnesses.get(id)!.kind,
+        version: this.sessions.harnesses.get(id)!.version,
         capabilities: this.sessions.exported().find((a) => a.harnessId === id)!.capabilities,
       })),
       agents: this.sessions.exported(),
@@ -488,6 +493,7 @@ export class Gateway {
         await new Promise<void>((resolve) => this.server!.close(() => resolve()));
       }
       if (this.router) await this.router.stop();
+      await Promise.all(this.ownedAdapters.map(adapter => adapter.close?.()));
       if (this.mesh) await this.mesh.stop();
       if (this.maintenance) await this.maintenance;
       if (this.store) this.store.close();

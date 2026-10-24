@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 export default defineConfig({ test: { include: ['packages/*/test/**/*.test.ts'], testTimeout: process.platform === 'win32' ? 60000 : 15000 }, resolve: { alias: {
+  '@lam/codex-adapter': fileURLToPath(new URL('./packages/codex-adapter/src/index.ts', import.meta.url)),
   '@lam/private-storage': fileURLToPath(new URL('./packages/private-storage/src/index.ts', import.meta.url)),
   '@lam/storage': fileURLToPath(new URL('./packages/storage/src/index.ts', import.meta.url)),
   '@lam/mesh': fileURLToPath(new URL('./packages/mesh/src/index.ts', import.meta.url)),
