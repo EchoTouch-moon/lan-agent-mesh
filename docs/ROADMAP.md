@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-P0 foundation code was merged in PR #33. The macOS/Windows feasibility evidence is reviewed, with unsupported or untested interfaces explicitly bounded; Windows follow-up integration was merged in PR #37. See the [acceptance audit](P0_ACCEPTANCE.md) and [P0 progress](P0_PROGRESS.md). P1 onward remains planned.
+P0 foundation code was merged in PR #33. The macOS/Windows feasibility evidence is reviewed, with unsupported or untested interfaces explicitly bounded; Windows follow-up integration was merged in PR #37. See the [acceptance audit](P0_ACCEPTANCE.md) and [P0 progress](P0_PROGRESS.md). P1 Gateway implementation is available for review in [PR #38](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/38), while physical Mac↔Windows W3 acceptance remains open. Windows W1/W2 evidence is in [PR #39](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/39); P2 scoped local MCP ingress (Mock-only) is in [PR #40](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/40). These three PRs are not yet merged. Windows user-isolated ACL is a blocker for production credentials ([#41](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/41)). See the [2026-10-24 next-phase plan](NEXT_PHASE_2026-10-24.md) and [coordination #42](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/42).
 
 | Phase | Deliverable | Planned IDs | Exit criteria |
 |---|---|---|---|
@@ -19,5 +19,11 @@ P0 foundation code was merged in PR #33. The macOS/Windows feasibility evidence 
 5. An unpaired node cannot see private sessions or initiate work.
 6. Denied mediated permission never becomes approved or executed; reconnect does not replay side-effecting operations.
 
-## Initial development priorities
-P0 = release-blocking foundation. P1 = planned alpha enhancements. P2 = future backlog. Time estimates remain tentative pending interface validation.
+## Current priority (2026-10-24)
+1. Review P1/P2 stacked PRs without treating an implementation merge as hardware acceptance.
+2. Run physical cross-host W3 with user-confirmed pair code; leave #15 open until passed.
+3. Resolve Windows ACL fail-closed posture before any production credential or persistent real-harness execution (#41).
+4. Build Codex + ACP/DSH adapters (#17/#18) and demonstrate both directions (#19).
+5. Layer Policy/approval/UI and release gates afterward (#20-24, #27-28).
+
+This sequence and evidence levels are governed by the [dated execution plan](NEXT_PHASE_2026-10-24.md). Time estimates remain tentative pending real-machine tests.
