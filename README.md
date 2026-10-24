@@ -2,7 +2,7 @@
 
 **A peer-to-peer local network for existing AI agent harnesses.** Discover, wake, message and delegate work across macOS and Windows while keeping each harness and machine's native execution permissions.
 
-> **Status: P0 foundation and reviewed Windows evidence merged in [PR #37](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/37).** Domain schemas, protocol v1, Adapter SDK and a deterministic mock are available. P2P transport, real harness adapters and a working network Gateway are still planned. See [P0 progress](docs/P0_PROGRESS.md).
+> **Status (2026-10-24):** P0 foundation and Windows research are merged ([PR #37](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/37)). Working P1 P2P Gateway implementation is in open [PR #38](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/38), Windows W1/W2 evidence in open [PR #39](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/39), and scoped MCP-to-remote-Mock tools in open [PR #40](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/40). **Physical two-host W3, Windows secure data-directory ACL, real Harness adapters and human approval are not complete.** See the [next-phase execution plan](docs/NEXT_PHASE_2026-10-24.md).
 
 ## Goal
 
@@ -30,6 +30,7 @@ Install the **same Gateway** on a Mac and a Windows PC. Register local Codex, DS
 - [Security model](docs/SECURITY.md) — pairing, delegated authority, native permission boundaries
 - [Harness matrix](docs/HARNESS_MATRIX.md) — required version-specific capability tests
 - [Roadmap](docs/ROADMAP.md) — staged implementation and Alpha exit criteria
+- [Next-phase plan (2026-10-24)](docs/NEXT_PHASE_2026-10-24.md) — PR integration, physical W3 acceptance, Windows ACL gate, Codex/DSH delivery
 - [Backlog](docs/BACKLOG.md) — task index; [GitHub Issues](https://github.com/EchoTouch-moon/lan-agent-mesh/issues) contain the work items
 
 ## First demonstration
