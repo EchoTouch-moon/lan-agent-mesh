@@ -24,7 +24,7 @@ if (values.help) {
 }
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const repository = resolve(fileURLToPath(new globalThis.URL('..', import.meta.url)));
-assert.equal(resolve(execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim()), repository, 'Run from this repository');
+assert.equal(resolve(execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).replace(/\r?\n$/, '')), repository, 'Run from this repository');
 assert.equal(execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim(), '', 'Commit and push probe source before execution');
 const source = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 if (values['expected-source']) assert.equal(source, values['expected-source'], 'Wrong committed source');
