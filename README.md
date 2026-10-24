@@ -2,7 +2,7 @@
 
 **A peer-to-peer local network for existing AI agent harnesses.** Discover, wake, message and delegate work across macOS and Windows while keeping each harness and machine's native execution permissions.
 
-> **Status (2026-10-24):** P0 foundation and Windows research are merged ([PR #37](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/37)). Working P1 P2P Gateway implementation is in open [PR #38](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/38), Windows W1/W2 evidence in open [PR #39](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/39), and scoped MCP-to-remote-Mock tools in open [PR #40](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/40). **Physical two-host W3, Windows secure data-directory ACL, real Harness adapters and human approval are not complete.** See the [next-phase execution plan](docs/NEXT_PHASE_2026-10-24.md).
+> **Status (2026-10-24):** This integration candidate combines the P1 encrypted Gateway, Windows W1/W2 reports, scoped MCP-to-Mock tools and Windows private-storage checks from PRs #38/#39/#40/#43. P0 is already merged; candidate integration into main still awaits review/approval. **Physical Mac↔Windows W3, user-host ACL revalidation, native Harness adapters and human approval remain incomplete.** See [integration review](docs/INTEGRATION_REVIEW_2026-10-24.md) and the [next-phase plan](docs/NEXT_PHASE_2026-10-24.md).
 
 ## Goal
 
@@ -55,7 +55,7 @@ P0: interface feasibility + SDK (LAM-01..06) → P1: P2P core (07..15) → P2: M
 
 ## Local development
 
-Use Node.js 22 or 24 and pnpm 10.18.3 (pinned in packageManager). If Corepack is available, `corepack enable` makes the pinned pnpm available; otherwise install that pnpm version using your normal package manager.
+Use Node.js 22.13+ or 24 and pnpm 10.18.3 (pinned in packageManager). If Corepack is available, `corepack enable` makes the pinned pnpm available; otherwise install that pnpm version using your normal package manager.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -71,7 +71,10 @@ Workspace layout:
 - `packages/protocol`: versioned typed messages, errors and UTF-8 size limits.
 - `packages/adapter-sdk`: capability-gated inbound control contract.
 - `packages/mock-adapter`: deterministic sessions, streaming, scoped mock permissions, cancellation and fault injection.
-- `apps/cli`: offline demonstration. `apps/gateway` and `apps/console`: reserved entry points.
+- `packages/storage`, `packages/mesh`, `packages/runtime`: persistent paired Gateway with bounded task/session routing.
+- `packages/mcp-contract`, `packages/mcp-server`: scoped local stdio tools for remote Mock sessions.
+- `packages/private-storage`: fail-closed Windows native ACL checks and POSIX private-mode checks.
+- `apps/cli`: offline demonstration; `apps/gateway`: Gateway/control CLI; `apps/console`: reserved UI entry point.
 
 [ADR 0001](docs/adr/0001-p0-contracts.md) records contract decisions and limits. `pnpm probe:codex`, `pnpm probe:dsh` and `pnpm probe:zcode` optionally probe installed binaries without model inference; see the [version-specific matrix](docs/HARNESS_MATRIX.md). Optional `pnpm probe:codex:fixture`, `pnpm probe:dsh:fixture` and `pnpm probe:zcode:fixture` exercise the installed native harnesses against deterministic localhost inference, including streaming, cancellation and native approval denial. No external model is called. The macOS-only `pnpm probe:workbuddy:inventory` reads shipped SDK metadata without launching the app. These research probes are not required for CI.
 
@@ -81,4 +84,28 @@ License selection is pending; do not assume a license grant until a LICENSE file
 
 Windows local verification: run `powershell -File scripts/verify-windows.ps1` from the checkout after installing Node and the pinned pnpm. It writes a report to the temporary directory, runs only the offline workspace checks/demo and does not start a real harness.
 
-Windows agent handoff: [execution tasks and GitHub result contract](docs/WINDOWS_AGENT_TASKS.md). The assigned Windows runs are delivered and reviewed. PR #37 consolidates their shared history for integration into main; no additional native run is pending.
+## P1 Gateway on a Mac
+
+After `pnpm install --frozen-lockfile` and `pnpm build`:
+
+```sh
+pnpm gateway serve --data /path/to/private-test-directory --mock
+pnpm gateway control --data /path/to/private-test-directory --command status
+node scripts/p1-process-smoke.mjs --output /tmp/lam-p1-process.json
+```
+
+The first command stays running. Use a second terminal for control commands. Default transport and all control traffic bind to loopback. `--mock` explicitly exports a deterministic test Agent; without it no Agent is exposed. For a scheduled LAN test add `--listen /ip4/0.0.0.0/tcp/48731 --mdns`, compare the pairing code on both machines, and confirm locally on each before reading private registry data or sending tasks. Do not publish control.json or identity.key.
+
+`control --command shutdown` stops the owned Gateway. Offline `rotate-identity --data <directory>` invalidates prior trust and requires pairing again. These commands run only the P1 test runtime and do not attach a GUI or start real inference. Node 22 may print its built-in SQLite experimental warning.
+
+[P1 design and recovery rules](docs/adr/0002-p1-mesh-runtime.md) cover UNKNOWN, exact-message outbox retries, cache expiry and limits. [Windows tasks](docs/P1_WINDOWS_TASKS.md) separate Windows same-host checks from the actual Mac↔Windows hardware gate. P0's [historical handoff](docs/WINDOWS_AGENT_TASKS.md) is complete.
+
+## Local MCP caller (P2 / LAM-16)
+
+A local stdio MCP server now exposes seven scoped tools for remote Agent discovery, owned sessions, asynchronous turns/tasks, result cursors and cancellation. It has no pairing, policy-change or approval tool. The operator issues a separate expiring credential; the MCP process never reads the admin control token. See [MCP setup and permission boundary](docs/MCP_INGRESS.md) and [P2 progress](docs/P2_PROGRESS.md).
+
+```text
+node packages/mcp-server/dist/cli.js --credentials <explicit-private-credential-file>
+```
+
+No existing host configuration is changed automatically. The caller chain is validated against a paired remote Mock; Codex/ACP native adapters and physical cross-host acceptance remain separate tasks.

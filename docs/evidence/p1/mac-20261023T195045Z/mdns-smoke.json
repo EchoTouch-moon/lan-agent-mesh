@@ -1,0 +1,12 @@
+{
+  "kind": "Local two-node mDNS smoke, not a cross-platform result",
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "testedSourceSha": "4714ed9e5ba835208b51ba79d994451ed1931520",
+  "startedUtc": "2026-10-23T19:50:45.495Z",
+  "scope": "Temporary listeners advertise identity/endpoints only; no agents exported, no pairing, no model",
+  "discovery": "verified",
+  "privateAgentsExposed": 0,
+  "status": "passed",
+  "endedUtc": "2026-10-23T19:50:45.624Z"
+}

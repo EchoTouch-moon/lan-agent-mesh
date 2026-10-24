@@ -1,0 +1,19 @@
+{
+  "kind": "P1 two independent Gateway processes, real encrypted loopback transport",
+  "platform": "win32",
+  "node": "v24.12.0",
+  "testedSourceSha": "d68fa6ac8eca1678745fb44813b27a1126d605a3",
+  "sourceState": "clean committed source",
+  "startedUtc": "2026-10-24T08:20:02.495Z",
+  "results": {
+    "pairing": "verified",
+    "A-to-B": "verified",
+    "B-to-A": "verified",
+    "crashRecoveryWithoutReplay": "verified",
+    "identityContinuity": "verified",
+    "gracefulExit": "verified"
+  },
+  "externalModels": 0,
+  "status": "passed",
+  "endedUtc": "2026-10-24T08:20:11.910Z"
+}

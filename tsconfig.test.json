@@ -15,6 +15,24 @@
       ],
       "@lam/mock-adapter": [
         "packages/mock-adapter/src/index.ts"
+      ],
+      "@lam/storage": [
+        "packages/storage/src/index.ts"
+      ],
+      "@lam/mesh": [
+        "packages/mesh/src/index.ts"
+      ],
+      "@lam/runtime": [
+        "packages/runtime/src/index.ts"
+      ],
+      "@lam/mcp-contract": [
+        "packages/mcp-contract/src/index.ts"
+      ],
+      "@lam/mcp-server": [
+        "packages/mcp-server/src/index.ts"
+      ],
+      "@lam/private-storage": [
+        "packages/private-storage/src/index.ts"
       ]
     }
   },

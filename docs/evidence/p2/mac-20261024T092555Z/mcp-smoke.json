@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "testedSourceSha": "0ad588001a46d3302a9805f061efc9a80bb2115a",
+  "sourceState": "clean committed source",
+  "startedUtc": "2026-10-24T09:25:55.992Z",
+  "externalModels": 0,
+  "results": {
+    "toolSet": "seven exact mesh tools; no approval or administration tool",
+    "sessionCreationAndRetry": "verified",
+    "remoteMockStreamAndIdempotency": "verified",
+    "longTaskReturnsBeforeCompletion": "verified",
+    "delegationAndCancel": "verified",
+    "managementBoundary": "verified",
+    "revocation": "verified"
+  },
+  "endedUtc": "2026-10-24T09:25:56.599Z"
+}

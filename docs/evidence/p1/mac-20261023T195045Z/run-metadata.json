@@ -1,0 +1,41 @@
+{
+  "runId": "mac-20261023T195045Z",
+  "testedSourceSha": "4714ed9e5ba835208b51ba79d994451ed1931520",
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "pnpm": "10.18.3",
+  "checks": {
+    "command": "pnpm check",
+    "exitCode": 0,
+    "checks": [
+      "build",
+      "source and test typecheck",
+      "lint",
+      "36 contract/integration cases"
+    ],
+    "originalLogSha256": "b10b71720ae969b0b6c3ad22c347cd19a9e9bfd819597cee39c42f621cdec9f3",
+    "completedUtc": "2026-10-23T19:50:24.705776+00:00"
+  },
+  "scriptSha256": {
+    "scripts/p1-process-smoke.mjs": "0c9029430bc0b15271f4aa2d193c806d5bef7e679317cf49e3ebde7aeac0e8a2",
+    "scripts/p1-mdns-smoke.mjs": "2eed96e9b72a8bdcac38e88e2e12e1fc2e5a3d61056aadec2bb599a00ae4b07f",
+    "packages/storage/src/index.ts": "f9869b333dfd8429b5c64a8f7879d7f573f27f0bdbaf96f19b295fa38eabced6",
+    "packages/mesh/src/index.ts": "6acec78d45c27324a2227ae948f7d896e2e3f71d7df1607f0adc305a1941c052",
+    "packages/runtime/src/index.ts": "eb56ee8139531b2514e8e243219a3e1f29960bf4fadb107d03007d946bf65b29",
+    "packages/runtime/src/router.ts": "a2798819df6a3d46ae9d86a62ce0ec254feb2256dcd0abcb6f26425ee30508c9",
+    "packages/runtime/src/sessions.ts": "e65be9985c69452bf146aa11d70278d7ff4008a309d6350f0db146d1f86f6a5e",
+    "apps/gateway/src/index.ts": "f6b3a71d7cdc4bcf097d997e49f0c808f73c4918d48dc62cf2e1e841e93ac127"
+  },
+  "originalReportsSha256": {
+    "lam-p1-process-final.json": "f9be86622dc66e900ae6c812765d0fd510fc03afb844e43310515a40db0b12ed",
+    "lam-p1-mdns-final.json": "0ad0d42eb554defa67622ea29039b7e315b8d8b1c2ef1c9fbb675c36655bd993"
+  },
+  "scope": "Mac local implementation only: two independent processes and local multicast; no physical Windows result",
+  "cleanup": "Both process and mDNS helpers stopped all owned Gateways and removed their temporary directories; no listener left waiting overnight",
+  "limitations": [
+    "Built-in SQLite remains experimental on Node 22",
+    "Human comparison is an operator action; no production human approval UI implemented",
+    "Mock native state does not survive process exit; mapping persists and unknown execution is never automatically rerun",
+    "Windows physical-machine ACL/multicast and actual Mac-Windows hardware tests intentionally deferred by user"
+  ]
+}

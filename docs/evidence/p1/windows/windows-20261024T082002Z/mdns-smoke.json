@@ -1,0 +1,12 @@
+{
+  "kind": "Local two-node mDNS smoke, not a cross-platform result",
+  "platform": "win32",
+  "node": "v24.12.0",
+  "testedSourceSha": "d68fa6ac8eca1678745fb44813b27a1126d605a3",
+  "startedUtc": "2026-10-24T08:20:45.862Z",
+  "scope": "Temporary listeners advertise identity/endpoints only; no agents exported, no pairing, no model",
+  "discovery": "verified",
+  "privateAgentsExposed": 0,
+  "status": "passed",
+  "endedUtc": "2026-10-24T08:20:46.225Z"
+}

@@ -8,6 +8,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@lam/domain": "workspace:*"
+    "@lam/runtime": "workspace:*",
+    "@lam/mesh": "workspace:*",
+    "@lam/private-storage": "workspace:*"
   }
 }
