@@ -98,7 +98,7 @@ async function queryWindowsAcl(
     // Hosts that pin PSModulePath to PowerShell 7 module dirs (e.g. GitHub
     // windows runners) break Windows PowerShell 5.1 cmdlet loading; dropping it
     // lets powershell.exe rebuild its default module path.
-    const env = { ...process.env, LAM_AUDIT_DIR: directory };
+    const env: NodeJS.ProcessEnv = { ...process.env, LAM_AUDIT_DIR: directory };
     delete env.PSModulePath;
     execFile(
       POWERSHELL,
