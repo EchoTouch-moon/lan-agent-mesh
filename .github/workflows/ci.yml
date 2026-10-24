@@ -25,6 +25,8 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
       - run: node apps/cli/dist/index.js
+      - name: P1 independent Gateway process smoke
+        run: node scripts/p1-process-smoke.mjs
       - run: node scripts/check-rpc-probe.mjs
       - run: node scripts/check-windows-evidence-probes.mjs
       - name: Validate Windows helper scripts

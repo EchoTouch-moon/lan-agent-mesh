@@ -1,0 +1,29 @@
+{
+  "name": "@lam/mesh",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@chainsafe/libp2p-noise": "17.0.0",
+    "@chainsafe/libp2p-yamux": "8.0.1",
+    "@lam/protocol": "workspace:*",
+    "@lam/storage": "workspace:*",
+    "@libp2p/crypto": "5.2.0",
+    "@libp2p/interface": "3.4.0",
+    "@libp2p/mdns": "12.0.36",
+    "@libp2p/peer-id": "6.0.18",
+    "@libp2p/tcp": "11.0.32",
+    "@libp2p/utils": "7.4.5",
+    "@multiformats/multiaddr": "13.0.3",
+    "libp2p": "3.5.1",
+    "zod": "3.25.76"
+  }
+}
