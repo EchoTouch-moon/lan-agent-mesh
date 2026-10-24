@@ -1,0 +1,53 @@
+{
+  "runId": "g0-20261024T111015Z",
+  "testedSourceSha": "94fe9ae3baf354230a94bde17f2466a5a38840c4",
+  "sourceState": "committed and pushed before formal smoke; clean worktree at capture",
+  "baseAndIncludedHeads": {
+    "main": "3ff683ee32a876b6f2082c260ac8a4713e2a8427",
+    "38": "d68fa6ac8eca1678745fb44813b27a1126d605a3",
+    "39": "70bf9c4018f7c7170117d4be350a977b343e5147",
+    "40": "5fe46b82b41eaf4ccffc221507c98c9d7589571e",
+    "43": "bcd34be0018df9ce447006e5259f6e75963865d5"
+  },
+  "ancestryVerified": true,
+  "windows39Scope": "Six evidence-only files relative to #38; all 5 JSON reports unchanged, only SUMMARY Mac link fixed; 8 original source hashes match CRLF checkout projection",
+  "ci": {
+    "pushRunId": 40088768221,
+    "pullRequestRunId": 40088814082,
+    "status": "success: four macOS/Windows x Node22/24 jobs on both events",
+    "macTests": "46 passed, 3 Windows-only skipped",
+    "windowsTests": "48 passed, 1 POSIX-only skipped",
+    "definedCases": 49
+  },
+  "sourceGitBlobSha256": {
+    "packages/runtime/src/router.ts": "a4bb043eae1e5eff6d4dd1eac77556cfd5ce69f9f1270aab641377d4f4d7a693",
+    "packages/runtime/test/router-capacity.test.ts": "8167f08a8b5cf7cf290a93603cb16ca2d3dc84cfe83852225660ef7030f44d53",
+    "packages/runtime/src/index.ts": "c3dde0fdf25dbd95fd6cc37f441c7cf487c1dd19dea43312bc8501d5e431e622",
+    "packages/runtime/src/mcp-access.ts": "8f8fd228952ba7983cfc3ce553008df9e0c26c9b3bf8afca899fab1a165fafaa",
+    "packages/private-storage/src/index.ts": "c1c4ea76cd12b5dd90afb1b5c38b4330c3081ed2b6199a071cfbc76631b14853",
+    "packages/private-storage/src/windows-acl.cs": "9846c64496e14388ab7dc1e63d291a0d7ec81d9b15a0352a0a0654d2bacbd398",
+    "packages/private-storage/src/windows-acl.ps1": "4485dbc630a3931146fa94abf0375cf1108d3d2447a0958a0ce2ce4755682fd5",
+    "packages/mcp-server/src/index.ts": "51aa62e043e13fe32c4b7886ae15ff0534cf698a079e4cb6ac3f5e028e3d104a",
+    "packages/mcp-server/src/cli.ts": "8f63f50a393b7dfee01adb874b887f10b76aa30b7a690399fc3044d1668690b4"
+  },
+  "reportSha256": {
+    "mac-mcp-smoke.json": "0f2290300662f57041a91dfae058f3d107e4c30e3048428a0bcee31ff4e9284e",
+    "mac-process-smoke.json": "14b330db13d42604de3ed2d70b34bdfb86bcce26255b6a3568a76c61dfd6639f",
+    "hosted-windows-node24.json": "0b3020954e84768bff293ed7fbd42e0152c359c8f0caec8ca5329428aec23d23",
+    "hosted-windows-node22.json": "b5765e1f4a3efe2f3ebe23c92b0341fdfe6af5ac0763c627790f1f5f346ba61a"
+  },
+  "developmentLogSha256": {
+    "lam-g0-cap-before.log": "d9551a522ce203badd00f5bf82161e3b34ea6b0c10dff5d1171236ee73b1be7c",
+    "lam-g0-cap-after.log": "fffe6e2d6a625078f6a5c34860597c5d7e4a2cb44978358aebc069909f6b7dfa",
+    "lam-g0-check.log": "54ac976c01d30b26498d382897b8162db352e87e781b66594414906a35abc0cb",
+    "lam-g0-ci.log": "87228f152861b24ca184bc8a45e91f4261ffd08dcb561728f7d4a292c62db103"
+  },
+  "regression": "New test on d87bb25 + uncommitted test reproduced missing capacity (failure); fixed Router/test then passed development checks. Authoritative clean-source full matrix is the CI above, not those precommit development logs.",
+  "limits": [
+    "Not merged to main; merge authorization pending per #42",
+    "User physical Windows #41 fix revalidation pending",
+    "Physical Mac<->Windows W3 pending; no human pairing-code comparison claimed",
+    "No real model, native Harness or GUI operation; no existing host ACL/firewall/user configuration changes"
+  ],
+  "cleanup": "Both formal Mac reports pass graceful exit and remove owned data; both Windows hosted reports verify owned Gateway/ACL helper shutdown and fixture deletion"
+}

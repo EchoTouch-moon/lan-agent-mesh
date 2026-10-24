@@ -34,3 +34,9 @@
 本机 `pnpm install --frozen-lockfile`、`pnpm check` 已通过，Mac 46 passed / 3 Windows-only skipped，共 49 项定义；Windows 预期执行其对应平台断言，结果以候选最终 CI 为准。正式独立进程与 MCP 演练必须在候选提交并推送后的干净源执行，保存实际 SHA、报告/源码哈希与清理情况。CI、执行源和祖先核验写入后续证据，不借用父 PR 的绿灯作为本候选的结果。
 
 G0 仍需要：当前候选完整证据、审查、明确主干合并授权，以及合并后的 main CI；不会因为此文档自动勾掉 #42 的 G0。#15 的 W3 必须两个物理宿主同一 SHA + 真人短码核对；#41 需要用户 Windows 宿主本修复源的正/负回传。两者都不能被本机/hosted 结果替代，真实 Harness/长期凭据门槛继续保留。
+
+## 候选正式交付
+
+[PR #44](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/44) 的实现源 94fe9ae3baf354230a94bde17f2466a5a38840c4 在当前 main 上包含四个固定 PR head，祖先和 #39 非重复差异已核验。[正式证据](evidence/integration/g0-20261024T111015Z/SUMMARY.md) 包含同源 Mac 独立进程/MCP 和 hosted Windows 两份报告；push CI 40088768221、PR CI 40088814082 四组均通过，Mac 46 passed/3 平台跳过、Windows 48 passed/1 平台跳过（49 项定义）。后续归档提交仅文档，不改变实现。
+
+尚未合入 main。准备合并前应核对最终候选 head、当前 main 与相应 CI；#42 的计划明确不构成合并/关闭授权。授权前保留所有父 PR 和验收 Issue；若授权合入，main 的新合并源仍须通过 CI，#15/#41 仍按各自硬件证据决定。
