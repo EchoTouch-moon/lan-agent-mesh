@@ -34,7 +34,9 @@
       "finalCursorDrained": true,
       "sameTaskKeyDeadlineOnRetry": true,
       "resumeNativeIdentityUnchanged": true,
-      "receiverDuplicateExecutionCount": "awaiting Windows evidence PR"
+      "receiverDuplicateExecutionCount": "awaiting Windows evidence PR",
+      "taskIdSha256": "6c14f32d343431998075eee681998c429259f328df34353a7ad87b11ecd91f2c",
+      "nativeSessionIdSha256": "cf6c66b472e89b379d29073d9da1f04bca1fdfc1b3a9828ee721962a9ca13780"
     },
     "windowsToMac": {
       "status": "verified",
@@ -114,5 +116,7 @@
     "A failed remote registry immediately before cleanup returned invalid_message; that is not labeled an authorization refusal.",
     "Only the explicit post-local-revoke permission_denied is claimed as the cleanup access denial.",
     "Reports do not contain endpoints, user paths, pairing codes, control credentials, identity keys or databases."
-  ]
+  ],
+  "nodeIdSha256": "2c2d88ca6b26cb8ce0d95ddaa5e86da3e2045b7dab87f0cd4116273cb5a79a97",
+  "peerIdSha256": "6f8b9ef36288df925058985affe728c66bc16c1145d1a80d60655f778453aa96"
 }
