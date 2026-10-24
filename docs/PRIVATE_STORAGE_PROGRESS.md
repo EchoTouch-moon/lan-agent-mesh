@@ -12,3 +12,5 @@
 - 第二轮 CI 40085681453：Windows ACL 正负例、目录不可改名及 helper 丢失关闭均通过；MCP 仍在 helper 初始化超时。增加固定 phase 握手，待 helper 完成输入编码/编译初始化后才发送路径参数，排查其在 MCP stdio 子进程环境中的启动差异；不增加超时或跳过权限验证。另保留忙会话断言，仅延长可被 cancel 中断的 Mock 等待，避免 200ms 在编译负载下提前结束。
 
 - 第三轮 40086194783 将剩余 MCP 失败定位为 helper_timeout_compile；原生正负例及租约断言继续通过。改为 Windows 构建阶段编译受版本控制的 C#，运行时固定加载构建 DLL，保持权限门槛和原启动上限；报告记录 DLL SHA-256。补 final directory 必须有当前 SID 的私有 OI/full-control 继承规则，避免新文件回退 token default DACL；新增无继承负例。
+
+- 第四轮 40086716124 的 native 构建与 Mac 检查通过，Windows 主机脚本拒绝例/私有根通过但后续失败，报告仍标 failed。补每个阶段与白名单原因；runtime PS helper 移除 Join-Path/ConvertFrom-Json 等 cmdlet 自动模块加载，以纯 .NET 加载及有界 base64 行协议传递路径，继续避免 MCP 精简环境下的冷启动模块发现。未输出路径/凭据作为诊断。

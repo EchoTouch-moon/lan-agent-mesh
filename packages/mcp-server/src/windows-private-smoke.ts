@@ -1,5 +1,5 @@
 /** #41 controlled host verification. No existing ACLs, profiles or firewall are changed. */
-import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, lstatSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,7 +8,7 @@ import { promisify, parseArgs } from 'node:util';
 import { createHash, randomUUID } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { Gateway } from '@lam/runtime';
-import { privateDirectory, privateFile } from '@lam/private-storage';
+import { privateDirectory, privateFile, PrivateStorageError } from '@lam/private-storage';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 const { values } = parseArgs({ options: { parent: { type: 'string' }, output: { type: 'string' } } });
@@ -22,8 +22,9 @@ const report = {
   nativeHelperSha256: createHash('sha256').update(readFileSync(fileURLToPath(new URL('../../private-storage/dist/Lam.PrivateStorage.dll', import.meta.url)))).digest('hex'),
   platform: process.platform, node: process.version, startedUtc: new Date().toISOString(),
   endedUtc: '', status: 'running', results: {} as Record<string, string>,
-  externalModels: 0, cleanup: 'pending',
+  externalModels: 0, cleanup: 'pending', failureStage: '', reason: '',
 };
+let stage = 'unsafe_gateway';
 function widen(path: string) {
   execFileSync(resolve(process.env.SystemRoot!, 'System32/WindowsPowerShell/v1.0/powershell.exe'), [
     '-NoProfile', '-NonInteractive', '-File', fileURLToPath(new URL('../../private-storage/test/windows-fixture.ps1', import.meta.url)),
@@ -36,7 +37,10 @@ try {
   await assert.rejects(new Gateway({ directory: unsafe }).start());
   assert.deepEqual(readdirSync(unsafe), []);
   report.results.unsafeGatewayBeforeSecretCreation = 'verified';
-  const root = join(resolve(values.parent ?? tmpdir()), `LAM private & ${randomUUID()}`);
+  const parent = resolve(values.parent ?? tmpdir());
+  stage = 'exclusive_directory';
+  if (!lstatSync(parent).isDirectory()) throw new Error('parent_unavailable');
+  const root = join(parent, `LAM private & ${randomUUID()}`);
   roots.push(root);
   try {
     const lease = await privateDirectory(root, { create: true }); await lease.close();
@@ -45,8 +49,11 @@ try {
     throw new Error('environment_blocker');
   }
   report.results.exclusiveDirectory = 'verified';
+  stage = 'caller_gateway_start';
   const caller = await new Gateway({ directory: join(root, 'caller') }).start(); gateways.push(caller);
+  stage = 'executor_gateway_start';
   const executor = await new Gateway({ directory: join(root, 'executor'), mock: true }).start(); gateways.push(executor);
+  stage = 'pair_and_registry';
   const pair = await caller.mesh.beginPairing(executor.mesh.addresses[0]!);
   await caller.mesh.confirmPairing(pair.id, pair.code); await executor.mesh.confirmPairing(pair.id, pair.code);
   const registry = await caller.sync(executor.mesh.id);
@@ -54,16 +61,20 @@ try {
   writeFileSync(scopeFile, JSON.stringify({ peers: [executor.mesh.id], agents: [registry.agents[0]!.id], workspaces: ['project-a'], lifetimeSeconds: 120 }));
   const cli = [resolve('apps/gateway/dist/index.js'), 'control', '--data', caller.options.directory, '--command', 'mcp-grant', '--args-file', scopeFile, '--output'];
   const output = join(root, 'credential.json');
+  stage = 'credential_issue';
   const issued = await run(process.execPath, [...cli, output]);
   const credential = JSON.parse(readFileSync(output, 'utf8')) as { token: string; grantId: string };
   assert(!issued.stdout.includes(credential.token) && !issued.stderr.includes(credential.token));
+  stage = 'credential_acl';
   const lease = await privateFile(output); await lease.close();
   const transport = new StdioClientTransport({ command: process.execPath, args: [resolve('packages/mcp-server/dist/cli.js'), '--credentials', output], stderr: 'pipe' });
   let stderr = ''; transport.stderr?.on('data', (b) => { stderr += String(b); });
   const client = new Client({ name: 'lam-private-storage-fixture', version: '0.1.0' });
+  stage = 'mcp_stdio';
   try { await client.connect(transport); assert.equal((await client.listTools()).tools.length, 7); } finally { await client.close(); }
   assert(!stderr.includes(credential.token));
   report.results.privateCredentialAndActualMcpStdio = 'verified';
+  stage = 'unsafe_credential_output';
   const badOutput = join(root, 'readable-output'); mkdirSync(badOutput); widen(badOutput);
   await assert.rejects(run(process.execPath, [...cli, join(badOutput, 'credential.json')]), (e: unknown) => {
     const error = e as { stdout?: string; stderr?: string };
@@ -73,6 +84,7 @@ try {
   const grants = caller.store.query("SELECT data FROM messages WHERE id LIKE 'mcp/grant/%'").map((row) => JSON.parse(String(row.data)));
   assert.equal(grants.length, 2); assert.equal(grants.filter((g) => g.revoked).length, 1);
   report.results.unsafeOutputRefusedAndGrantRevoked = 'verified';
+  stage = 'unsafe_credential_read';
   const publicCredential = join(unsafe, 'fixture.json');
   // Public, nonfunctional sentinel only; no real bearer is put into the unsafe fixture.
   const publicBearer = `mcp.${randomUUID()}.${'0'.repeat(64)}`;
@@ -83,7 +95,9 @@ try {
   });
   report.results.unsafeMcpReadRejectedBeforeParsing = 'verified';
   report.status = 'passed';
-} catch {
+} catch (error) {
+  report.failureStage = stage;
+  report.reason = error instanceof PrivateStorageError ? error.reason : 'check_failed';
   if (report.status !== 'blocked') report.status = 'failed';
   process.exitCode = 1;
 } finally {

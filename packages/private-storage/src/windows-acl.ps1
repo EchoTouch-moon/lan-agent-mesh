@@ -6,13 +6,20 @@ $ErrorActionPreference = 'Stop'
 try {
 [Console]::Out.WriteLine('{"version":1,"phase":"load"}')
 [Console]::Out.Flush()
-[Reflection.Assembly]::LoadFrom((Join-Path $PSScriptRoot '../dist/Lam.PrivateStorage.dll')) | Out-Null
+$null = [Reflection.Assembly]::LoadFrom([IO.Path]::GetFullPath($PSScriptRoot + '\..\dist\Lam.PrivateStorage.dll'))
   [Console]::Out.WriteLine('{"version":1,"phase":"request"}')
   [Console]::Out.Flush()
-  $request = [Console]::In.ReadLine() | ConvertFrom-Json
+  $create = [Console]::In.ReadLine() -eq '1'
+  $directory = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String([Console]::In.ReadLine()))
+  $count = [int][Console]::In.ReadLine()
+  if ($count -lt 0 -or $count -gt 64) { throw 'invalid_file_name' }
+  $files = [string[]]::new($count)
+  for ($i = 0; $i -lt $count; $i++) {
+    $files[$i] = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String([Console]::In.ReadLine()))
+  }
   [Console]::Out.WriteLine('{"version":1,"phase":"check"}')
   [Console]::Out.Flush()
-  $lease = [LamPrivateLease]::new([string]$request.directory, [bool]$request.create, [string[]]$request.files)
+  $lease = [LamPrivateLease]::new($directory, $create, $files)
   try {
     [Console]::Out.WriteLine('{"version":1,"private":true}')
     [Console]::Out.Flush()

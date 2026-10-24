@@ -70,7 +70,9 @@ export async function privateDirectory(
               phase = result.phase;
               if (phase === 'request' && !sent) {
                 sent = true;
-                child.stdin.write(JSON.stringify({ directory: path, create: options.create ?? false, files: options.files ?? [] }) + '\n');
+                const files = options.files ?? [];
+                if (files.length > 64) return fail();
+                child.stdin.write([options.create ? '1' : '0', Buffer.from(path).toString('base64'), String(files.length), ...files.map((file) => Buffer.from(file).toString('base64'))].join('\n') + '\n');
               }
               continue;
             }
