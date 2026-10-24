@@ -5,6 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import { afterEach, describe, it, expect } from 'vitest';
 import { Gateway } from '../src/index.js';
+import { createMockAdapter } from '@lam/mock-adapter';
 import { rotateIdentity } from '@lam/mesh';
 const roots: string[] = [],
   gateways: Gateway[] = [];
@@ -282,4 +283,26 @@ it('automatically reconnects a known fixed endpoint with the same identity and r
   // No manual connect or sync call: exercise the running maintenance timer.
   await expect.poll(() => a.remoteAgents().length, { timeout: 10000, interval: 100 }).toBe(1);
   expect(a.remoteAgents()[0]!.nodeId).toBe(originalId);
+});
+
+it('owns factory adapter lifecycle and preserves native harness metadata', async () => {
+  const directory = mkdtempSync(join(tmpdir(), 'LAM owned adapter ')); roots.push(directory);
+  let closed = 0;
+  const g = await new Gateway({ directory, listen: ['/ip4/127.0.0.1/tcp/0'],
+    exportAgents: nodeId => [`${nodeId}/mock/default`],
+    adapterFactories: [async ({ nodeId }) => {
+      const mock = createMockAdapter({ nodeId });
+      return { discover: () => mock.discover(), spawn: input => mock.spawn(input), resume: id => mock.resume(id),
+        send: input => mock.send(input), watch: (id, signal) => mock.watch(id, signal), cancel: id => mock.cancel(id),
+        answerPermission: decision => mock.answerPermission(decision),
+        probe: async () => ({ ...await mock.probe(), kind: 'codex' as const, version: 'fixture-protocol-test' }),
+        close: async () => { closed++; throw new Error('injected close failure'); },
+      };
+    }],
+  }).start();
+  expect(g.localRegistry().harnesses[0]).toMatchObject({ kind: 'codex', version: 'fixture-protocol-test' });
+  const healthUrl = g.url.replace(/\/command$/, '/health');
+  await expect(g.stop()).rejects.toThrow('did not close cleanly');
+  expect(closed).toBe(1);
+  await expect(fetch(healthUrl)).rejects.toThrow();
 });

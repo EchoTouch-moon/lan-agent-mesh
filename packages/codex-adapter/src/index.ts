@@ -214,7 +214,7 @@ export class CodexAdapter implements HarnessAdapter {
   async send(input: SendInput) {
     this.assertOnline();
     id(input.taskId); id(input.idempotencyKey); TimestampSchema.parse(input.deadline);
-    if (!input.text || input.text.length > 32768) throw new MeshError('invalid_message', 'Invalid input text');
+    if (typeof input.text !== 'string' || !input.text || input.text.length > 32768) throw new MeshError('invalid_message', 'Invalid input text');
     const fingerprint = JSON.stringify([input.sessionId, input.taskId, input.text, input.deadline]);
     const previous = [...this.runs.values()].find(r => r.input.idempotencyKey === input.idempotencyKey);
     if (previous) {

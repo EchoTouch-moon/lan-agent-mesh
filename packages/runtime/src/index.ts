@@ -493,7 +493,7 @@ export class Gateway {
         await new Promise<void>((resolve) => this.server!.close(() => resolve()));
       }
       if (this.router) await this.router.stop();
-      await Promise.all(this.ownedAdapters.map(adapter => adapter.close?.()));
+      const adapterClosures = await Promise.allSettled(this.ownedAdapters.map(adapter => adapter.close?.()));
       if (this.mesh) await this.mesh.stop();
       if (this.maintenance) await this.maintenance;
       if (this.store) this.store.close();
@@ -506,6 +506,8 @@ export class Gateway {
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
       }
+      if (adapterClosures.some(result => result.status === 'rejected'))
+        throw new MeshError('internal', 'An owned adapter did not close cleanly');
     } finally { await this.storageLease?.close(); }
   }
 }
