@@ -49,3 +49,5 @@ LAM_CODEX_BIN=/absolute/path/to/codex node scripts/codex-adapter-smoke.mjs
 脚本只创建临时私有 home/workspace 和本机环回服务；审批测试先用相同写入命令模板写入/删除正向对照，再要求原生 decline 与目标 marker 的 ENOENT 同时成立。还验证同机两 Gateway 的加密传输→Adapter→真实 Codex→固定响应链路、注册元数据和停机清理。它不是 W3，也不代表真实 Harness 主动调用 MCP。
 
 仍待完成：#15 实体 W3；Windows Codex 的已授权入口与版本实测；跨实体 MCP/Adapter 调用；真实模型与长期凭据另行放行；Policy 工作区隔离及人工审批桥接仍归 #20/#23。#17/#19 保持开放。
+
+最终实现的真实本机证据：[mac-20261024T153146Z](evidence/codex-adapter/mac-20261024T153146Z/SUMMARY.md)；此前实现的原始记录保留，不覆盖历史执行 SHA。
