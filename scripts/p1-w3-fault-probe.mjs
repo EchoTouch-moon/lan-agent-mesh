@@ -63,7 +63,7 @@ async function start(data, role, listen, delayMs) {
       writeFileSync(join(data, markerName), JSON.stringify(marker), { mode: 0o600, flag: 'wx' });
     } finally { await lease.close(); }
   }
-  const entry = { data, marker, role, gateway: new Gateway({ directory: data, listen: [listen], mdns: role !== 'self-test', mock: true, scenario: { delayMs } }), started: false };
+  const entry = { data, marker, role, gateway: new Gateway({ directory: data, listen: [listen], mdns: !values['self-test'], mock: true, scenario: { delayMs } }), started: false };
   owned.push(entry);
   const g = await entry.gateway.start(); entry.started = true;
   if (adopted) assert.equal(marker.nodeId, g.mesh.id, 'Prepared identity changed');
@@ -196,19 +196,35 @@ try {
   if (values['self-test']) {
     assert.equal(values.role, undefined); assert.equal(values.data, undefined); assert.equal(values.output, undefined);
     temporaryRoot = mkdtempSync(join(tmpdir(), 'LAM W3 self-test & '));
-    const a = await start(join(temporaryRoot, 'caller'), 'self-test', '/ip4/127.0.0.1/tcp/0', 1000);
+    let a = await start(join(temporaryRoot, 'caller'), 'prepare', '/ip4/127.0.0.1/tcp/0', 1000);
     const b = await start(join(temporaryRoot, 'receiver'), 'self-test', '/ip4/127.0.0.1/tcp/0', 1000);
     const observer = observe(b.gateway);
     const pairing = await a.gateway.mesh.beginPairing(b.gateway.mesh.addresses[0], b.gateway.mesh.id);
     const other = b.gateway.mesh.pendingPairings().find(p => p.id === pairing.id); assert.equal(pairing.code, other.code);
     await a.gateway.mesh.confirmPairing(pairing.id, pairing.code); await b.gateway.mesh.confirmPairing(other.id, other.code);
-    await faultCases(a.gateway, b.gateway.mesh.id);
+    // Exercise the real prepare -> authenticated-command stop -> marked-directory adoption path.
+    const preparedId = a.gateway.mesh.id, old = a;
+    const preparedStop = waitForOperator(old.gateway, 10000);
+    await old.gateway.command('shutdown', {});
+    assert.equal(await preparedStop, 'control_shutdown'); await old.gateway.stop();
+    for (const port of [...old.ports, old.controlPort]) await portReleased(port);
+    owned.splice(owned.indexOf(old), 1); // Custody transfers to the runner, never two cleanup owners.
+    a = await start(old.data, 'runner', '/ip4/127.0.0.1/tcp/0', 1000);
+    assert.equal(a.gateway.mesh.id, preparedId);
+    assert.equal(a.gateway.mesh.trusted(b.gateway.mesh.id), true);
+    report.results.prepareRunnerAdoption = { status: 'verified', identityAndTrustPreserved: true, automaticPairingLimitedToOwnedLoopbackNodes: true };
+    await faultCases(a.gateway, b.gateway.mesh.id, b.gateway.mesh.addresses[0]);
     await b.gateway.command('revoke', { peer: a.gateway.mesh.id });
     const observed = snapshot(observer), ack = observed.deliveries.filter(d => d.text === ACK_TEXT);
     assert.equal(ack.length, 2); assert.equal(ack[0].envelopeSha256, ack[1].envelopeSha256); assert.equal(ack[0].replySha256, ack[1].replySha256);
     assert.equal(observed.tasks.length, 2); assert.equal(observed.tasks.filter(t => t.state === 'COMPLETED').length, 1); assert.equal(observed.tasks.filter(t => t.state === 'CANCELLED').length, 1);
     assert.equal(observed.revocations[0].cacheWasPopulatedDuringRun, true); assert.equal(observed.revocations[0].cachedAfter, 0);
-    report.results.receiver = observed; report.status = 'passed';
+    const closedSnapshot = new Promise(resolveSnapshot => b.gateway.server.once('close', () => resolveSnapshot(snapshot(observer))));
+    const receiverStop = waitForOperator(b.gateway, 10000);
+    await b.gateway.command('shutdown', {});
+    assert.equal(await receiverStop, 'control_shutdown'); await b.gateway.stop();
+    assert.deepEqual(await closedSnapshot, observed);
+    report.results.receiver = observed; report.results.receiverCloseSnapshot = 'verified before Store teardown'; report.status = 'passed';
   } else {
     assert.ok(['darwin', 'win32'].includes(process.platform));
     assert.ok(['prepare', 'receiver', 'runner'].includes(values.role));
