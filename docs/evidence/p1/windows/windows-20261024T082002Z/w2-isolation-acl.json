@@ -1,0 +1,52 @@
+{
+  "kind": "W2 data-directory containment and inherited-ACL observation on Windows",
+  "platform": "win32",
+  "node": "v24.12.0",
+  "testedSourceSha": "d68fa6ac8eca1678745fb44813b27a1126d605a3",
+  "startedUtc": "2026-10-24T08:21:00Z",
+  "scope": "Gateway started twice from the committed CLI (default random loopback listener, --mock); only file names and inherited ACL entries recorded; no token or key contents read or published",
+  "containment": "verified",
+  "containmentDetail": "Every run created control.json, gateway.lock, identity.key, mesh.sqlite, mesh.sqlite-shm and mesh.sqlite-wal strictly inside the explicitly selected private data directory; Node SQLite ran in WAL mode (shm/wal present alongside the database) and the same directories survived graceful shutdown",
+  "gracefulShutdown": {
+    "shutdownCommandExitCode": 0,
+    "gatewayProcessExitCodes": [0, 0],
+    "portsReleased": "verified (only transient TIME_WAIT sockets remained; no LISTEN entries)"
+  },
+  "aclPlacements": [
+    {
+      "placement": "[USER-TEMP]",
+      "inheritedAclSummary": [
+        "[HOST]\\CodexSandboxUsers: Modify (inherited)",
+        "[UNRESOLVED-LOCAL-SID]: Modify (inherited)",
+        "NT AUTHORITY\\SYSTEM: Full (inherited)",
+        "BUILTIN\\Administrators: Full (inherited)",
+        "[HOST]\\w: Full (inherited)",
+        "Everyone: Full (inherited)"
+      ],
+      "excludesOrdinaryUsers": false
+    },
+    {
+      "placement": "[DATA-DRIVE-USER-DIRECTORY]",
+      "inheritedAclSummary": [
+        "BUILTIN\\Administrators: Full (inherited)",
+        "NT AUTHORITY\\SYSTEM: Full (inherited)",
+        "NT AUTHORITY\\Authenticated Users: Modify (inherited)",
+        "BUILTIN\\Users: Read/Execute (inherited)"
+      ],
+      "excludesOrdinaryUsers": false
+    },
+    {
+      "placement": "[USER-PROFILE] (empty directory, inheritance only)",
+      "inheritedAclSummary": [
+        "NT AUTHORITY\\SYSTEM: Full (inherited)",
+        "BUILTIN\\Administrators: Full (inherited)",
+        "[HOST]\\w: Full (inherited)",
+        "Everyone: Full (inherited)"
+      ],
+      "excludesOrdinaryUsers": false
+    }
+  ],
+  "conclusion": "The Gateway adds no ACL entries of its own and never writes outside the selected directory; effective isolation is fully determined by the parent placement. On this specific host every checked placement (user temp, data-drive user directory, user profile) inherits entries that grant other ordinary users at least read access, including Everyone:Full from host policy. Recorded as a host constraint; not modified, no elevation and no firewall change performed. Operators should verify the chosen data-directory parent on production hosts.",
+  "status": "containment verified; host-level ACL isolation not confirmed (host policy constraint, unchanged)",
+  "endedUtc": "2026-10-24T08:25:00Z"
+}

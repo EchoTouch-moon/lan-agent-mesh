@@ -1,0 +1,62 @@
+{
+  "runId": "windows-20261024T082002Z",
+  "testedSourceSha": "d68fa6ac8eca1678745fb44813b27a1126d605a3",
+  "sourceState": "clean committed source (git status --porcelain empty immediately before every smoke run; all executed scripts were committed at this SHA)",
+  "clone": {
+    "repository": "EchoTouch-moon/lan-agent-mesh",
+    "branch": "feat/p1-mesh-core",
+    "pathNote": "fresh clone at a local path containing a space character (exact path withheld; spaces exercised install, build, tests and both smokes)",
+    "cloneDepth": 1
+  },
+  "platform": "win32",
+  "os": "Windows 10.0.22621 x64",
+  "node": "v24.12.0",
+  "pnpm": "10.18.3",
+  "commands": [
+    { "command": "git clone --depth 1 --branch feat/p1-mesh-core <repo> <path-with-space>", "exitCode": 0, "evidence": "HEAD equals testedSourceSha; clean status" },
+    { "command": "node --version", "exitCode": 0, "output": "v24.12.0" },
+    { "command": "pnpm --version", "exitCode": 0, "output": "10.18.3" },
+    { "command": "pnpm install --frozen-lockfile", "exitCode": 0, "completedUtc": "2026-10-24T08:51:30Z", "note": "ran twice (first pass 2026-10-24T08:19Z, logged pass hashed below); pnpm warned that the esbuild postinstall build script was ignored, which did not affect build, tests or smokes" },
+    { "command": "pnpm check", "exitCode": 0, "completedUtc": "2026-10-24T08:51:55Z", "checks": ["build", "source and test typecheck", "lint", "37 contract/integration cases"], "note": "ran twice (first pass 2026-10-24T08:19Z with identical results); Node emitted its standard experimental-SQLite warning" },
+    { "command": "node scripts/p1-process-smoke.mjs --output <local-original>.json", "exitCode": 0, "startedUtc": "2026-10-24T08:20:02Z", "report": "process-smoke.json" },
+    { "command": "node scripts/p1-mdns-smoke.mjs --output <local-original>.json", "exitCode": 0, "startedUtc": "2026-10-24T08:20:45Z", "report": "mdns-smoke.json" },
+    { "command": "node apps/gateway/dist/index.js serve --data <fresh-private-dir> --mock  (x2, default loopback listener)", "exitCode": 0, "note": "ACL/containment observation; both processes exited 0 after control shutdown; report w2-isolation-acl.json" },
+    { "command": "node apps/gateway/dist/index.js control --data <dir> --command status|shutdown", "exitCode": 0, "note": "authenticated loopback control verified on both instances" }
+  ],
+  "scriptSha256": {
+    "scripts/p1-process-smoke.mjs": "a6a0275d16e66f71b7b351701db31bb904ce431f00e25975e9502747b91e5cf9",
+    "scripts/p1-mdns-smoke.mjs": "f73c52f16258798328cc3e207c14b49f2eadbd1775434871bfd07e7d42208a60",
+    "packages/storage/src/index.ts": "d6703535cf35be17af9ee984d878f2f55c3149f48f39937e8214a5ab12d9e194",
+    "packages/mesh/src/index.ts": "a777d2e634aa4e0a087288de2bf3ff05a487fb4f567fe9ee31d80d36e39fa8cf",
+    "packages/runtime/src/index.ts": "1f4f0847fe2a828597f69919637c77dcee101a9e7779a355cb6bd0c65cb1dd31",
+    "packages/runtime/src/router.ts": "4dcef1a44322aaa25bd3a58b58f415d50aa74d54623b39a2e7af68a9190e6005",
+    "packages/runtime/src/sessions.ts": "999bfb290f4ba730383ddd0a8acab3d543158e9e7363dab7e9e3ff9bbc9ab079",
+    "apps/gateway/src/index.ts": "402bbf626d1585ac428fc681cfa238ce88f261f9a37c96667ae2fa649dc17a58"
+  },
+  "originalReportsSha256": {
+    "lam-p1-process-win.json": "11aaa130a95c17355585f71a3cf0cb92a5d5b8da1b86313880b0533ae7c2f3ce",
+    "lam-p1-mdns-win.json": "9d39bde855c87d89a8f3d71f5926c1ab73cb267137a5e54434c13c5217b1b342",
+    "lam-p1-install.log": "dec73159b38b713b674b695bfa6244a996299212889ee02d834a42363bee2635",
+    "lam-p1-check.log": "06cf693c2ff285b7aa9fd4af76d6e089d2167b65d4f5f7d2278411cb5fe8b2e2",
+    "acl-gateway-1-stdout.json": "59f30a00115fa8c0584fb75f5cd5f093a38ef7521d97f396606e40a482cc2c51",
+    "acl-gateway-2-stdout.json": "b2bff6ed4335b4e4b32341395f4634cbf65b71b41b13f739524e524ef9d97433",
+    "acl-gateway-1-exit.txt": "477b118c1bd61156a4cee4a5d0525ba57d88267d40e3cf11376ca998d74a777c",
+    "acl-gateway-2-exit.txt": "2549bb3751a235c1025a5f02e215bf590513670726aab23b732639ff1953d88f"
+  },
+  "evidenceFiles": [
+    "process-smoke.json",
+    "mdns-smoke.json",
+    "w2-isolation-acl.json",
+    "w3-cross-host.json",
+    "run-metadata.json",
+    "SUMMARY.md"
+  ],
+  "scope": "Windows local validation only: clean clone with spaces in path, full check, two independent Gateway processes on loopback, real multicast on local NICs, data-directory containment and inherited-ACL observation; no physical Mac involved",
+  "cleanup": "Both smoke helpers stopped all owned Gateway processes and removed their temporary directories; the two ACL-observation Gateways were shut down via authenticated control (exit 0), ports released, test data directories removed; no listener, process or data left behind",
+  "limitations": [
+    "Node built-in SQLite remains experimental on Node 24",
+    "Host-level ACL isolation could not be confirmed: every checked placement on this host inherits entries granting other ordinary users at least read access (including Everyone:Full from host policy on user temp/profile); recorded unchanged, no elevation or firewall change performed",
+    "W3 physical Mac<->Windows hardware gate remains pending: requires the user and both hosts, including human pairing-code comparison; same-host tests cannot substitute",
+    "No real model, Harness, installer, system service, GUI or user configuration was started or modified"
+  ]
+}
