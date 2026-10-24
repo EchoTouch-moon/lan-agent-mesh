@@ -93,8 +93,17 @@ const report = {
 try {
   const refused = await start('unsafe-plain', { unsafe: true });
   assert.notEqual(refused.exitCode, 0);
-  const diagnostic = JSON.parse(refused.stderr.trim().split('\n').pop() ?? '');
-  assert.equal(diagnostic.error, 'unsafe_directory');
+  const diagnostic = refused.stderr
+    .split('\n')
+    .map((line) => {
+      try {
+        return JSON.parse(line);
+      } catch {
+        return null;
+      }
+    })
+    .find((value) => value && value.error === 'unsafe_directory');
+  assert.ok(diagnostic, `no unsafe_directory diagnostic in stderr: ${refused.stderr.slice(-500)}`);
   assert.ok(diagnostic.message.length > 0);
   const { existsSync } = await import('node:fs');
   assert.equal(existsSync(join(refused.directory, 'identity.key')), false);
