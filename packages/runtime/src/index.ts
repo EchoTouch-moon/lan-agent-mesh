@@ -12,6 +12,7 @@ import { Store } from '@lam/storage';
 import { Mesh } from '@lam/mesh';
 import { Sessions } from './sessions.js';
 import { Router } from './router.js';
+import { McpAccess } from './mcp-access.js';
 export { Sessions, Router };
 const Peer = z.string().min(1).max(128),
   Empty = z.object({}).strict();
@@ -41,6 +42,7 @@ export class Gateway {
   mesh!: Mesh;
   sessions!: Sessions;
   router!: Router;
+  mcp!: McpAccess;
   server?: Server;
   token = '';
   url = '';
@@ -98,6 +100,7 @@ export class Gateway {
       this.sessions = new Sessions(this.store, this.mesh.id, exported);
       for (const adapter of adapters) await this.sessions.register(adapter);
       this.router = new Router(this.store, this.sessions);
+      this.mcp = new McpAccess(this);
       this.mesh.node.addEventListener('connection:close', (event) => {
         const peer = event.detail.remotePeer.toString();
         if (!this.mesh.connected(peer)) this.invalidate(peer, 'offline');
@@ -110,17 +113,29 @@ export class Gateway {
             res.end(JSON.stringify({ status: this.stopping ? 'stopping' : 'ready' }));
             return;
           }
-          const auth = Buffer.from(req.headers.authorization ?? ''),
-            expected = Buffer.from(`Bearer ${this.token}`);
-          if (
-            req.headers.origin ||
-            auth.length !== expected.length ||
-            !timingSafeEqual(auth, expected)
-          ) {
+          const scoped = req.url === '/mcp/command';
+          const bearer = req.headers.authorization?.startsWith('Bearer ')
+            ? req.headers.authorization.slice(7)
+            : '';
+          let grant: ReturnType<McpAccess['authenticate']> | undefined;
+          const auth = Buffer.from(bearer),
+            expected = Buffer.from(this.token);
+          if (req.headers.origin || this.stopping) {
             res.writeHead(403).end();
             return;
           }
-          if (req.url !== '/command' || req.method !== 'POST') {
+          try {
+            if (scoped) {
+              if (req.headers['x-lam-node'] !== this.mesh.id)
+                throw new MeshError('permission_denied', 'Wrong Gateway identity');
+              grant = this.mcp.authenticate(bearer);
+            } else if (auth.length !== expected.length || !timingSafeEqual(auth, expected))
+              throw new MeshError('permission_denied', 'Not an administrator');
+          } catch {
+            res.writeHead(403).end();
+            return;
+          }
+          if ((req.url !== '/command' && !scoped) || req.method !== 'POST') {
             res.writeHead(404).end();
             return;
           }
@@ -139,7 +154,9 @@ export class Gateway {
             .object({ command: z.string(), args: z.unknown().optional() })
             .strict()
             .parse(JSON.parse(Buffer.concat(chunks).toString('utf8')));
-          const result = await this.command(input.command, input.args ?? {});
+          const result = scoped
+            ? await this.mcp.invoke(grant!, input.command, input.args ?? {})
+            : await this.command(input.command, input.args ?? {});
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify(result ?? null));
         })().catch((error) => {
@@ -318,6 +335,10 @@ export class Gateway {
   }
   async command(command: string, args: unknown): Promise<unknown> {
     switch (command) {
+      case 'mcp-grant':
+        return this.mcp.create(args);
+      case 'mcp-revoke':
+        return this.mcp.revoke(args);
       case 'shutdown':
         Empty.parse(args);
         setImmediate(() => void this.stop());
