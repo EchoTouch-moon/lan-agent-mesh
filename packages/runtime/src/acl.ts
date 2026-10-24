@@ -35,7 +35,7 @@ const ACCOUNT_NAMES: Record<string, string> = {
 };
 const displayName = (sid: string) => ACCOUNT_NAMES[sid] ?? sid;
 export function parseSddlDacl(sddl: string): { owner: string; grants: AclPrincipalGrant[] } {
-  const owner = /^O:(.+?)G:/.exec(sddl)?.[1] ?? '';
+  const owner = /^O:(.+?)(?:G:|D:)/.exec(sddl)?.[1] ?? '';
   const grants: AclPrincipalGrant[] = [];
   const aces = /\(([AD]);([^;]*);([^;]*);([^;]*);([^;]*);([^)]*)\)/g;
   for (const ace of sddl.matchAll(aces)) {
@@ -84,9 +84,13 @@ function checkReparseAndSensitiveFiles(directory: string): AclAudit | undefined 
     };
   return undefined;
 }
+// Pure .NET calls only: PowerShell cmdlets (Get-Acl, ConvertTo-Json) live in
+// optional modules that fail to load when the inherited PSModulePath targets
+// PowerShell 7 (GitHub windows runners); casts and method calls are language
+// built-ins and always work. Output is two lines: current user SID, SDDL.
 const SDDL_QUERY =
-  '@{ sddl = (Get-Acl -LiteralPath $env:LAM_AUDIT_DIR).Sddl; user = ' +
-  '[System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value } | ConvertTo-Json -Compress';
+  '[System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value; ' +
+  "([System.IO.DirectoryInfo]$env:LAM_AUDIT_DIR).GetAccessControl('Access, Owner').Sddl";
 const POWERSHELL =
   process.platform === 'win32'
     ? join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe')
@@ -95,9 +99,6 @@ async function queryWindowsAcl(
   directory: string,
 ): Promise<{ sddl: string; user: string } | { queryError: string }> {
   return new Promise((resolve) => {
-    // Hosts that pin PSModulePath to PowerShell 7 module dirs (e.g. GitHub
-    // windows runners) break Windows PowerShell 5.1 cmdlet loading; dropping it
-    // lets powershell.exe rebuild its default module path.
     const env: NodeJS.ProcessEnv = { ...process.env, LAM_AUDIT_DIR: directory };
     delete env.PSModulePath;
     execFile(
@@ -110,18 +111,16 @@ async function queryWindowsAcl(
       },
       (error, stdout, stderr) => {
         if (error) {
-          const detail = `${error.message} ${stderr}`.slice(0, 300);
+          const detail = `${stderr} ${error.message}`.slice(0, 300);
           resolve({ queryError: detail });
           return;
         }
-        try {
-          const parsed = JSON.parse(stdout) as { sddl?: unknown; user?: unknown };
-          if (typeof parsed.sddl === 'string' && typeof parsed.user === 'string')
-            resolve({ sddl: parsed.sddl, user: parsed.user });
-          else resolve({ queryError: `unexpected Get-Acl output: ${stdout.slice(0, 200)}` });
-        } catch {
-          resolve({ queryError: `unparsable Get-Acl output: ${stdout.slice(0, 200)}` });
-        }
+        const lines = stdout.trim().split(/\r?\n/);
+        const user = lines[0] ?? '',
+          sddl = lines[1] ?? '';
+        if (user.startsWith('S-1-') && sddl.startsWith('O:'))
+          resolve({ sddl, user });
+        else resolve({ queryError: `unexpected ACL query output: ${stdout.slice(0, 200)}` });
       },
     );
   });
@@ -146,7 +145,7 @@ export async function auditDataDirectory(directory: string): Promise<AclAudit> {
         platform: process.platform,
         safe: false,
         checkedUtc: new Date().toISOString(),
-        reason: `failed to read the directory security descriptor (PowerShell Get-Acl): ${acl.queryError}`,
+        reason: `failed to read the directory security descriptor (Windows ACL query): ${acl.queryError}`,
       };
     const { owner, offenders } = sddlOffenders(acl.sddl, acl.user);
     const allowedOwners = new Set([...ALLOWED_SIDS, acl.user]);

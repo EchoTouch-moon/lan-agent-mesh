@@ -28,12 +28,15 @@ future work (enhanced isolation below).
 ## Effective ACL audit (what is checked)
 
 On Windows the audit reads the directory's real security descriptor as SDDL
-with SID values via `Get-Acl` (PowerShell, path passed through an environment
-variable — no quoting surface, ASCII-only output, immune to console codepage
-and account-name localization that break `icacls` text parsing on zh-CN hosts).
-Name-based parsing was implemented first and rejected: `icacls` emits GBK bytes
-that Node decodes as mojibake, and well-known names are localized on some
-hosts. SIDs are unambiguous.
+with SID values through `powershell.exe` using **pure .NET calls**
+(`[System.IO.DirectoryInfo]::GetAccessControl('Access, Owner').Sddl`) — cmdlets
+such as `Get-Acl`/`ConvertTo-Json` live in optional PowerShell modules that
+fail to load when the inherited `PSModulePath` targets PowerShell 7 (observed
+on GitHub windows runners), while casts and method calls are language
+built-ins that always work. The path travels in an environment variable — no
+quoting surface, ASCII-only output. Name-based `icacls` parsing was implemented
+first and rejected: `icacls` emits GBK bytes that Node decodes as mojibake, and
+well-known names are localized on some hosts. SIDs are unambiguous.
 
 The audit fails the directory when: it or an existing `identity.key` /
 `control.json` is a reparse point; the owner is not the current user, SYSTEM or
