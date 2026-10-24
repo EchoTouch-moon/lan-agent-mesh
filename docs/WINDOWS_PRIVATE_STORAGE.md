@@ -60,3 +60,7 @@ node packages/mcp-server/dist/windows-private-smoke.js --parent 'C:\SAFE_PARENT'
 Win32 sharing 不能由仅查询属性的 metadata-only handle 推断成立；因此目录 lease 请求 LIST_DIRECTORY，测试必须实际尝试 rename。[Microsoft 文件系统行为说明](https://download.microsoft.com/download/4/3/8/43889780-8d45-4b2e-9d3a-c696a890309f/file%20system%20behavior%20overview.pdf)区分 metadata 与 data access；未以“传了 share flags”代替实测证据。
 
 新文件 ACL 推导依据：[Microsoft DACL for a New Object](https://learn.microsoft.com/en-us/windows/win32/secauthz/dacl-for-a-new-object)。仅目录自身私有且没有可继承 ACE，不能证明新文件不会采用 token 默认 DACL。
+
+若实体宿主的默认 TEMP/TMP 继承宽松 ACL，`pnpm check` 中的临时 Gateway 拒绝启动是环境门槛，应记录，不关闭检查。可以在**单独测试进程**中使用已由本检查器确认安全的新临时目录作为 TEMP/TMP（不修改用户/机器永久环境变量）；不能只改路径变量就假设安全。若无法准备安全测试位置，记录 full-check 环境 blocker，并通过显式 `--parent` 的主机脚本验证能够安全访问的位置；不存在安全位置则整个 G2 保持 blocked。父目录需要已存在，脚本只创建自己的随机测试子目录。
+
+若旧目录或密钥曾经暴露，后来收紧 ACL 不能撤回已经复制的密钥，也不能撤销先前打开的读取句柄。迁移应先停止旧进程，优先选择全新的私有数据目录并重新配对；已泄露的身份需要另行离线轮换。本门槛验证当前访问策略和路径稳定性，不把历史泄露自动补救当成已完成。

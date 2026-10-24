@@ -16,3 +16,10 @@
 - 第四轮 40086716124 的 native 构建与 Mac 检查通过，Windows 主机脚本拒绝例/私有根通过但后续失败，报告仍标 failed。补每个阶段与白名单原因；runtime PS helper 移除 Join-Path/ConvertFrom-Json 等 cmdlet 自动模块加载，以纯 .NET 加载及有界 base64 行协议传递路径，继续避免 MCP 精简环境下的冷启动模块发现。未输出路径/凭据作为诊断。
 
 - 第五轮 40087036656（执行 head ecf3037）四组 CI 全部通过：Windows 权限主机脚本和 stdio Mock 链路成功，原有/新增边界断言均保留。补强最后的因果判定：负例必须返回 ACL/owner/继承策略原因而非任意启动失败；公开假凭据先经过同一 contract 校验，再验证 MCP 仅因存储政策拒绝。后续收集最终源与对应 CI 证据。
+
+## 最终软件交付
+
+- 实现源 c5808edd96d6481496c42c53103b1ad17a82766a 的 push CI 40087327389 和 PR CI 40087329349 四组均成功；Mac 45 passed / 3 平台跳过，Windows 47 passed / 1 平台跳过（48 项定义）。拒绝原因因果断言通过，原生 DLL 哈希和脱敏报告由 CI artifact 保存。
+- [正式证据与逐项审查](evidence/security/private-storage-20261024T104801Z/SUMMARY.md)：实际 Mac 独立进程/MCP 与 hosted Windows 两份报告均指向相同源码 c5808ed，所有自有资源清理，无真实模型调用。后续证据提交仅文档。
+- [PR #43](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/43) 待审查；#41 的用户 Windows 实体宿主复验尚未回传。执行包为 src/windows-private-smoke.ts 的编译产物，用户/Windows 代理直接从 #41 与 WINDOWS_PRIVATE_STORAGE.md 领取，不需用户中转文件。
+- 不合并/关闭父任务，#42/G2 和 #15/W3 不因 hosted 结果自动完成。

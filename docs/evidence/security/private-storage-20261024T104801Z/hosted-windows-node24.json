@@ -1,0 +1,21 @@
+{
+  "kind": "#41 actual Windows private-storage gate; controlled disposable fixtures only",
+  "testedSourceSha": "c5808edd96d6481496c42c53103b1ad17a82766a",
+  "nativeHelperSha256": "ef2f593a47483531b2fda984ed2eb95b73a5d267b62e70273fa1154e4d318c9a",
+  "platform": "win32",
+  "node": "v24.22.1",
+  "startedUtc": "2026-10-24T10:48:58.498Z",
+  "endedUtc": "2026-10-24T10:49:05.092Z",
+  "status": "passed",
+  "results": {
+    "unsafeGatewayBeforeSecretCreation": "verified",
+    "exclusiveDirectory": "verified",
+    "privateCredentialAndActualMcpStdio": "verified",
+    "unsafeOutputRefusedAndGrantRevoked": "verified",
+    "unsafeMcpReadRejectedBeforeParsing": "verified"
+  },
+  "externalModels": 0,
+  "cleanup": "verified: owned Gateways/ACL leases stopped and disposable fixtures removed",
+  "failureStage": "",
+  "reason": ""
+}

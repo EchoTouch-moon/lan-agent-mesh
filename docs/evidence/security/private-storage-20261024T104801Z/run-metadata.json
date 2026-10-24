@@ -1,0 +1,49 @@
+{
+  "runId": "private-storage-20261024T104801Z",
+  "implementationSourceSha": "c5808edd96d6481496c42c53103b1ad17a82766a",
+  "sourceState": "committed and pushed before execution; clean worktree at capture",
+  "sourceGitBlobSha256": {
+    "packages/private-storage/src/index.ts": "c1c4ea76cd12b5dd90afb1b5c38b4330c3081ed2b6199a071cfbc76631b14853",
+    "packages/private-storage/src/windows-acl.cs": "9846c64496e14388ab7dc1e63d291a0d7ec81d9b15a0352a0a0654d2bacbd398",
+    "packages/private-storage/src/windows-acl.ps1": "4485dbc630a3931146fa94abf0375cf1108d3d2447a0958a0ce2ce4755682fd5",
+    "packages/private-storage/build-helper.mjs": "99814fde66c99afbc6e81af572bf5e9e6724d75f6ecc9efe71da5f32653af679",
+    "packages/private-storage/build-helper.ps1": "cdce02d4bcb1f743eea7d7c6374bafb7e3521602d05bbd57596352a42782223e",
+    "packages/private-storage/test/private-storage.test.ts": "3fa1725e7c8ed5a323516f4dac69a8ec7660172ad600078f2ad29daf36ee60bd",
+    "packages/private-storage/test/windows-fixture.ps1": "93f641e8cfd276d400b205952105e4149c61ad79a9aec0dcad4dec05382f8ae6",
+    "packages/runtime/src/index.ts": "c3dde0fdf25dbd95fd6cc37f441c7cf487c1dd19dea43312bc8501d5e431e622",
+    "packages/mesh/src/index.ts": "04a836465e6710d7ff5635f96b6e9d9dda9bb3e7188930e9dbb3245a9e5f81ff",
+    "apps/gateway/src/index.ts": "72d2402ed74af789ff89938c51cccd5b59e193b19e4874a30f7bef1c55d045c3",
+    "packages/mcp-server/src/cli.ts": "8f63f50a393b7dfee01adb874b887f10b76aa30b7a690399fc3044d1668690b4",
+    "packages/mcp-server/src/windows-private-smoke.ts": "e80d4fc8529ced188ccfef9c6dbc4d076d79b9a1c49cb6052780bcbc203fd14b"
+  },
+  "hashMeaning": "Git blob bytes (normalized LF), not Windows checkout CRLF bytes; each Windows report records the independently built native DLL hash.",
+  "mac": {
+    "node": "v22.23.2",
+    "pnpm": "10.18.3",
+    "processSmoke": "mac-process-smoke.json",
+    "mcpSmoke": "mac-mcp-smoke.json",
+    "localCheckSourceSha": "2281194c41825e9a4bd4378a27bd84c159dc83d1",
+    "localCheckResult": "build/typecheck/lint pass; 45 passed, 3 Windows-specific skipped",
+    "localCheckLogSha256": "0b84abae2056e2760c160add33aad38d1be6f1abb0b3ba2e2a3004b5ba5266d6"
+  },
+  "hostedCi": {
+    "runId": 40087327389,
+    "url": "https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40087327389",
+    "status": "success: macOS/Windows x Node22/24; Mac 45 passed/3 platform skips, Windows 47 passed/1 platform skip (48 defined cases)",
+    "rawLogSha256": "c59a4c87afc4a81ff9bc8949af4c7d73f10aca898f9c052920b1221ff9faa5a5",
+    "reports": [
+      "hosted-windows-node22.json",
+      "hosted-windows-node24.json"
+    ]
+  },
+  "physicalWindowsHost": "pending; no evidence from user host executing this fix yet",
+  "physicalMacWindowsW3": "pending (#15), not replaced by hosted or loopback tests",
+  "privacy": "No credentials, key contents, private addresses, real models, GUI sessions, installers, elevation, firewall or existing host ACL changes; only disposable fixture ACLs modified",
+  "cleanup": "Mac processes/temp data removed; both hosted Windows reports verify Gateway/ACL lease shutdown and disposable fixture cleanup",
+  "reportSha256": {
+    "mac-mcp-smoke.json": "a6ac61d485266797bff8983de343346986f12cd084fdaf3a82aec63df54c6997",
+    "mac-process-smoke.json": "1a6d10bd273470f2314ff4de806d7f9b47f8feb452f2303c8df49c7a725bdbe6",
+    "hosted-windows-node24.json": "4380bb0ba787274ae2eb5f1143bba90c2412b124eda3ac0d95be18cb6ec8f931",
+    "hosted-windows-node22.json": "0c5b04ff32ec558792f0acf3de2b2f937c265ec12eaab0e6389a233f1f6a36b3"
+  }
+}
