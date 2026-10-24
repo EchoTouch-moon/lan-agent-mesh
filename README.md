@@ -71,6 +71,7 @@ Workspace layout:
 - `packages/protocol`: versioned typed messages, errors and UTF-8 size limits.
 - `packages/adapter-sdk`: capability-gated inbound control contract.
 - `packages/mock-adapter`: deterministic sessions, streaming, scoped mock permissions, cancellation and fault injection.
+- `packages/codex-adapter`: [Mac App Server fixture slice](docs/CODEX_ADAPTER.md), owned threads, native deny and durable UNKNOWN; Windows/physical cross-host/production acceptance remains open.
 - `packages/storage`, `packages/mesh`, `packages/runtime`: persistent paired Gateway with bounded task/session routing.
 - `packages/mcp-contract`, `packages/mcp-server`: scoped local stdio tools for remote Mock sessions.
 - `packages/private-storage`: fail-closed Windows native ACL checks and POSIX private-mode checks.

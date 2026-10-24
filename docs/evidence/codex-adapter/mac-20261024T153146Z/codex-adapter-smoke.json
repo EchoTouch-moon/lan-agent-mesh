@@ -1,0 +1,25 @@
+{
+  "testedSourceSha": "ad202f5ae893d54da1bf6cd963c6c641b764cad2",
+  "sourceClean": true,
+  "startedUtc": "2026-10-24T15:31:46.980Z",
+  "platform": "darwin",
+  "nodeVersion": "v22.23.2",
+  "codexVersion": "codex-cli 0.146.0",
+  "executableSha256": "134063e133f0b4244fa3b251acf973d4fe4b4aeeacbdc135211bf480f59f1477",
+  "externalModelRequests": 0,
+  "fixtureRequests": 6,
+  "results": {
+    "sendStream": "verified",
+    "restartResumeAndExactRetry": "verified",
+    "inFlightCancelAndSessionMutex": "verified",
+    "nativeDeclineWithPositiveControl": "verified",
+    "unknownNoReplayAfterRestart": "verified",
+    "sameHostGatewayToCodex": "verified",
+    "physicalW3": "pending",
+    "windowsCodex": "unknown",
+    "attachExistingGui": "unsupported"
+  },
+  "status": "passed",
+  "cleanup": "verified",
+  "endedUtc": "2026-10-24T15:31:48.518Z"
+}
