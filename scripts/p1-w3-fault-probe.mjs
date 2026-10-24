@@ -82,7 +82,7 @@ async function start(data, role, listen, delayMs) {
   return entry;
 }
 function observe(g) {
-  const deliveries = [], revocations = [], populated = new Set();
+  const deliveries = [], revocations = [], populated = new Set(), peers = new Map();
   const original = g.mesh.options.onMessage;
   g.mesh.options.onMessage = async (peer, body) => {
     const result = await original(peer, body); // Authentication and real routing remain in force.
@@ -91,7 +91,8 @@ function observe(g) {
         envelopeSha256: sha(JSON.stringify(body.value)), replySha256: sha(JSON.stringify(result)), at: new Date().toISOString() });
       if (deliveries.length > 64) throw new Error('Probe receipt capacity');
       // Populate the real private-card cache while this authenticated peer is online.
-      await g.sync(peer);
+      const registry = await g.sync(peer);
+      peers.set(sha(peer), { nodeIdSha256: sha(peer), platform: registry.node.platform });
       if (g.remoteAgents().some(a => a.nodeId === peer)) populated.add(peer);
     }
     return result;
@@ -104,7 +105,7 @@ function observe(g) {
     await assert.rejects(g.sync(peer), error => error.code === 'permission_denied');
     revocations.push({ peerIdSha256: sha(peer), cachedBefore, cachedAfter, cacheWasPopulatedDuringRun: populated.has(peer), registryRefused: true });
   };
-  const observation = { gateway: g, deliveries, revocations };
+  const observation = { gateway: g, deliveries, revocations, peers };
   receivers.push(observation); return observation;
 }
 async function collect(g, peer, taskId, predicate = b => ['COMPLETED', 'CANCELLED', 'FAILED', 'UNKNOWN'].includes(b.state)) {
@@ -157,7 +158,7 @@ async function faultCases(g, peer, address, peerPlatform) {
   assert.deepEqual(await collect(g, peer, taskId), first);
   report.results.deliveryAckDiscard = { status: 'verified', injection: 'caller API boundary after correlated real acceptance, before durable outbox ACK; no packet-loss claim',
     originalEnvelopeSha256: sha(JSON.stringify(request)), taskIdSha256: sha(taskId), outboxRetainedThenCleared: true, identicalEventsAfterRetry: true,
-    eventTypes: first.events.map(e => e.type) };
+    eventTypes: first.events.map(e => e.type), events: publicEvents(first.events) };
   stage = 'in_flight_cancel';
   const secondSession = await g.spawn(peer, agent.id, 'project-a'), cancelId = randomUUID();
   await g.submit(peer, secondSession, CANCEL_TEXT, randomUUID(), cancelId, new Date(Date.now() + 240000).toISOString());
@@ -168,7 +169,7 @@ async function faultCases(g, peer, address, peerPlatform) {
   const cancelled = await collect(g, peer, cancelId);
   assert.equal(cancelled.state, 'CANCELLED'); assert.equal(cancelled.events.at(-1).type, 'cancelled');
   assert.equal(cancelled.events.some(e => e.type === 'completed'), false);
-  report.results.inFlightCancel = { status: 'verified', taskIdSha256: sha(cancelId), observedBeforeRequest: 'RUNNING', terminal: 'CANCELLED', eventTypes: cancelled.events.map(e => e.type) };
+  report.results.inFlightCancel = { status: 'verified', taskIdSha256: sha(cancelId), observedBeforeRequest: 'RUNNING', terminal: 'CANCELLED', eventTypes: cancelled.events.map(e => e.type), events: publicEvents(cancelled.events) };
   stage = 'revoke_and_cache_invalidation';
   assert.ok(g.remoteAgents().some(a => a.nodeId === peer), 'Runner cache must be populated immediately before revocation');
   await g.command('revoke', { peer });
@@ -176,13 +177,17 @@ async function faultCases(g, peer, address, peerPlatform) {
   await assert.rejects(g.sync(peer), error => error.code === 'permission_denied');
   report.results.runnerRevoke = { status: 'verified', registryRefused: true, cachedCardsUnavailable: true };
 }
+function publicEvents(events) {
+  return events.map(e => ({ type: e.type, taskIdSha256: sha(e.taskId), ...(['delta', 'completed'].includes(e.type) ? { text: e.text } : {}) }));
+}
 function snapshot(observation) {
   const g = observation.gateway;
-  const tasks = [...new Set(observation.deliveries.map(d => d.taskId))].map(id => {
-    const task = g.store.task(id);
-    return { taskIdSha256: sha(id), state: task.state, eventTypes: task.events.map(e => e.type) };
+  // Inspect every fixed-fixture task, so an unexpected second logical execution cannot hide off-receipt.
+  const tasks = g.store.query('SELECT id,state,events FROM tasks WHERE json_extract(input, ?) IN (?,?)', '$.text', ACK_TEXT, CANCEL_TEXT).map(row => {
+    const events = JSON.parse(row.events);
+    return { taskIdSha256: sha(row.id), state: row.state, eventTypes: events.map(e => e.type), events: publicEvents(events) };
   });
-  return { deliveries: observation.deliveries.map(({ taskId, ...d }) => ({ ...d, taskIdSha256: sha(taskId) })), tasks, revocations: observation.revocations };
+  return { nodeIdSha256: sha(g.mesh.id), peers: [...observation.peers.values()], deliveries: observation.deliveries.map(({ taskId, ...d }) => ({ ...d, taskIdSha256: sha(taskId) })), tasks, revocations: observation.revocations };
 }
 function receiverVerified(r) {
   if (!r) return false;
@@ -270,6 +275,7 @@ try {
     const waitMs = Number(values['wait-ms'] ?? 1200000); assert.ok(Number.isInteger(waitMs) && waitMs >= 1000 && waitMs <= 1200000);
     const listen = values.listen ?? '/ip4/0.0.0.0/tcp/48731'; assert.match(listen, /^\/ip4\/(?:127\.0\.0\.1|0\.0\.0\.0)\/tcp\/\d+$/);
     const entry = await start(data, values.role, listen, 10000), g = entry.gateway;
+    report.nodeIdSha256 = sha(g.mesh.id);
     entry.output = output;
     if (values.role === 'runner') {
       assert.ok(values.peer && values.address); assert.ok(['win32', 'darwin'].includes(values['peer-platform']));
