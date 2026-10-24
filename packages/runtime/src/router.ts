@@ -65,6 +65,9 @@ export class Router {
           throw new MeshError('disconnected', 'Session operation outcome unknown; do not repeat');
         return prior.response;
       }
+      // Rejected/uncertain operations also retain a reservation; cap them before effects.
+      if (Number(this.store.query("SELECT count(*) AS n FROM messages WHERE id LIKE 'operation/%'")[0]?.n) >= 1000)
+        throw new MeshError('busy', 'Session operation retention capacity reached');
       // Persist an uncertain reservation BEFORE invoking any adapter side effect.
       this.store.put('messages', key, { fingerprint: fingerprint(request) });
       const session =

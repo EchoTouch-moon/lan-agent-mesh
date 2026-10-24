@@ -2,7 +2,7 @@
 
 **A peer-to-peer local network for existing AI agent harnesses.** Discover, wake, message and delegate work across macOS and Windows while keeping each harness and machine's native execution permissions.
 
-> **Status (2026-10-24):** P0 foundation and Windows research are merged ([PR #37](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/37)). Working P1 P2P Gateway implementation is in open [PR #38](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/38), Windows W1/W2 evidence in open [PR #39](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/39), and scoped MCP-to-remote-Mock tools in open [PR #40](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/40). **Physical two-host W3, Windows secure data-directory ACL, real Harness adapters and human approval are not complete.** See the [next-phase execution plan](docs/NEXT_PHASE_2026-10-24.md).
+> **Status (2026-10-24):** This integration candidate combines the P1 encrypted Gateway, Windows W1/W2 reports, scoped MCP-to-Mock tools and Windows private-storage checks from PRs #38/#39/#40/#43. P0 is already merged; candidate integration into main still awaits review/approval. **Physical Mac↔Windows W3, user-host ACL revalidation, native Harness adapters and human approval remain incomplete.** See [integration review](docs/INTEGRATION_REVIEW_2026-10-24.md) and the [next-phase plan](docs/NEXT_PHASE_2026-10-24.md).
 
 ## Goal
 
@@ -71,7 +71,10 @@ Workspace layout:
 - `packages/protocol`: versioned typed messages, errors and UTF-8 size limits.
 - `packages/adapter-sdk`: capability-gated inbound control contract.
 - `packages/mock-adapter`: deterministic sessions, streaming, scoped mock permissions, cancellation and fault injection.
-- `apps/cli`: offline demonstration. `apps/gateway` and `apps/console`: reserved entry points.
+- `packages/storage`, `packages/mesh`, `packages/runtime`: persistent paired Gateway with bounded task/session routing.
+- `packages/mcp-contract`, `packages/mcp-server`: scoped local stdio tools for remote Mock sessions.
+- `packages/private-storage`: fail-closed Windows native ACL checks and POSIX private-mode checks.
+- `apps/cli`: offline demonstration; `apps/gateway`: Gateway/control CLI; `apps/console`: reserved UI entry point.
 
 [ADR 0001](docs/adr/0001-p0-contracts.md) records contract decisions and limits. `pnpm probe:codex`, `pnpm probe:dsh` and `pnpm probe:zcode` optionally probe installed binaries without model inference; see the [version-specific matrix](docs/HARNESS_MATRIX.md). Optional `pnpm probe:codex:fixture`, `pnpm probe:dsh:fixture` and `pnpm probe:zcode:fixture` exercise the installed native harnesses against deterministic localhost inference, including streaming, cancellation and native approval denial. No external model is called. The macOS-only `pnpm probe:workbuddy:inventory` reads shipped SDK metadata without launching the app. These research probes are not required for CI.
 
