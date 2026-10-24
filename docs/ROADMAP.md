@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-P0 foundation code was merged in PR #33. The macOS/Windows feasibility evidence is reviewed, with unsupported or untested interfaces explicitly bounded; Windows follow-up integration was merged in PR #37. See the [acceptance audit](P0_ACCEPTANCE.md) and [P0 progress](P0_PROGRESS.md). P1 Gateway implementation is available for review in [PR #38](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/38), while physical Mac↔Windows W3 acceptance remains open. Windows W1/W2 evidence is in [PR #39](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/39); P2 scoped local MCP ingress (Mock-only) is in [PR #40](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/40). These three PRs remain open; the integration candidate also includes the fail-closed software fix from [PR #43](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/43). See the [integration review](INTEGRATION_REVIEW_2026-10-24.md) for exact sources, corrections and remaining gates. Main integration is pending approval, and user-host ACL revalidation is still required. Windows user-isolated ACL is a blocker for production credentials ([#41](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/41)). See the [2026-10-24 next-phase plan](NEXT_PHASE_2026-10-24.md) and [coordination #42](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/42).
+P0 foundation and Windows feasibility were merged through PRs #33/#37. P1 Gateway, Windows W1/W2 evidence, scoped local MCP-to-Mock tools and the Windows fail-closed private-storage implementation are now integrated into main through [PR #44](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/44), which includes the complete heads of #38/#39/#40/#43. The post-merge source 05ca853 passed all four [CI jobs](https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40090060616). See the [integration review](INTEGRATION_REVIEW_2026-10-24.md). **Implementation integration does not complete physical W3, user-host ACL revalidation or production release**: [#15](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/15) and [#41](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/41) remain open. The [next-phase plan](NEXT_PHASE_2026-10-24.md) and [coordination #42](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/42) retain these separate gates.
 
 | Phase | Deliverable | Planned IDs | Exit criteria |
 |---|---|---|---|
@@ -20,7 +20,7 @@ P0 foundation code was merged in PR #33. The macOS/Windows feasibility evidence 
 6. Denied mediated permission never becomes approved or executed; reconnect does not replay side-effecting operations.
 
 ## Current priority (2026-10-24)
-1. Review P1/P2 stacked PRs without treating an implementation merge as hardware acceptance.
+1. G0 implementation integration is complete through #44; retain separate hardware and production acceptance gates.
 2. Run physical cross-host W3 with user-confirmed pair code; leave #15 open until passed.
 3. Resolve Windows ACL fail-closed posture before any production credential or persistent real-harness execution (#41).
 4. Build Codex + ACP/DSH adapters (#17/#18) and demonstrate both directions (#19).

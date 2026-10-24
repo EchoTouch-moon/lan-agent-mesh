@@ -1,5 +1,7 @@
 # 下一阶段实施计划：从跨平台验证到真实 Agent 协作（2026-10-24）
 
+> **执行更新（2026-10-24）**：G0 软件基线已按用户授权通过 PR #44 合入 main（05ca853），合并后 macOS/Windows × Node22/24 CI 全通过。#38 已 merged，#39/#40/#43 已收拢关闭；#15/W3 和 #41 用户宿主复验仍开放，G1/G2 以及真实 Harness/生产门槛没有因此完成。下文“当前事实”和候选合并步骤是规划起点快照；最新软件集成状态见 [集成审查](INTEGRATION_REVIEW_2026-10-24.md)。
+
 > 状态：**执行规划 / 未授权自动合并或扩大执行权限**。本文件在 `main` 中记录截至 2026-10-24 已核实的进展；尚未集成的 PR、未完成的实体跨机测试与 Windows ACL 问题必须持续保留为未完成。
 >
 > 协调入口：[NEXT Issue #42](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/42)；新安全任务：[Windows ACL #41](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/41)。
