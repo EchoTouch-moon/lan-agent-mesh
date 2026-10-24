@@ -1,6 +1,6 @@
 # G0 集成候选与审查记录（2026-10-24）
 
-状态更新：用户明确授权后，PR #44 已合入 main，合并提交 `05ca853c9c21ec71bba6a2481612ca11f365c14d`；[main CI 40090060616](https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40090060616) 四组全通过。#38 已标记 merged，#39/#40/#43 作为被完整包含的旧 PR 关闭；不删除分支。#15/#41 继续开放，实体双机/用户宿主 ACL/真实 Harness 验收未完成。以下来源、发现及“候选”段落保留为合并前审查快照，不能将其中“待授权”文字视为当前操作指令。关联 [#42](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/42)。
+状态更新：用户明确授权后，PR #44 已合入 main，合并提交 `05ca853c9c21ec71bba6a2481612ca11f365c14d`；[main CI 40090060616](https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40090060616) 四组全通过。#38 已标记 merged，#39/#40/#43 作为被完整包含的旧 PR 关闭；不删除分支。#46 已按用户授权合入 main（`a0e904ff8430df2bd97c36b302b9fddff6372462`），归档 [Windows 用户宿主 ACL 正/负实机证据](evidence/security/windows-private-win-priv-20261024T145925Z/SUMMARY.md)，#41 验收完成。#15/W3 仍开放，实体双机和真实 Harness 验收未完成，#45 保留不合入。以下来源、发现及“候选”段落保留为合并前审查快照，不能将其中“待授权”文字视为当前操作指令。关联 [#42](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/42)。
 
 ## 确切来源与整合范围
 

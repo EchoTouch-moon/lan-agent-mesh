@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-P0 foundation and Windows feasibility were merged through PRs #33/#37. P1 Gateway, Windows W1/W2 evidence, scoped local MCP-to-Mock tools and the Windows fail-closed private-storage implementation are now integrated into main through [PR #44](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/44), which includes the complete heads of #38/#39/#40/#43. The post-merge source 05ca853 passed all four [CI jobs](https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40090060616). See the [integration review](INTEGRATION_REVIEW_2026-10-24.md). **Implementation integration does not complete physical W3, user-host ACL revalidation or production release**: [#15](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/15) and [#41](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/41) remain open. The [next-phase plan](NEXT_PHASE_2026-10-24.md) and [coordination #42](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/42) retain these separate gates.
+P0 foundation and Windows feasibility were merged through PRs #33/#37. P1 Gateway, Windows W1/W2 evidence, scoped local MCP-to-Mock tools and the Windows fail-closed private-storage implementation are now integrated into main through [PR #44](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/44), which includes the complete heads of #38/#39/#40/#43. The post-merge source 05ca853 passed all four [CI jobs](https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40090060616). See the [integration review](INTEGRATION_REVIEW_2026-10-24.md). Windows host ACL acceptance evidence is now merged through [PR #46](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/46), completing the acceptance scope of [#41](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/41). **Physical W3 and production release remain incomplete**; [#15](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/15) stays open. The [next-phase plan](NEXT_PHASE_2026-10-24.md) and [coordination #42](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/42) retain these separate gates.
 
 | Phase | Deliverable | Planned IDs | Exit criteria |
 |---|---|---|---|
@@ -22,7 +22,7 @@ P0 foundation and Windows feasibility were merged through PRs #33/#37. P1 Gatewa
 ## Current priority (2026-10-24)
 1. G0 implementation integration is complete through #44; retain separate hardware and production acceptance gates.
 2. Run physical cross-host W3 with user-confirmed pair code; leave #15 open until passed.
-3. Resolve Windows ACL fail-closed posture before any production credential or persistent real-harness execution (#41).
+3. G2 Windows ACL acceptance is complete through #46; retain the verified fail-closed checks and require separate authorization for production credentials or persistent real-harness execution.
 4. Build Codex + ACP/DSH adapters (#17/#18) and demonstrate both directions (#19).
 5. Layer Policy/approval/UI and release gates afterward (#20-24, #27-28).
 

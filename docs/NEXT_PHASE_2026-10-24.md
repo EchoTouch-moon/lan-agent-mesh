@@ -1,6 +1,6 @@
 # 下一阶段实施计划：从跨平台验证到真实 Agent 协作（2026-10-24）
 
-> **执行更新（2026-10-24）**：G0 软件基线已按用户授权通过 PR #44 合入 main（05ca853），合并后 macOS/Windows × Node22/24 CI 全通过。#38 已 merged，#39/#40/#43 已收拢关闭；#15/W3 和 #41 用户宿主复验仍开放，G1/G2 以及真实 Harness/生产门槛没有因此完成。下文“当前事实”和候选合并步骤是规划起点快照；最新软件集成状态见 [集成审查](INTEGRATION_REVIEW_2026-10-24.md)。
+> **执行更新（2026-10-24）**：G0 软件基线已按用户授权通过 PR #44 合入 main（05ca853），合并后 macOS/Windows × Node22/24 CI 全通过。#38 已 merged，#39/#40/#43 已收拢关闭；#46 已归档当前主干 Windows 实机 ACL 正/负证据，#41/G2 验收完成；#15/W3（G1）仍未完成，真实 Harness/生产运行尚未授权。下文“当前事实”和候选合并步骤是规划起点快照；最新软件集成状态见 [集成审查](INTEGRATION_REVIEW_2026-10-24.md)。
 
 > 状态：**执行规划 / 未授权自动合并或扩大执行权限**。本文件在 `main` 中记录截至 2026-10-24 已核实的进展；尚未集成的 PR、未完成的实体跨机测试与 Windows ACL 问题必须持续保留为未完成。
 >
@@ -56,10 +56,10 @@
 
 执行任务：[安全 Issue #41](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/41)；与 [Policy #20](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/20) 和 [failure tests #24](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/26) 对齐。
 
-- [ ] 明确数据目录的有效 Windows DACL、继承和重解析点规则；隔离的是普通本机用户，不误将 SYSTEM/管理员当作等价攻击者。
-- [ ] 在不安全数据目录下对真实凭据/真实 Harness 默认 **fail closed**；诊断不泄露身份密钥、控制 Token 或 MCP grant。
-- [ ] 选定或由操作者创建具备适当独占访问控制的目录；**不静默修改宿主机 ACL，不通过提权或开放 Everyone 权限解决问题**。
-- [ ] Windows 实机正、负测试附证据；Mac/POSIX 行为回归。
+- [x] 明确数据目录的有效 Windows DACL、继承和重解析点规则；隔离的是普通本机用户，不误将 SYSTEM/管理员当作等价攻击者。
+- [x] 在不安全数据目录下对真实凭据/真实 Harness 默认 **fail closed**；诊断不泄露身份密钥、控制 Token 或 MCP grant。
+- [x] 选定或由操作者创建具备适当独占访问控制的目录；**不静默修改宿主机 ACL，不通过提权或开放 Everyone 权限解决问题**。
+- [x] Windows 实机正、负测试附证据；Mac/POSIX 行为回归。
 
 **G2 完成判定**：不安全目录不能使用生产凭据，安全目录可用且证据可重放。G2 未通过时，仅维持受限 Mock/fixture 实验，不能启动持续暴露真实 Agent 的工作模式。
 

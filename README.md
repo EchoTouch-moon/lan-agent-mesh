@@ -2,7 +2,7 @@
 
 **A peer-to-peer local network for existing AI agent harnesses.** Discover, wake, message and delegate work across macOS and Windows while keeping each harness and machine's native execution permissions.
 
-> **Status (2026-10-24):** The P1 encrypted Gateway, Windows W1/W2 reports, scoped MCP-to-Mock tools and Windows private-storage checks are integrated into `main` through [PR #44](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/44). [Post-merge CI](https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40090060616) passed on macOS/Windows × Node 22/24. **Physical Mac↔Windows W3, user-host ACL revalidation, native Harness adapters and human approval remain incomplete.** See [integration review](docs/INTEGRATION_REVIEW_2026-10-24.md) and the [next-phase plan](docs/NEXT_PHASE_2026-10-24.md).
+> **Status (2026-10-24):** The P1 encrypted Gateway, Windows W1/W2 reports, scoped MCP-to-Mock tools and Windows private-storage checks are integrated into `main` through [PR #44](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/44). [Post-merge CI](https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40090060616) passed on macOS/Windows × Node 22/24. Windows host ACL revalidation passed and its [Windows host evidence](docs/evidence/security/windows-private-win-priv-20261024T145925Z/SUMMARY.md) was merged through [PR #46](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/46). **Physical Mac↔Windows W3, native Harness adapters and human approval remain incomplete; real Harness execution is not authorized by this evidence.** See [integration review](docs/INTEGRATION_REVIEW_2026-10-24.md) and the [next-phase plan](docs/NEXT_PHASE_2026-10-24.md).
 
 ## Goal
 
