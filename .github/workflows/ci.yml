@@ -37,6 +37,8 @@ jobs:
       - run: node apps/cli/dist/index.js
       - name: P1 independent Gateway process smoke
         run: node scripts/p1-process-smoke.mjs
+      - name: W3 fault probe same-host self-test (not physical evidence)
+        run: node scripts/p1-w3-fault-probe.mjs --self-test
       - name: P2 actual stdio MCP to remote Mock smoke
         run: node packages/mcp-server/dist/smoke.js
       - run: node scripts/check-rpc-probe.mjs
