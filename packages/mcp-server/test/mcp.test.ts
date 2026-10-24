@@ -53,7 +53,8 @@ async function connect(root: string, grant: McpCredential, versions?: string[]) 
   let diagnostic = '';
   transport.stderr?.on('data', (b) => {
     const text = String(b);
-    if (/^Private storage rejected: [a-z_]+[\r\n]*$/.test(text)) diagnostic += text.trim();
+    const match = /Private storage rejected: ([a-z_]+)/.exec(text);
+    if (match) diagnostic += match[1];
   });
   try { await client.connect(transport); } catch { throw new Error(`MCP start failed: ${diagnostic || 'no storage reason reported'}`); }
   return client;

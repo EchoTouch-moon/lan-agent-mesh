@@ -4,6 +4,8 @@ $ErrorActionPreference = 'Stop'
 [Console]::InputEncoding = [Text.UTF8Encoding]::new($false)
 [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
 try {
+[Console]::Out.WriteLine('{"version":1,"phase":"compile"}')
+[Console]::Out.Flush()
 Add-Type -TypeDefinition @'
 using System;
 using System.IO;
@@ -23,6 +25,7 @@ public sealed class LamPrivateLease : IDisposable {
   static extern SafeFileHandle CreateFileW(string path, uint access, uint share, IntPtr sa, uint disposition, uint flags, IntPtr template);
   [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
   static extern bool CreateDirectoryW(string path, ref SA sa);
+  [DllImport("kernel32.dll", CharSet=CharSet.Unicode)] static extern uint GetDriveTypeW(string root);
   [DllImport("kernel32.dll", SetLastError=true)] static extern bool GetFileInformationByHandle(SafeFileHandle h, out Info info);
   [DllImport("advapi32.dll")] static extern uint GetSecurityInfo(SafeFileHandle handle, int type, uint flags, out IntPtr owner, out IntPtr group, out IntPtr dacl, out IntPtr sacl, out IntPtr descriptor);
   [DllImport("advapi32.dll")] static extern uint GetSecurityDescriptorLength(IntPtr descriptor);
@@ -77,6 +80,8 @@ public sealed class LamPrivateLease : IDisposable {
       string full = Path.GetFullPath(directory), root = Path.GetPathRoot(full);
       // No UNC, devices, ADS, relative paths or alternate namespaces.
       if (full.TrimEnd('\\').Length <= 2 || full.Length > 240 || root.Length != 3 || root[1] != ':' || !Char.IsLetter(root[0]) || full.IndexOf(':', 2) >= 0 || full.IndexOf('/') >= 0) throw new Exception("unsupported_path");
+      if (GetDriveTypeW(root) != 3) throw new Exception("unsupported_path");
+      foreach (string component in full.Substring(root.Length).Split('\\')) if (component.EndsWith(".") || component.EndsWith(" ")) throw new Exception("unsupported_path");
       var paths = new List<string>(); string next = full.TrimEnd('\\');
       while (next.Length > root.Length) { paths.Insert(0, next); next = Path.GetDirectoryName(next); }
       paths.Insert(0, root);
@@ -96,7 +101,11 @@ public sealed class LamPrivateLease : IDisposable {
   public void Dispose() { for (int i = handles.Count - 1; i >= 0; i--) handles[i].Dispose(); handles.Clear(); }
 }
 '@
+  [Console]::Out.WriteLine('{"version":1,"phase":"request"}')
+  [Console]::Out.Flush()
   $request = [Console]::In.ReadLine() | ConvertFrom-Json
+  [Console]::Out.WriteLine('{"version":1,"phase":"check"}')
+  [Console]::Out.Flush()
   $lease = [LamPrivateLease]::new([string]$request.directory, [bool]$request.create, [string[]]$request.files)
   try {
     [Console]::Out.WriteLine('{"version":1,"private":true}')

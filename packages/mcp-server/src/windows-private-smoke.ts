@@ -50,7 +50,7 @@ try {
   await caller.mesh.confirmPairing(pair.id, pair.code); await executor.mesh.confirmPairing(pair.id, pair.code);
   const registry = await caller.sync(executor.mesh.id);
   const scopeFile = join(root, 'scope.json');
-  writeFileSync(scopeFile, JSON.stringify({ peers: [executor.mesh.id], agents: [registry.agents[0]!.id], workspaces: ['project-a'], ttlSeconds: 60 }));
+  writeFileSync(scopeFile, JSON.stringify({ peers: [executor.mesh.id], agents: [registry.agents[0]!.id], workspaces: ['project-a'], lifetimeSeconds: 120 }));
   const cli = [resolve('apps/gateway/dist/index.js'), 'control', '--data', caller.options.directory, '--command', 'mcp-grant', '--args-file', scopeFile, '--output'];
   const output = join(root, 'credential.json');
   const issued = await run(process.execPath, [...cli, output]);

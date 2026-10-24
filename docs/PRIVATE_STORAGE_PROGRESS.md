@@ -8,3 +8,5 @@
 - 必须保留：#41 实体 Windows 允许/拒绝验证尚待运行；宿主策略不可达时记录 blocked。#15 W3 未执行，真实 Harness 与真实模型未开放。#38/#39/#40 未合并。
 
 - 首轮 Windows CI 40085198044 发现实质失败：metadata-only 的句柄不足以阻止 rename；fixture 的 Get-Acl 受 PS7/PS5 模块路径冲突影响；MCP 部分启动失败。保留断言，将 native open 增加 FILE_READ_DATA/LIST_DIRECTORY（不读取内容），锁定 helper 系统模块路径，fixture 改用 .NET ACL API；增加安全 reason code、有效假凭据负例与 helper 丢失关闭测试，后续 CI 验证修正效果。
+
+- 第二轮 CI 40085681453：Windows ACL 正负例、目录不可改名及 helper 丢失关闭均通过；MCP 仍在 helper 初始化超时。增加固定 phase 握手，待 helper 完成输入编码/编译初始化后才发送路径参数，排查其在 MCP stdio 子进程环境中的启动差异；不增加超时或跳过权限验证。另保留忙会话断言，仅延长可被 cancel 中断的 Mock 等待，避免 200ms 在编译负载下提前结束。

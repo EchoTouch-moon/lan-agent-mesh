@@ -1,8 +1,8 @@
 import { parseArgs } from 'node:util';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { join, resolve, dirname } from 'node:path';
+import { basename, join, resolve, dirname } from 'node:path';
 import { Gateway } from '@lam/runtime';
-import { privateDirectory, privateFile, PRIVATE_STORAGE_ERROR } from '@lam/private-storage';
+import { privateDirectory, privateFile, PRIVATE_STORAGE_ERROR, PrivateStorageError } from '@lam/private-storage';
 import { rotateIdentity } from '@lam/mesh';
 try {
   const { values, positionals } = parseArgs({
@@ -30,7 +30,7 @@ try {
     const directory = resolve(values.data);
     const action = positionals[0] ?? 'serve';
     if (action === 'rotate-identity') {
-      const lease = await privateDirectory(directory, { files: ['identity.key', 'control.json', 'gateway.lock', 'mesh.sqlite', 'mesh.sqlite-wal', 'mesh.sqlite-shm'] });
+      const lease = await privateDirectory(directory, { files: ['identity.key', 'control.json', 'gateway.lock', 'mesh.sqlite', 'mesh.sqlite-wal', 'mesh.sqlite-shm', 'mesh.sqlite-journal'] });
       try { lease.assertActive(); console.log(JSON.stringify(await rotateIdentity(directory, () => lease.assertActive()))); } finally { await lease.close(); }
     } else if (action === 'control') {
       if (values.command === 'mcp-grant' && !values.output)
@@ -65,7 +65,7 @@ try {
           const credential = (await response.json()) as { grantId: string; expiresAt: string };
           let outputLease;
           try {
-            outputLease = await privateDirectory(dirname(output), { create: true, files: [output.slice(dirname(output).length + 1)] });
+            outputLease = await privateDirectory(dirname(output), { create: true, files: [basename(output)] });
             outputLease.assertActive();
             writeFileSync(output, JSON.stringify(credential, null, 2) + '\n', {
               mode: 0o600,
@@ -137,6 +137,7 @@ try {
   }
 
 } catch (error) {
+  if (error instanceof PrivateStorageError) process.stderr.write(`Private storage rejected: ${error.reason}\n`);
   process.stderr.write(error instanceof Error && error.message === PRIVATE_STORAGE_ERROR ? PRIVATE_STORAGE_ERROR + "\n" : "LAM Gateway command failed.\n");
   process.exitCode = 1;
 }

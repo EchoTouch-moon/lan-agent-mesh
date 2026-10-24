@@ -59,7 +59,7 @@ export class Gateway {
   async start() {
     this.storageLease = await privateDirectory(this.options.directory, {
       create: true,
-      files: ['identity.key', 'control.json', 'gateway.lock', 'mesh.sqlite', 'mesh.sqlite-wal', 'mesh.sqlite-shm'],
+      files: ['identity.key', 'control.json', 'gateway.lock', 'mesh.sqlite', 'mesh.sqlite-wal', 'mesh.sqlite-shm', 'mesh.sqlite-journal'],
     });
     let started = false;
     this.storageLease.onLost(() => { if (started) void this.stop().catch(() => {}); });

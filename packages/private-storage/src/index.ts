@@ -1,6 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { lstatSync, mkdirSync, readdirSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const PRIVATE_STORAGE_ERROR =
@@ -40,7 +40,7 @@ export async function privateDirectory(
   }
   // Use the OS Windows PowerShell, never PATH, an interactive profile or shell quoting.
   const windowsRoot = Object.entries(process.env).find(([key]) => key.toLowerCase() === 'systemroot')?.[1];
-  if (!windowsRoot || !/^[a-z]:\\/i.test(windowsRoot)) throw new Error(PRIVATE_STORAGE_ERROR);
+  if (!windowsRoot || !/^[a-z]:\\/i.test(windowsRoot)) throw new PrivateStorageError('helper_unavailable');
   const child = spawn(resolve(windowsRoot, 'System32/WindowsPowerShell/v1.0/powershell.exe'), [
     '-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File',
     fileURLToPath(new URL('../src/windows-acl.ps1', import.meta.url)),
@@ -51,29 +51,40 @@ export async function privateDirectory(
   const done = waitForExit(child);
   try {
     await new Promise<void>((accept, reject) => {
-      let buffer = '';
-      const timeout = setTimeout(() => { reason = 'helper_timeout'; reject(new PrivateStorageError(reason)); }, 20000);
+      let buffer = '', phase = 'spawn', sent = false;
+      const timeout = setTimeout(() => { reason = `helper_timeout_${phase}`; reject(new PrivateStorageError(reason)); }, 20000);
       const fail = () => { clearTimeout(timeout); reject(new Error(PRIVATE_STORAGE_ERROR)); };
-      child.once('error', fail);
+      child.once('error', () => { reason = 'helper_unavailable'; fail(); });
       child.once('exit', fail);
       child.stdout.setEncoding('utf8');
       child.stdout.on('data', (chunk: string) => {
         buffer += chunk;
         if (buffer.length > 1024) return fail();
-        if (!buffer.includes('\n')) return;
-        clearTimeout(timeout);
-        try {
-          const result = JSON.parse(buffer.trim());
-          if (result.version !== 1 || result.private !== true) {
-            if (REASONS.has(result.reason)) reason = result.reason;
-            return fail();
-          }
-          active = true;
-          accept();
-        } catch { fail(); }
+        while (buffer.includes('\n')) {
+          const end = buffer.indexOf('\n'), line = buffer.slice(0, end);
+          buffer = buffer.slice(end + 1);
+          try {
+            const result = JSON.parse(line);
+            if (result.version !== 1) return fail();
+            if (['compile', 'request', 'check'].includes(result.phase)) {
+              phase = result.phase;
+              if (phase === 'request' && !sent) {
+                sent = true;
+                child.stdin.write(JSON.stringify({ directory: path, create: options.create ?? false, files: options.files ?? [] }) + '\n');
+              }
+              continue;
+            }
+            clearTimeout(timeout);
+            if (result.private !== true || !sent) {
+              if (REASONS.has(result.reason)) reason = result.reason;
+              return fail();
+            }
+            active = true;
+            accept();
+          } catch { return fail(); }
+        }
       });
       child.stdin.on('error', () => { });
-      child.stdin.write(JSON.stringify({ directory: path, create: options.create ?? false, files: options.files ?? [] }) + '\n');
     });
   } catch {
     child.stdin.destroy(); child.kill(); await done;
@@ -103,5 +114,5 @@ function waitForExit(child: ChildProcessWithoutNullStreams): Promise<void> {
 }
 export async function privateFile(path: string): Promise<PrivateLease> {
   const full = resolve(path);
-  return privateDirectory(dirname(full), { files: [full.slice(dirname(full).length + 1)] });
+  return privateDirectory(dirname(full), { files: [basename(full)] });
 }
