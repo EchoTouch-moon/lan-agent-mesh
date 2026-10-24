@@ -57,7 +57,6 @@ export class Gateway {
   constructor(readonly options: GatewayOptions) {}
   async start() {
     mkdirSync(this.options.directory, { recursive: true, mode: 0o700 });
-    chmodSync(this.options.directory, 0o700);
     this.aclAudit = await auditDataDirectory(this.options.directory);
     if (!this.aclAudit.safe && !this.options.mock && (this.options.dataDirectoryPolicy ?? 'enforce') === 'enforce')
       throw new MeshError(
@@ -70,6 +69,7 @@ export class Gateway {
           this.options.mock ? 'mock run continues' : 'policy is warn for this in-process run'
         }; do not place long-lived real credentials here`,
       );
+    chmodSync(this.options.directory, 0o700);
     const lock = join(this.options.directory, 'gateway.lock');
     try {
       writeFileSync(lock, String(process.pid), { flag: 'wx', mode: 0o600 });

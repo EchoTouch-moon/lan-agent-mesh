@@ -87,30 +87,35 @@ function checkReparseAndSensitiveFiles(directory: string): AclAudit | undefined 
 const SDDL_QUERY =
   '@{ sddl = (Get-Acl -LiteralPath $env:LAM_AUDIT_DIR).Sddl; user = ' +
   '[System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value } | ConvertTo-Json -Compress';
+const POWERSHELL =
+  process.platform === 'win32'
+    ? join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe')
+    : 'powershell.exe';
 async function queryWindowsAcl(
   directory: string,
-): Promise<{ sddl: string; user: string } | null> {
+): Promise<{ sddl: string; user: string } | { queryError: string }> {
   return new Promise((resolve) => {
     execFile(
-      'powershell.exe',
+      POWERSHELL,
       ['-NoProfile', '-NonInteractive', '-Command', SDDL_QUERY],
       {
         windowsHide: true,
-        timeout: 10000,
+        timeout: 20000,
         env: { ...process.env, LAM_AUDIT_DIR: directory },
       },
-      (error, stdout) => {
+      (error, stdout, stderr) => {
         if (error) {
-          resolve(null);
+          const detail = `${error.message} ${stderr}`.slice(0, 300);
+          resolve({ queryError: detail });
           return;
         }
         try {
           const parsed = JSON.parse(stdout) as { sddl?: unknown; user?: unknown };
           if (typeof parsed.sddl === 'string' && typeof parsed.user === 'string')
             resolve({ sddl: parsed.sddl, user: parsed.user });
-          else resolve(null);
+          else resolve({ queryError: `unexpected Get-Acl output: ${stdout.slice(0, 200)}` });
         } catch {
-          resolve(null);
+          resolve({ queryError: `unparsable Get-Acl output: ${stdout.slice(0, 200)}` });
         }
       },
     );
@@ -131,13 +136,12 @@ export async function auditDataDirectory(directory: string): Promise<AclAudit> {
   if (early) return early;
   if (process.platform === 'win32') {
     const acl = await queryWindowsAcl(directory);
-    if (!acl)
+    if ('queryError' in acl)
       return {
         platform: process.platform,
         safe: false,
         checkedUtc: new Date().toISOString(),
-        reason:
-          'failed to read the directory security descriptor (PowerShell Get-Acl); refusing to trust it',
+        reason: `failed to read the directory security descriptor (PowerShell Get-Acl): ${acl.queryError}`,
       };
     const { owner, offenders } = sddlOffenders(acl.sddl, acl.user);
     const allowedOwners = new Set([...ALLOWED_SIDS, acl.user]);
