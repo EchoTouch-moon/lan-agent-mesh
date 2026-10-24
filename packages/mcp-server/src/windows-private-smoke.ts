@@ -5,7 +5,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFile, execFileSync } from 'node:child_process';
 import { promisify, parseArgs } from 'node:util';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { Gateway } from '@lam/runtime';
 import { privateDirectory, privateFile } from '@lam/private-storage';
@@ -19,6 +19,7 @@ const run = promisify(execFile), roots: string[] = [], gateways: Gateway[] = [];
 const report = {
   kind: '#41 actual Windows private-storage gate; controlled disposable fixtures only',
   testedSourceSha: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
+  nativeHelperSha256: createHash('sha256').update(readFileSync(fileURLToPath(new URL('../../private-storage/dist/Lam.PrivateStorage.dll', import.meta.url)))).digest('hex'),
   platform: process.platform, node: process.version, startedUtc: new Date().toISOString(),
   endedUtc: '', status: 'running', results: {} as Record<string, string>,
   externalModels: 0, cleanup: 'pending',

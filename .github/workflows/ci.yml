@@ -23,15 +23,22 @@ jobs:
       - run: pnpm build
       - run: pnpm typecheck
       - run: pnpm lint
+      - name: Windows private directory and credential gate (controlled ACL fixtures)
+        if: runner.os == 'Windows'
+        run: node packages/mcp-server/dist/windows-private-smoke.js --output "${{ runner.temp }}/windows-private-storage.json"
+      - name: Preserve redacted Windows private-storage report
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-private-storage-node-${{ matrix.node }}
+          path: ${{ runner.temp }}/windows-private-storage.json
+          if-no-files-found: ignore
       - run: pnpm test
       - run: node apps/cli/dist/index.js
       - name: P1 independent Gateway process smoke
         run: node scripts/p1-process-smoke.mjs
       - name: P2 actual stdio MCP to remote Mock smoke
         run: node packages/mcp-server/dist/smoke.js
-      - name: Windows private directory and credential gate (controlled ACL fixtures)
-        if: runner.os == 'Windows'
-        run: node packages/mcp-server/dist/windows-private-smoke.js
       - run: node scripts/check-rpc-probe.mjs
       - run: node scripts/check-windows-evidence-probes.mjs
       - name: Validate Windows helper scripts

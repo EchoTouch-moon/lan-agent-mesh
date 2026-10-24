@@ -230,6 +230,8 @@ export class Gateway {
     if (this.registryEvents.length > 100) this.registryEvents.shift();
   }
   private async receive(peer: string, value: unknown): Promise<unknown> {
+    this.storageLease?.assertActive();
+    if (this.stopping) throw new MeshError('busy', 'Gateway stopping');
     if (!this.router) throw new MeshError('busy', 'Gateway starting');
     const request = Remote.parse(value);
     if (request.kind === 'registry') return this.localRegistry();

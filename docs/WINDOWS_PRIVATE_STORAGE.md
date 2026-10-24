@@ -12,10 +12,10 @@ Windows 不以 0600/0700 推断机密性。没有 PowerShell、无法读取安�
 
 - 所有 Gateway 启动（包括 Mock）在创建 lock、identity、SQLite、control 前检查目录；没有不安全目录跳过开关。
 - 缺失的目录可创建，使用原生 CreateDirectoryW 的 SECURITY_ATTRIBUTES **原子携带**当前 SID、SYSTEM、Administrators 的受保护、可继承 full-control DACL。不先在宽松目录中创建密钥再收紧权限。
-- 已有目录、文件和其 ACL 均不修改。验证现有 identity/control/lock/SQLite/WAL/SHM；现有秘密文件必须为普通文件、单硬链接，owner 和 allow ACE 只能属于上述主体。新文件继承已经验证的目录 DACL。
+- 已有目录、文件和其 ACL 均不修改。验证现有 identity/control/lock/SQLite/WAL/SHM；现有秘密文件必须为普通文件、单硬链接，owner 和 allow ACE 只能属于上述主体。新文件继承已经验证的目录 DACL。最终目录必须有当前 SID 可继承到文件的 full-control ACE；无 inheritable ACE 时可能回落到 token 默认 DACL，因而拒绝。
 - 验证磁盘根至目标的整条路径；拒绝网络/非固定驱动器、UNC、设备/ADS、带尾随点/空格的别名、超长路径、不支持的 owner、任何 reparse point（包括 junction）。祖先目录允许普通读取/遍历及创建兄弟项，但不允许其他主体删除、改 owner/DACL、写属性/EA 等可能替换路径的权限。祖先中的 TrustedInstaller 按系统维护主体处理，最终私有目录仍使用三主体规则。
 - PowerShell 中的固定 C# helper 通过请求 LIST_DIRECTORY/READ_DATA 的 **句柄**读取 owner/DACL/属性，所有祖先/目标目录句柄不共享 DELETE，整个 Gateway 生命周期保持；已有 DELETE 句柄导致开锁失败。因此拒绝路径替换竞态，而非先 stat 后在任意可改的父目录中使用路径。对同 SID/受信任管理员的竞态不作跨主体防护承诺。
-- Helper 通过 stdin 读取参数，不拼接 shell 命令，不读用户配置、不接受 ACL 修复指令。stdout 只发固定协议；不转发 PowerShell 诊断。Node 退出/关闭 stdin 后释放句柄；helper 意外退出会使 Gateway 停止服务，后续命令拒绝，异步密钥生成与 control 发布前也再次检查 lease。
+- 原生 C# helper 在 Windows `pnpm build` 阶段编译为 DLL，启动不临时编译；DLL 缺失/加载失败即拒绝，不回退。代码和编译产物属于可信软件安装的一部分，不防护软件源被篡改。Helper 通过固定阶段握手后从 stdin 读取参数，不拼接 shell 命令，不读用户配置、不接受 ACL 修复指令。stdout 只发固定协议；不转发 PowerShell 诊断。Node 退出/关闭 stdin 后释放句柄；helper 意外退出会使 Gateway 停止服务，后续命令拒绝，异步密钥生成与 control 发布前也再次检查 lease。
 - `control` 读取管理 token、离线 rotate-identity、MCP 读取 credential、CLI 签发 credential 的输出目录都使用同一门槛。输出失败则撤销刚创建的 grant；不输出 bearer。MCP 启动异常、Gateway CLI 异常不打印配置 JSON 或原始异常。
 - POSIX 保持 UID 与私有 mode 检查；拒绝所选目录/敏感文件为符号链接，以及秘密文件多硬链接。Windows 的句柄/全祖先保证不作为 POSIX 新增保证。
 
@@ -49,7 +49,7 @@ pnpm check
 node packages/mcp-server/dist/windows-private-smoke.js --parent 'C:\SAFE_PARENT' --output 'C:\REPORT_LOCATION\windows-private-storage.json'
 ```
 
-不传 `--parent` 时使用系统 temp 的新子目录，仍要通过完整祖先检查。`--output` 为新的、不存在的报告文件，报告不含 token、SID、私有路径、配对地址；它不包含秘密，不要求与数据目录相同的位置。输出目录需要已存在。测试必须在独立 clone 中进行，固定执行 SHA 和 Node/pnpm 版本；原始报告做 SHA-256，结果与限制提交证据 PR，回传 #41，并关联 #42/G2。
+不传 `--parent` 时使用系统 temp 的新子目录，仍要通过完整祖先检查。`--output` 为新的、不存在的报告文件，报告不含 token、SID、私有路径、配对地址；它不包含秘密，不要求与数据目录相同的位置。输出目录需要已存在。测试必须在独立 clone 中进行，固定执行 SHA 和 Node/pnpm 版本；报告含 native DLL SHA-256；原始报告做 SHA-256，结果与限制提交证据 PR，回传 #41，并关联 #42/G2。
 
 脚本**只改它自己创建的可丢弃测试目录**：构造 Everyone 可读的负例，验证 Gateway 在任何秘密文件生成前拒绝；创建私有正例并启动真实 Gateway/Mock 及 MCP SDK stdio；验证 CLI 不安全输出被拒绝并撤销 grant，MCP 不安全读取在解析前拒绝，stdout/stderr 不含 sentinel/bearer。不是修改宿主现有目录 ACL，不启动真实模型/GUI/安装器/服务，也不改防火墙。
 
@@ -58,3 +58,5 @@ node packages/mcp-server/dist/windows-private-smoke.js --parent 'C:\SAFE_PARENT'
 单元测试额外覆盖 inherit-only 危险 ACE、宽松祖先、现有 key 宽松 DACL、junction/hardlink、目录在 lease 持有时不能改名、lease 释放后可改名，以及 POSIX 回归。Hosted Windows 与实体宿主证据必须分别标注。
 
 Win32 sharing 不能由仅查询属性的 metadata-only handle 推断成立；因此目录 lease 请求 LIST_DIRECTORY，测试必须实际尝试 rename。[Microsoft 文件系统行为说明](https://download.microsoft.com/download/4/3/8/43889780-8d45-4b2e-9d3a-c696a890309f/file%20system%20behavior%20overview.pdf)区分 metadata 与 data access；未以“传了 share flags”代替实测证据。
+
+新文件 ACL 推导依据：[Microsoft DACL for a New Object](https://learn.microsoft.com/en-us/windows/win32/secauthz/dacl-for-a-new-object)。仅目录自身私有且没有可继承 ACE，不能证明新文件不会采用 token 默认 DACL。

@@ -10,3 +10,5 @@
 - 首轮 Windows CI 40085198044 发现实质失败：metadata-only 的句柄不足以阻止 rename；fixture 的 Get-Acl 受 PS7/PS5 模块路径冲突影响；MCP 部分启动失败。保留断言，将 native open 增加 FILE_READ_DATA/LIST_DIRECTORY（不读取内容），锁定 helper 系统模块路径，fixture 改用 .NET ACL API；增加安全 reason code、有效假凭据负例与 helper 丢失关闭测试，后续 CI 验证修正效果。
 
 - 第二轮 CI 40085681453：Windows ACL 正负例、目录不可改名及 helper 丢失关闭均通过；MCP 仍在 helper 初始化超时。增加固定 phase 握手，待 helper 完成输入编码/编译初始化后才发送路径参数，排查其在 MCP stdio 子进程环境中的启动差异；不增加超时或跳过权限验证。另保留忙会话断言，仅延长可被 cancel 中断的 Mock 等待，避免 200ms 在编译负载下提前结束。
+
+- 第三轮 40086194783 将剩余 MCP 失败定位为 helper_timeout_compile；原生正负例及租约断言继续通过。改为 Windows 构建阶段编译受版本控制的 C#，运行时固定加载构建 DLL，保持权限门槛和原启动上限；报告记录 DLL SHA-256。补 final directory 必须有当前 SID 的私有 OI/full-control 继承规则，避免新文件回退 token default DACL；新增无继承负例。

@@ -45,7 +45,7 @@ it.skipIf(process.platform === 'win32')('denies POSIX broad permissions before c
 });
 it.skipIf(process.platform !== 'win32')('Windows: denies readable and inherit-only ACLs, unsafe ancestors, and exposed existing keys', async () => {
   const path = await root();
-  for (const [name, extra] of [['readable', {}], ['inherit-only', { inheritOnly: true }], ['writable', { write: true }]] as const) {
+  for (const [name, extra] of [['readable', {}], ['inherit-only', { inheritOnly: true }], ['writable', { write: true }], ['no-inheritance', { noInheritance: true }]] as const) {
     const target = join(path, name); mkdirSync(target); widen(target, extra);
     await expect(new Gateway({ directory: target }).start()).rejects.toThrow(PRIVATE_STORAGE_ERROR);
     for (const f of ['identity.key', 'control.json', 'mesh.sqlite', 'gateway.lock']) expect(existsSync(join(target, f))).toBe(false);

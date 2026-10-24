@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 export const PRIVATE_STORAGE_ERROR =
   'Private storage verification failed; choose an exclusive local directory. Existing ACLs were not changed.';
-const REASONS = new Set(['verification_failed', 'unsafe_object', 'acl_unavailable', 'unsafe_owner_or_dacl', 'unsupported_ace', 'unsafe_allow_ace', 'cannot_lock_object', 'directory_create_failed', 'unsupported_path', 'invalid_file_name', 'helper_timeout', 'helper_unavailable']);
+const REASONS = new Set(['verification_failed', 'unsafe_object', 'acl_unavailable', 'unsafe_owner_or_dacl', 'unsupported_ace', 'unsafe_allow_ace', 'cannot_lock_object', 'directory_create_failed', 'unsupported_path', 'invalid_file_name', 'helper_timeout', 'helper_unavailable', 'missing_private_inheritance']);
 export class PrivateStorageError extends Error {
   constructor(readonly reason: string) { super(PRIVATE_STORAGE_ERROR); }
 }
@@ -66,7 +66,7 @@ export async function privateDirectory(
           try {
             const result = JSON.parse(line);
             if (result.version !== 1) return fail();
-            if (['compile', 'request', 'check'].includes(result.phase)) {
+            if (['load', 'request', 'check'].includes(result.phase)) {
               phase = result.phase;
               if (phase === 'request' && !sent) {
                 sent = true;
