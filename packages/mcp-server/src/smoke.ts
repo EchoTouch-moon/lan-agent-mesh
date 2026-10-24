@@ -1,4 +1,4 @@
-import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -7,13 +7,14 @@ import { setTimeout as delay } from 'node:timers/promises';
 import assert from 'node:assert/strict';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
+import { privateDirectory } from '@lam/private-storage';
 import { Gateway } from '@lam/runtime';
 import { MCP_INPUTS, type McpCredential } from '@lam/mcp-contract';
 
 const dirty = execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim();
 if (dirty && !process.argv.includes('--allow-dirty'))
   throw new Error('Commit MCP source before capturing evidence');
-const root = await mkdtemp(join(tmpdir(), 'LAM MCP smoke & ')),
+const root = join(tmpdir(), `LAM MCP smoke & ${randomUUID()}`),
   gateways: Gateway[] = [],
   clients: Client[] = [];
 const report: {
@@ -39,6 +40,8 @@ const report: {
   externalModels: 0,
   results: {},
 };
+const rootLease = await privateDirectory(root, { create: true });
+await rootLease.close();
 async function connect(credential: McpCredential) {
   const file = join(root, `credential-${credential.grantId}.json`);
   await writeFile(file, JSON.stringify(credential), { mode: 0o600 });

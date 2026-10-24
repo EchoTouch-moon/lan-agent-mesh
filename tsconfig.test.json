@@ -30,6 +30,9 @@
       ],
       "@lam/mcp-server": [
         "packages/mcp-server/src/index.ts"
+      ],
+      "@lam/private-storage": [
+        "packages/private-storage/src/index.ts"
       ]
     }
   },

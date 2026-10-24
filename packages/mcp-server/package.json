@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.4.0",
-    "@lam/mcp-contract": "workspace:*"
+    "@lam/mcp-contract": "workspace:*",
+    "@lam/private-storage": "workspace:*"
   },
   "devDependencies": {
     "@lam/runtime": "workspace:*",

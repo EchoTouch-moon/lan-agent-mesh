@@ -65,6 +65,7 @@ export interface DiscoveredPeer {
 }
 export interface MeshOptions {
   directory: string;
+  assertPrivate?: () => void;
   store: Store;
   listen?: string[];
   mdns?: boolean;
@@ -125,6 +126,7 @@ export class Mesh {
     return [...this.pairs.values()].map((p) => ({ ...p }));
   }
   async start() {
+    this.options.assertPrivate?.();
     mkdirSync(this.options.directory, { recursive: true, mode: 0o700 });
     const file = join(this.options.directory, 'identity.key');
     try {
@@ -132,6 +134,7 @@ export class Mesh {
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
       this.privateKey = await generateKeyPair('Ed25519');
+      this.options.assertPrivate?.();
       writeFileSync(file, privateKeyToProtobuf(this.privateKey), { mode: 0o600, flag: 'wx' });
     }
     chmodSync(file, 0o600);
@@ -392,7 +395,8 @@ export class Mesh {
 }
 
 /** Offline rotation intentionally invalidates trust; no transparent identity replacement. */
-export async function rotateIdentity(directory: string) {
+export async function rotateIdentity(directory: string, assertPrivate?: () => void) {
+  assertPrivate?.();
   const lock = join(directory, 'gateway.lock');
   if (existsSync(lock)) throw new MeshError('busy', 'Stop Gateway before rotating identity');
   writeFileSync(lock, String(process.pid), { flag: 'wx', mode: 0o600 });
@@ -401,6 +405,7 @@ export async function rotateIdentity(directory: string) {
     const original = privateKeyFromProtobuf(readFileSync(join(directory, 'identity.key')));
     const oldPeer = peerIdFromPrivateKey(original).toString();
     const key = await generateKeyPair('Ed25519');
+    assertPrivate?.();
     writeFileSync(temporary, privateKeyToProtobuf(key), { mode: 0o600, flag: 'wx' });
     const store = new Store(join(directory, 'mesh.sqlite'));
     // Revoke trust first: a crash between SQLite and rename fails closed.

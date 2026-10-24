@@ -44,6 +44,9 @@ importers:
       '@lam/mesh':
         specifier: workspace:*
         version: link:../../packages/mesh
+      '@lam/private-storage':
+        specifier: workspace:*
+        version: link:../../packages/private-storage
       '@lam/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
@@ -74,6 +77,9 @@ importers:
       '@lam/mcp-contract':
         specifier: workspace:*
         version: link:../mcp-contract
+      '@lam/private-storage':
+        specifier: workspace:*
+        version: link:../private-storage
       '@modelcontextprotocol/server':
         specifier: 2.4.0
         version: 2.4.0
@@ -136,6 +142,8 @@ importers:
         specifier: workspace:*
         version: link:../domain
 
+  packages/private-storage: {}
+
   packages/protocol:
     dependencies:
       '@lam/domain':
@@ -162,6 +170,9 @@ importers:
       '@lam/mock-adapter':
         specifier: workspace:*
         version: link:../mock-adapter
+      '@lam/private-storage':
+        specifier: workspace:*
+        version: link:../private-storage
       '@lam/protocol':
         specifier: workspace:*
         version: link:../protocol

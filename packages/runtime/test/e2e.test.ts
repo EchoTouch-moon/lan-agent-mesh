@@ -114,7 +114,8 @@ describe('real two-peer TCP/Noise/Yamux Gateway', () => {
   });
   it('serializes native sessions, cancels in-flight work, defaults permissions to deny, and authenticates loopback IPC', async () => {
     const a = await gateway(),
-      b = await gateway({ delayMs: 200 });
+      // Keep the in-flight turn open under slow CI scheduling; cancel aborts this wait.
+      b = await gateway({ delayMs: 10000 });
     await pair(a, b);
     const r = await a.sync(b.mesh.id),
       s = await a.spawn(b.mesh.id, r.agents[0]!.id, 'project-a');

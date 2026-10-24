@@ -1,0 +1,19 @@
+{
+  "kind": "P1 two independent Gateway processes, real encrypted loopback transport",
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "testedSourceSha": "c5808edd96d6481496c42c53103b1ad17a82766a",
+  "sourceState": "clean committed source",
+  "startedUtc": "2026-10-24T10:48:01.427Z",
+  "results": {
+    "pairing": "verified",
+    "A-to-B": "verified",
+    "B-to-A": "verified",
+    "crashRecoveryWithoutReplay": "verified",
+    "identityContinuity": "verified",
+    "gracefulExit": "verified"
+  },
+  "externalModels": 0,
+  "status": "passed",
+  "endedUtc": "2026-10-24T10:48:05.170Z"
+}

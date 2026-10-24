@@ -1,4 +1,4 @@
-import { mkdtempSync, writeFileSync, rmSync, readFileSync, statSync } from 'node:fs';
+import { writeFileSync, rmSync, readFileSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -7,6 +7,7 @@ import { promisify } from 'node:util';
 import { setTimeout as delay } from 'node:timers/promises';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
+import { privateDirectory } from '@lam/private-storage';
 import { Gateway } from '@lam/runtime';
 import { credential, type McpCredential } from '@lam/mcp-contract';
 import { afterEach, it, expect } from 'vitest';
@@ -19,7 +20,9 @@ afterEach(async () => {
   for (const r of roots.splice(0)) rmSync(r, { recursive: true, force: true });
 });
 async function setup(scenario = {}) {
-  const root = mkdtempSync(join(tmpdir(), 'LAM MCP & '));
+  const root = join(tmpdir(), `LAM MCP & ${randomUUID()}`);
+  const lease = await privateDirectory(root, { create: true });
+  await lease.close();
   roots.push(root);
   const a = await new Gateway({ directory: join(root, 'caller') }).start();
   gateways.push(a);
@@ -47,8 +50,13 @@ async function connect(root: string, grant: McpCredential, versions?: string[]) 
     stderr: 'pipe',
     maxBufferSize: 262144,
   });
-  transport.stderr?.on('data', () => {});
-  await client.connect(transport);
+  let diagnostic = '';
+  transport.stderr?.on('data', (b) => {
+    const text = String(b);
+    const match = /Private storage rejected: ([a-z_]+)/.exec(text);
+    if (match) diagnostic += match[1];
+  });
+  try { await client.connect(transport); } catch { throw new Error(`MCP start failed: ${diagnostic || 'no storage reason reported'}`); }
   return client;
 }
 async function call(client: Client, name: string, args: Record<string, unknown> = {}) {

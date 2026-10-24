@@ -73,3 +73,7 @@ Limits: 64 KiB tool requests/stdio messages, 128 KiB HTTP result reads, 240 call
 `pnpm check` covers the shared input contracts, both credential endpoints, actual SDK stdio clients, seven-tool lifecycle, native default deny, concurrent/repeated IDs, lost-ACK retry, cross-grant session/task isolation, expiry/revocation and process-bound invalidation. `node packages/mcp-server/dist/smoke.js --output <temporary-report.json>` runs the actual stdio-to-encrypted-remote-Mock chain from a committed clean source; no model is called and owned services are stopped afterward.
 
 The same checks run in hosted macOS/Windows CI. Physical Windows/real Mac↔Windows tests remain in the P1 handoff; #17 Codex and #18 ACP/DSH are separate next native-adapter tasks. This task does not upgrade/install Harnesses or edit real host configuration.
+
+## Windows 私有文件门槛（#41）
+
+Gateway 数据目录、管理控制读取、凭据签发输出和 MCP 凭据读取都必须通过 [Windows 私有存储检查](WINDOWS_PRIVATE_STORAGE.md)。0600 不是 Windows DACL 隔离证据。宽松继承 ACL、可被替换的祖先、junction/符号链接或无法检查的权限默认拒绝；项目不会修改已有 ACL。实体宿主门槛与 hosted CI 分开验收。
