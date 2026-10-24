@@ -196,16 +196,20 @@ it('retries a lost delivery ACK using durable outbox without executing twice, an
 it('fails port/data-directory conflicts cleanly and never binds a public control address', async () => {
   const a = await gateway();
   expect((a.server!.address() as { address: string }).address).toBe('127.0.0.1');
-  await expect(new Gateway({ directory: a.options.directory }).start()).rejects.toMatchObject({
+  await expect(
+    new Gateway({ directory: a.options.directory, dataDirectoryPolicy: 'warn' }).start(),
+  ).rejects.toMatchObject({
     code: 'busy',
   });
   const root = mkdtempSync(join(tmpdir(), 'lam-conflict '));
   roots.push(root);
   const port = (a.server!.address() as { port: number }).port;
-  await expect(new Gateway({ directory: root, controlPort: port }).start()).rejects.toMatchObject({
+  await expect(
+    new Gateway({ directory: root, controlPort: port, dataDirectoryPolicy: 'warn' }).start(),
+  ).rejects.toMatchObject({
     code: 'EADDRINUSE',
   });
-  const retry = await new Gateway({ directory: root }).start();
+  const retry = await new Gateway({ directory: root, dataDirectoryPolicy: 'warn' }).start();
   gateways.push(retry);
 });
 
@@ -250,6 +254,7 @@ it('expires remote cards, reports capability changes, and resumes an adapter tha
     directory: b.options.directory,
     adapters: [adapter],
     exportAgents: [agent.id],
+    dataDirectoryPolicy: 'warn',
   }).start();
   gateways.push(next);
   await a.mesh.connect(next.mesh.addresses[0]!, next.mesh.id);

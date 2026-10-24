@@ -5,14 +5,16 @@ import { chmodSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'n
 import { join } from 'node:path';
 import { z } from 'zod';
 import { RegistrySchema, SessionSchema, type Session } from '@lam/domain';
-import { MeshError, encodeEnvelope, decodeEnvelope, type Envelope } from '@lam/protocol';
-import type { HarnessAdapter } from '@lam/adapter-sdk';
+import { MeshError, encodeEnvelope, decodeEnvelope, type Envelope } from '@lam/protocol';import type { HarnessAdapter } from '@lam/adapter-sdk';
 import { createMockAdapter, type MockScenario } from '@lam/mock-adapter';
 import { Store } from '@lam/storage';
 import { Mesh } from '@lam/mesh';
 import { Sessions } from './sessions.js';
 import { Router } from './router.js';
+import { auditDataDirectory, type AclAudit, type DataDirectoryPolicy } from './acl.js';
 export { Sessions, Router };
+export { MeshError };
+export { auditDataDirectory, type AclAudit, type DataDirectoryPolicy };
 const Peer = z.string().min(1).max(128),
   Empty = z.object({}).strict();
 const Remote = z.discriminatedUnion('kind', [
@@ -31,6 +33,7 @@ export interface GatewayOptions {
   scenario?: MockScenario;
   adapters?: HarnessAdapter[];
   exportAgents?: string[];
+  dataDirectoryPolicy?: DataDirectoryPolicy;
 }
 interface RemoteRegistry {
   registry: z.infer<typeof RegistrySchema>;
@@ -44,6 +47,7 @@ export class Gateway {
   server?: Server;
   token = '';
   url = '';
+  aclAudit?: AclAudit;
   private locked = false;
   private stopping = false;
   readonly registryEvents: { type: string; peer: string; at: string }[] = [];
@@ -53,6 +57,18 @@ export class Gateway {
   constructor(readonly options: GatewayOptions) {}
   async start() {
     mkdirSync(this.options.directory, { recursive: true, mode: 0o700 });
+    this.aclAudit = await auditDataDirectory(this.options.directory);
+    if (!this.aclAudit.safe && !this.options.mock && (this.options.dataDirectoryPolicy ?? 'enforce') === 'enforce')
+      throw new MeshError(
+        'unsafe_directory',
+        `Refusing to issue or load real credentials: ${this.aclAudit.reason}. Start with --mock for isolated experiments, or move the data directory to a user-exclusive location (see docs/adr/0003-windows-data-directory-isolation.md).`,
+      );
+    if (!this.aclAudit.safe)
+      console.error(
+        `[security] data directory is not user-exclusive (${this.aclAudit.reason}); ${
+          this.options.mock ? 'mock run continues' : 'policy is warn for this in-process run'
+        }; do not place long-lived real credentials here`,
+      );
     chmodSync(this.options.directory, 0o700);
     const lock = join(this.options.directory, 'gateway.lock');
     try {
@@ -332,6 +348,9 @@ export class Gateway {
           pending: this.store.pending().length,
           mdns: this.options.mdns ?? false,
           approvalPolicy: 'deny-only',
+          dataDirectoryAcl: this.aclAudit
+            ? { safe: this.aclAudit.safe, ...(this.aclAudit.reason ? { reason: this.aclAudit.reason } : {}) }
+            : null,
         };
       case 'sessions':
         Empty.parse(args);

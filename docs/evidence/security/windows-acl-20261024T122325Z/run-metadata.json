@@ -1,0 +1,42 @@
+{
+  "runId": "windows-acl-20261024T122325Z",
+  "kind": "Real-host verification of the fail-closed Windows data-directory ACL gate (issue #41)",
+  "testedSourceSha": "82dfb65448020d071ba1181cab7e9e1006abd565",
+  "branch": "feat/win-acl-fail-closed (based on feat/p1-mesh-core d68fa6ac8eca1678745fb44813b27a1126d605a3)",
+  "sourceState": "clean committed source (git status --porcelain empty before the run)",
+  "platform": "win32",
+  "os": "Windows 10.0.22621 x64 (zh-CN host whose user temp/profile inherit Everyone:Full and foreign-user ACEs — the exact environment from PR #39 w2-isolation-acl.json)",
+  "node": "v24.12.0",
+  "pnpm": "10.18.3",
+  "ci": {
+    "runId": 40093530183,
+    "conclusion": "success",
+    "matrix": "macos-latest/windows-latest x node 22/24, all four green, including scripts/acl-gate-smoke.mjs and the new acl.test.ts suite (44 test cases, 2 POSIX-only cases run on the macOS legs)"
+  },
+  "localCheck": {
+    "command": "pnpm check",
+    "exitCode": 0,
+    "checks": ["build", "source and test typecheck", "lint", "44 test cases (2 POSIX-only cases skipped on win32; both run on macOS CI legs)"]
+  },
+  "smoke": {
+    "command": "node scripts/acl-gate-smoke.mjs --output <local-original>.json",
+    "exitCode": 0,
+    "results": {
+      "nonMockRefusedOnUnsafeDirectory": "verified (exit 1, unsafe_directory diagnostic naming offending principals, no identity.key and no gateway.lock issued)",
+      "mockContinuesWithWarning": "verified (ready on loopback, [security] stderr warning, clean shutdown exit 0, no token in stdout)",
+      "nonMockAllowedOnExclusiveDirectory": "verified (icacls /inheritance:r user-exclusive directory, ready and clean shutdown exit 0, no warning)"
+    },
+    "scriptSha256": "34501ad0250c162af5dfd83da604105682da245dbf7d91c74b256ef7f1eec351",
+    "originalReportSha256": "661637d2aa155abefa706b27918caa8ca0d174fe888d851569e86275247469b4"
+  },
+  "allowCase": "fresh test directory stripped of inheritance via icacls /inheritance:r and granted only BUILTIN\\Administrators (S-1-5-32-544) plus the current user; non-Mock Gateway started and served normally",
+  "denyCase": "test directory additionally granting Everyone (S-1-1-0) read; non-Mock Gateway refused to start or issue credentials, named the offending principals in the diagnostic and exited non-zero",
+  "secretHandling": "diagnostics and reports contain account display names and rights only; ready lines carry no token; control tokens exist only inside the audited directory's control.json; no machine paths appear",
+  "implementationNotes": [
+    "SDDL is queried through pure .NET calls (DirectoryInfo.GetAccessControl) because PowerShell cmdlets fail to load on hosts whose inherited PSModulePath targets PowerShell 7 (GitHub runners); icacls name parsing was rejected for codepage/localization reasons on zh-CN hosts",
+    "Allow-listed natural administrative principals: SYSTEM (SY/S-1-5-18), BUILTIN\\Administrators (BA/S-1-5-32-544) and the built-in local Administrator account (LA, RID 500)",
+    "The pre-existing 0700 auto-chmod now runs after the audit so refusals judge the directory's original state"
+  ],
+  "scope": "real-host allow/deny verification of the G2 minimal gate; does not close the physical Mac-Windows W3 hardware gate (#15) nor authorize real Harness/long-lived credentials before G2 review",
+  "cleanup": "all scenario directories and child processes removed by the helper; no listener or lock left behind"
+}

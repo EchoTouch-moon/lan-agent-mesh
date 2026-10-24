@@ -20,3 +20,6 @@ The gateway can only intercept and control permission hooks exposed by each harn
 
 ## Test gates
 Unpaired access, revocation, forged approval, replay, cross-task token reuse, expired token, path traversal, malicious message, agent recursion, crash, reconnect and no double execution. See [LAM-20] through [LAM-24] issues.
+
+## Local data confidentiality
+Real credentials (`identity.key`, `control.json`, MCP grants) are refused (fail closed) in non-Mock starts when the data directory's effective Windows DACL/owner or POSIX mode lets other ordinary local users read it; Mock runs may continue with a recorded warning. The audit uses SID-based SDDL, rejects reparse points and never weakens the check via flags. See [ADR 0003](adr/0003-windows-data-directory-isolation.md) and issue #41.

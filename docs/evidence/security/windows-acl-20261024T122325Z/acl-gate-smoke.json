@@ -1,0 +1,20 @@
+{
+  "kind": "ACL fail-closed gate smoke on the real host (issue #41)",
+  "platform": "win32",
+  "node": "v24.12.0",
+  "testedSourceSha": "82dfb65448020d071ba1181cab7e9e1006abd565",
+  "sourceState": "clean committed source",
+  "startedUtc": "2026-10-24T12:23:26.114Z",
+  "results": {
+    "nonMockRefusedOnUnsafeDirectory": "verified",
+    "mockContinuesWithWarning": "verified",
+    "nonMockAllowedOnExclusiveDirectory": "verified"
+  },
+  "externalModels": 0,
+  "refusalDiagnostic": {
+    "error": "unsafe_directory",
+    "principalsNamed": true
+  },
+  "status": "passed",
+  "endedUtc": "2026-10-24T12:23:37.312Z"
+}
