@@ -35,6 +35,16 @@
   "cleanup": "Both original reports affirm owned resource cleanup; both command handles exited 0",
   "hostNetworkMonitoring": "not-performed",
   "physicalCrossHost": "not-run-on-this-combined-source",
-  "windowsNativeCombinedSource": "pending",
+  "windowsNativeCombinedSource": {
+    "pullRequest": 64,
+    "originalHead": "83b27f46fd429ce3b2305a1b927f574bc77c19ad",
+    "testedSourceSha": "5fed1448337d82f72972270c99447205f02ea2d7",
+    "reportSha256": "7633e22b62ba738f678fea51d563432be63543f9e9cadb1b67fc78fdd117fc0a",
+    "status": "passed-windows-native-local",
+    "allObservedCommandExitCodes": 0,
+    "cleanupVerified": true,
+    "canonicalOrCrLfSourceFilesMatched": 110,
+    "nonDllArtifactsMatchedSameSourceWindowsCi": 26
+  },
   "mainOrIssueStateChanges": "none"
 }

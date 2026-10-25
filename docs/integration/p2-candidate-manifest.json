@@ -22,6 +22,16 @@
   "excludedPullRequests": [
     { "number": 45, "head": "518030e579a985b75722e1ee8da0597b723c706a", "reason": "Alternative ACL gate explicitly retained unmerged; main native private-storage implementation unchanged" }
   ],
+  "additionalEvidence": [
+    {
+      "number": 64,
+      "originalHead": "83b27f46fd429ce3b2305a1b927f574bc77c19ad",
+      "incorporation": "Evidence-only commit cherry-picked with original attribution; all three original file blobs match. Original head is not claimed as an ancestor.",
+      "directory": "docs/evidence/dsh-adapter/windows-native-local-20261025T1614Z/",
+      "testedSourceSha": "5fed1448337d82f72972270c99447205f02ea2d7",
+      "reportSha256": "7633e22b62ba738f678fea51d563432be63543f9e9cadb1b67fc78fdd117fc0a"
+    }
+  ],
   "integrationMethod": "Seven ordinary no-ff merges of maximal dependency heads; no manual conflict resolutions or cherry-picked copies",
   "historicalEvidence": {
     "firstPhysicalRoundSource": "d226c2cc4bdea624e3807078a5b17f29aa380fa9",

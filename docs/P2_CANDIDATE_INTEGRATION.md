@@ -8,6 +8,8 @@
 
 #45 的替代 ACL 实现没有纳入，已验证其 head 不是候选祖先。`packages/private-storage` 相对主干没有变更，继续使用 #44/#46 所验收的原生祖先链检查，不替换或放宽 ACL gate。
 
+后续 #64 仅新增组合源 Windows 原生验收的三个证据文件；以带来源注记的 cherry-pick 纳入，文件 blob 与原 head `83b27f4` 完全相同。它是内容覆盖，不冒称原 #64 head 为候选祖先；所有旧 PR 仍保持开放，未经授权不合并或关闭。
+
 ## 实现行为
 
 - Codex App Server 与 Windows desktop DSH ACP 的受控新会话 Adapter，持久化会话/任务映射、取消、默认拒绝、UNKNOWN 不重放、关闭与锁保留语义。
@@ -22,7 +24,11 @@ Gateway CLI 没有默认开启真实 Adapter；嵌入者仍须显式配置工厂
 
 组合代码已在本机执行 frozen install、build、typecheck、lint、完整测试：107通过、4平台跳过，共111项定义。随后只增加本文档和包含清单，不据此重跑实体实验。
 
-正式执行源 `5fed1448337d82f72972270c99447205f02ea2d7` 已先提交并推送，再在干净源码运行 DSH 完整 synthetic collector 和现有 Mac Codex0.146.0 原生 loopback fixture，均退出0且清理完成；[原样报告与实际命令](evidence/integration/p2-20261025T160043Z/SUMMARY.md)独立归档。跨平台四组CI的组合检查另行记录。Windows 实机 native 组合验证仍须在同一5fed源运行，不把旧 #60 的97源报告改成候选已经执行；不重开物理窗口。
+正式执行源 `5fed1448337d82f72972270c99447205f02ea2d7` 已先提交并推送，再在干净源码运行 DSH 完整 synthetic collector 和现有 Mac Codex0.146.0 原生 loopback fixture，均退出0且清理完成；[原样报告与实际命令](evidence/integration/p2-20261025T160043Z/SUMMARY.md)独立归档。该源和首份归档 head 的 push/PR 两次四组CI均通过。
+
+Windows 已在同一5fed源完成 [W-DSH-03 原生组合复验](evidence/dsh-adapter/windows-native-local-20261025T1614Z/SUMMARY.md)：完整六阶段 passed-windows-native-local、逐条真实命令退出0、cleanup完整。Mac复核110源码工作字节哈希（CRLF与canonical分开核对）、26个非DLL产物与同源WindowsCI一致、程序哈希与旧已核验入口一致。DLL为本机编译，只保留哈希，不强求跨机器字节一致。
+
+验收后仅归档证据/更新说明，没有更改5fed之后的运行代码、构建或CI配置；最终归档head的CI单独核对。没有重开物理窗口，不把旧 #60 的97源报告改成5fed已跑，也不把新5fed本机通过当作跨实体验收。
 
 ## 证据保留与限制
 

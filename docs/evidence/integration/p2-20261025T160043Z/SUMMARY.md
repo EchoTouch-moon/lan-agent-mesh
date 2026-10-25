@@ -9,4 +9,4 @@
 
 报告中的模型调用计数只描述固定fixture的配置/请求，未进行全主机网络监测；不作为主机所有外连的测量证明。两个 JSON 原样复制，原件 SHA 见 metadata；没有用户路径、物理地址、短码或控制凭据。
 
-仍需 Windows 在该组合源上执行 native 模式单机复验；旧 #60 的97源报告不改写成5fed已跑。真正 Harness 主动MCP/跨实体、GUI与生产模型仍未验证。本候选不合并或关闭任何PR/Issue。
+Windows 已在同一5fed源执行 [W-DSH-03 native 单机复验](../../dsh-adapter/windows-native-local-20261025T1614Z/SUMMARY.md)，六阶段与清理通过，真实逐命令退出0；Mac已复核原件、110源码文件、26个非DLL产物与同源WindowsCI以及程序哈希。原件SHA见追加metadata。旧 #60 的97源报告不改写成5fed已跑。真正 Harness 主动MCP/跨实体、GUI与生产模型仍未验证。本候选不合并或关闭任何PR/Issue。
