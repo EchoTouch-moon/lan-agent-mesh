@@ -264,10 +264,13 @@ it.skipIf(process.platform !== 'win32')('Windows facade exercises reviewed cmd q
   const { root, options } = setup(), launcher = join(root, 'fixture & 中文.cmd');
   const content = `@echo off\r\n"${process.execPath}" "${fixture}" %*\r\n`;
   writeFileSync(launcher, content);
+  const executable = realpathSync(join(process.env.ProgramFiles!, 'PowerShell', '7', 'pwsh.exe'));
+  const powerShell = { executable, sha256: createHash('sha256').update(readFileSync(executable)).digest('hex') };
   const args = { nodeId: options.nodeId, home: options.home, workspaces: options.workspaces, launcher,
-    launcherSha256: createHash('sha256').update(content).digest('hex'), expectedVersion: '0.2.1-rc.2' as const, fixtureBaseUrl: 'http://127.0.0.1:12345/' };
+    launcherSha256: createHash('sha256').update(content).digest('hex'), expectedVersion: '0.2.1-rc.2' as const, fixtureBaseUrl: 'http://127.0.0.1:12345/', powerShell };
   await expect(openDshAdapter({ ...args, fixtureBaseUrl: 'https://example.com/' })).rejects.toMatchObject({ code: 'permission_denied' });
   await expect(openDshAdapter({ ...args, launcherSha256: '0'.repeat(64) })).rejects.toThrow();
+  await expect(openDshAdapter({ ...args, powerShell: { ...powerShell, sha256: '0'.repeat(64) } })).rejects.toThrow();
   const adapter = await openDshAdapter(args); adapters.push(adapter);
   const session = await adapter.spawn({ agentId: adapter.agentId, workspaceAlias: 'fixture' }), task = input(session.id);
   await adapter.send(task); expect((await events(adapter, task.taskId)).at(-1)).toMatchObject({ type: 'completed' });

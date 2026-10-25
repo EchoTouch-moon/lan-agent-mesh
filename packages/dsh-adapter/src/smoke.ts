@@ -9,7 +9,7 @@ import { privateDirectory } from '@lam/private-storage';
 import { runDshAcceptance } from './acceptance.js';
 import { DshAdapterCore } from './core.js';
 import { DshAcpClient } from './client.js';
-import { fixtureEnvironment, openDshAdapter } from './native.js';
+import { fixtureEnvironment, openDshAdapter, verifyFixturePowerShell } from './native.js';
 
 const SDK_SOURCE = '354d840a0288ba04d569ce7d45391ebe0d7ef5be';
 const ACK_SOURCE = '491d8f4a8604fe3f88b2eb40f9f8e41bdc51d55c';
@@ -23,7 +23,8 @@ let preflightStage = 'arguments';
 let payload: Record<string, unknown> = { status: 'blocked-preflight', physicalCrossHost: 'not-run' };
 try {
   const { values } = parseArgs({ options: { 'self-test': { type: 'boolean' }, parent: { type: 'string' }, launcher: { type: 'string' },
-    'launcher-sha256': { type: 'string' }, 'expected-source': { type: 'string' }, output: { type: 'string' } } });
+    'launcher-sha256': { type: 'string' }, pwsh: { type: 'string' }, 'pwsh-sha256': { type: 'string' },
+    'expected-source': { type: 'string' }, output: { type: 'string' } } });
   const synthetic = values['self-test'] === true;
   if (!values.output || !isAbsolute(values.output)) throw new Error();
   const destination = join(realpathSync(dirname(values.output)), basename(values.output));
@@ -38,9 +39,11 @@ try {
   if (!/^[a-f0-9]{40}$/.test(values['expected-source'] ?? '') || values['expected-source'] !== source || git('status', '--porcelain', '--untracked-files=all')) throw new Error();
   git('merge-base', '--is-ancestor', SDK_SOURCE, source); git('merge-base', '--is-ancestor', ACK_SOURCE, source);
   if (values.parent && !isAbsolute(values.parent)) throw new Error();
-  if (synthetic && (values.launcher || values['launcher-sha256'])) throw new Error();
+  if (synthetic && (values.launcher || values['launcher-sha256'] || values.pwsh || values['pwsh-sha256'])) throw new Error();
   if (!synthetic && (process.platform !== 'win32' || !values.parent || !values.launcher || !values['launcher-sha256'])) throw new Error();
   if (!synthetic && !/^[a-f0-9]{64}$/.test(values['launcher-sha256'] ?? '')) throw new Error();
+  const powerShell = synthetic ? undefined : { executable: values.pwsh ?? '', sha256: values['pwsh-sha256'] ?? '' };
+  if (powerShell) verifyFixturePowerShell(powerShell);
   preflightStage = 'build-artifacts';
   const sourceFiles = git('ls-files', 'packages', 'scripts', 'pnpm-lock.yaml', 'package.json').split(/\r?\n/).filter(Boolean);
   const sourceHashes = Object.fromEntries(sourceFiles.map(file => [file, sha(readFileSync(join(repository, file)))]));
@@ -69,14 +72,15 @@ try {
   const peer = fileURLToPath(new URL('../../../scripts/fixtures/dsh-acceptance-agent.mjs', import.meta.url));
   payload = { ...payload, ownedDirectoryName: name,
     ...(autoParent ? { syntheticParentName: basename(autoParent) } : {}),
-    ...(synthetic ? { syntheticPeerSha256: sha(readFileSync(peer)) } : { launcherSha256: values['launcher-sha256'], expectedDesktopVersion: '0.2.1-rc.2' }) };
+    ...(synthetic ? { syntheticPeerSha256: sha(readFileSync(peer)) } : { launcherSha256: values['launcher-sha256'], powerShellSha256: powerShell!.sha256,
+      expectedPowerShellMajor: 7, expectedDesktopVersion: '0.2.1-rc.2' }) };
   preflightStage = 'complete';
-  const report = await runDshAcceptance({ root, kind: synthetic ? 'synthetic' : 'windows-native-local', signal: AbortSignal.any([controller.signal, AbortSignal.timeout(12 * 60 * 1000)]),
+  const report = await runDshAcceptance({ root, kind: synthetic ? 'synthetic' : 'windows-native-local', ...(powerShell ? { powerShell } : {}), signal: AbortSignal.any([controller.signal, AbortSignal.timeout(12 * 60 * 1000)]),
     openAdapter: ({ nodeId, home, workspaces, baseUrl }) => synthetic ? DshAdapterCore.open({ nodeId, home, workspaces,
       registration: JSON.stringify(['synthetic-acceptance', sha(readFileSync(peer)), baseUrl]) }, context => DshAcpClient.open({
         command: process.execPath, args: [peer], cwd: context.nativeHome, env: fixtureEnvironment(context.nativeHome, baseUrl), timeoutMs: 15000,
         onText: context.onText, onLost: context.onLost })) : openDshAdapter({ nodeId, home, workspaces,
-          fixtureBaseUrl: baseUrl, launcher: values.launcher!, launcherSha256: values['launcher-sha256']!, expectedVersion: '0.2.1-rc.2' }) });
+          fixtureBaseUrl: baseUrl, launcher: values.launcher!, launcherSha256: values['launcher-sha256']!, expectedVersion: '0.2.1-rc.2', powerShell: powerShell! }) });
   payload = { ...payload, ...report };
   if (report.status !== (synthetic ? 'passed-synthetic' : 'passed-windows-native-local')) process.exitCode = 1;
   if (autoParent && report.cleanup.complete) { rmSync(autoParent, { recursive: true }); autoParent = undefined; }

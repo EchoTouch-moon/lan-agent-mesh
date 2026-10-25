@@ -11,7 +11,7 @@ import { MCP_INPUTS, type McpCredential } from '@lam/mcp-contract';
 import { privateDirectory } from '@lam/private-storage';
 import type { AdapterEvent, SendInput } from '@lam/adapter-sdk';
 import type { DshAdapterCore } from './core.js';
-import { fixtureEnvironment } from './native.js';
+import { fixtureEnvironment, verifyFixturePowerShell, type FixturePowerShell } from './native.js';
 import { terminateOwnedChild } from './process-tree.js';
 import { FIXTURE_TEXT, permissionResult, startAcceptanceFixture, writeCommand } from './acceptance-fixture.js';
 
@@ -19,6 +19,7 @@ export interface AcceptanceOptions {
   root: string;
   kind: 'synthetic' | 'windows-native-local';
   signal?: AbortSignal;
+  powerShell?: FixturePowerShell;
   openAdapter: (options: { nodeId: string; home: string; workspaces: Record<string, string>; baseUrl: string }) => Promise<DshAdapterCore>;
 }
 export interface AcceptanceReport {
@@ -32,13 +33,14 @@ export interface AcceptanceReport {
 const hash = (value: string) => createHash('sha256').update(value).digest('hex');
 
 /** Execute only our fixed marker-positive-control command; never a model-supplied command. */
-async function positiveControl(root: string, marker: string, kind: AcceptanceOptions['kind'], uncertain: () => void) {
+async function positiveControl(root: string, marker: string, kind: AcceptanceOptions['kind'], uncertain: () => void, powerShell?: FixturePowerShell) {
   const windowsRoot = process.env.SystemRoot;
-  const command = kind === 'synthetic' ? process.execPath : windowsRoot && join(windowsRoot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
+  if (kind !== 'synthetic') { if (!powerShell) throw new Error('Explicit PowerShell required'); verifyFixturePowerShell(powerShell); }
+  const command = kind === 'synthetic' ? process.execPath : powerShell?.executable;
   if (!command) throw new Error('Control unavailable');
   const args = kind === 'synthetic' ? ['-e', 'require("node:fs").writeFileSync(process.argv[1],"fixture")', marker]
     : ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', writeCommand(marker)];
-  const child = spawn(command, args, { cwd: root, env: kind === 'synthetic' ? { SystemRoot: windowsRoot, HOME: root } : fixtureEnvironment(root, 'http://127.0.0.1:1/'),
+  const child = spawn(command, args, { cwd: root, env: kind === 'synthetic' ? { SystemRoot: windowsRoot, HOME: root } : fixtureEnvironment(root, 'http://127.0.0.1:1/', powerShell),
     detached: process.platform !== 'win32', windowsHide: true, stdio: 'pipe' });
   let observed = false, termination: Promise<void> | undefined;
   const exited = new Promise<void>(resolve => child.once('close', () => { observed = true; resolve(); }));
@@ -105,7 +107,7 @@ export async function runDshAcceptance(options: AcceptanceOptions): Promise<Acce
     report.results.restartResume = { passed: true, originalNativeIdentity: true, originalRetryNoInference: true };
 
     report.stage = 'permissions'; fixture.setMode('permission');
-    await positiveControl(options.root, join(workspace, 'control-marker'), options.kind, () => { cleanupUncertain = true; });
+    await positiveControl(options.root, join(workspace, 'control-marker'), options.kind, () => { cleanupUncertain = true; }, options.powerShell);
     const rejectedBefore = adapter.rejectedOnceRequests, permission = input(session.id, 'Reject the fixture-owned write.');
     await adapter.send(permission); exact(await collect(adapter, permission.taskId));
     const permissionState = fixture.snapshot();
