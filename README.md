@@ -71,6 +71,7 @@ Workspace layout:
 - `packages/protocol`: versioned typed messages, errors and UTF-8 size limits.
 - `packages/adapter-sdk`: capability-gated inbound control contract.
 - `packages/mock-adapter`: deterministic sessions, streaming, scoped mock permissions, cancellation and fault injection.
+- `packages/codex-adapter`: [Mac App Server fixture slice](docs/CODEX_ADAPTER.md), owned threads, native deny and durable UNKNOWN; Windows/physical cross-host/production acceptance remains open.
 - `packages/storage`, `packages/mesh`, `packages/runtime`: persistent paired Gateway with bounded task/session routing.
 - `packages/mcp-contract`, `packages/mcp-server`: scoped local stdio tools for remote Mock sessions.
 - `packages/private-storage`: fail-closed Windows native ACL checks and POSIX private-mode checks.
@@ -109,3 +110,5 @@ node packages/mcp-server/dist/cli.js --credentials <explicit-private-credential-
 ```
 
 No existing host configuration is changed automatically. The caller chain is validated against a paired remote Mock; Codex/ACP native adapters and physical cross-host acceptance remain separate tasks.
+
+The candidate [DSH fixture Adapter](docs/DSH_ADAPTER.md) adds private owned-process/session/task management on ACP. Its implementation tests include a synthetic peer behind encrypted loopback Gateways; the new adapter's installed Windows DSH and physical cross-host acceptance are still pending.

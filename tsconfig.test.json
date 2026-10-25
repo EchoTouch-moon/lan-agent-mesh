@@ -2,6 +2,7 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
+    "allowJs": true,
     "baseUrl": ".",
     "paths": {
       "@lam/domain": [
@@ -33,6 +34,9 @@
       ],
       "@lam/private-storage": [
         "packages/private-storage/src/index.ts"
+      ],
+      "@lam/codex-adapter": [
+        "packages/codex-adapter/src/index.ts"
       ]
     }
   },

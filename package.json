@@ -22,7 +22,8 @@
     "probe:zcode:fixture": "node scripts/probe-zcode-fixture.mjs",
     "probe:workbuddy:inventory": "node scripts/probe-workbuddy-inventory.mjs",
     "gateway": "node apps/gateway/dist/index.js",
-    "test:p1:process": "pnpm build && node scripts/p1-process-smoke.mjs"
+    "test:p1:process": "pnpm build && node scripts/p1-process-smoke.mjs",
+    "test:p1:w3-faults": "pnpm build && node scripts/p1-w3-fault-probe.mjs --self-test"
   },
   "devDependencies": {
     "@eslint/js": "9.39.1",

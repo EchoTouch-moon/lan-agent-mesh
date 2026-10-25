@@ -1,0 +1,44 @@
+{
+  "testedSourceSha": "491d8f4a8604fe3f88b2eb40f9f8e41bdc51d55c",
+  "formalProbeCommittedPushedAndClean": true,
+  "reports": {
+    "fast": {
+      "sha256": "5cd2ec8d0fb81d72a08db9c31c4a21b82bfd06d43fd5860789d650d15d2d670f",
+      "startedUtc": "2026-10-25T03:36:31.965Z",
+      "endedUtc": "2026-10-25T03:36:36.286Z",
+      "minimumAckAgeMs": 0,
+      "transportReplyRefreshed": false,
+      "exitCode": 0
+    },
+    "aged": {
+      "sha256": "ccce4ec37eba03529037c2e1ce0f887b96b69e6fb78026d78559fed8a529fbc2",
+      "startedUtc": "2026-10-25T03:36:31.965Z",
+      "endedUtc": "2026-10-25T03:37:04.718Z",
+      "minimumAckAgeMs": 31000,
+      "transportReplyRefreshed": true,
+      "exitCode": 0
+    }
+  },
+  "sourceFileSha256": {
+    "packages/runtime/src/router.ts": "54ca41ed6ee87689e71d353755ab18c363c9af56da2d50062f828e1ab7bbf3bd",
+    "packages/runtime/test/e2e.test.ts": "15162f4a4a4a718abf749794783539e126237ecd0314eb998e291bfe7bc3923b",
+    "scripts/p1-w3-fault-probe.mjs": "954990dc5d266e8c9b8b9253da263dcfa82b2000e622e8d900442423787b9bf6"
+  },
+  "regression": {
+    "beforeRuntimeSource": "245c44fd433b78ae5a8fb7ece54caac0b1076484",
+    "beforeExitCode": 1,
+    "beforeError": "deadline_exceeded / Message expired from cached reply",
+    "beforeLogSha256": "e878c1a8af6d59017bb982abe24fc1275db694a2d7b969fed0460fbf9f76bb9d",
+    "afterFocusedExitCode": 0,
+    "fullCheckExitCode": 0,
+    "fullCheck": {
+      "defined": 50,
+      "passedOnMac": 47,
+      "windowsOnlySkippedOnMac": 3
+    },
+    "fullCheckLogSha256": "4541f8e71f7139dbbd1fc487b8a14b74ecb6e39a24c4af2a4f484820f9393a5d",
+    "note": "Unit tests/check ran during implementation; fixed source/test bytes match the committed execution source. Both formal probe runs occurred after push with clean source."
+  },
+  "ciUrl": "https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40158755888",
+  "scope": "same-host verification only; no physical LAN window reopened"
+}

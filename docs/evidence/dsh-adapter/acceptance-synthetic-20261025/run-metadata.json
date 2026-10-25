@@ -1,0 +1,18 @@
+{
+  "testedSourceSha": "60e6e8835469e29babc1840bab0b533200d7230d",
+  "sourceClean": true,
+  "command": "node packages/dsh-adapter/dist/smoke.js --self-test --expected-source 60e6e8835469e29babc1840bab0b533200d7230d --output [NEW_ABSOLUTE_REPORT]",
+  "exitCode": 0,
+  "startedUtc": "2026-10-25T04:50:18.212Z",
+  "endedUtc": "2026-10-25T04:50:19.548Z",
+  "evidenceKind": "synthetic",
+  "reportSha256": "3b5eec631b82bbc561046d33d6650e397243e88b6f6e09ea25e58dc78481b3e2",
+  "privacyScan": "No absolute user paths, HTTP endpoints, pairing codes or credentials captured",
+  "limitations": [
+    "Not installed DSH",
+    "Sandbox denial simulated; positive control uses Node",
+    "Not physical cross-host",
+    "No host network monitoring",
+    "No hard-crash recovery claim"
+  ]
+}

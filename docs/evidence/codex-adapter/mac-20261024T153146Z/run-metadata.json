@@ -1,0 +1,56 @@
+{
+  "testedSourceSha": "ad202f5ae893d54da1bf6cd963c6c641b764cad2",
+  "sourceCleanBeforeExecution": true,
+  "startedUtc": "2026-10-24T15:31:46.980Z",
+  "endedUtc": "2026-10-24T15:31:48.518Z",
+  "commands": [
+    {
+      "command": "pnpm --filter @lam/codex-adapter build",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm exec vitest run packages/codex-adapter/test/codex.test.ts",
+      "exitCode": 0,
+      "passed": 4
+    },
+    {
+      "command": "LAM_CODEX_BIN=<explicit-verified-cli> node scripts/codex-adapter-smoke.mjs",
+      "exitCode": 0
+    }
+  ],
+  "priorFullCheck": {
+    "testedSourceSha": "91772b1902c5950465bc80f1c46b1fe5173e04fe",
+    "command": "pnpm check",
+    "exitCode": 0,
+    "defined": 54,
+    "passed": 51,
+    "skipped": 3,
+    "logSha256": "2dfccc72408a32dc8140c788addbe6a72ae0d668d69b604861ebef94326b64b5"
+  },
+  "sourceCiUrl": "https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40107364905",
+  "sha256": {
+    "scripts/codex-adapter-smoke.mjs": "f04b9578e8923733ea0c65493e2cf7d19a8d92750b47f3ee1eccf9ed8a7ad212",
+    "packages/codex-adapter/src/index.ts": "e0a1a2b99d754cbf044c94400e2533211ca31c103c050e5839bb6c88829ec42f",
+    "packages/codex-adapter/src/rpc.ts": "e251f89e822c9626f0abf0347a088a80afec5a30fbf01efd9dc3e10d5f5202e7",
+    "packages/adapter-sdk/src/index.ts": "7d9f25ac3ebc999169119ddf423731b24df5db44a781b69924bcd4be8987e44e",
+    "packages/runtime/src/index.ts": "3d8efa8528e550b1cf06a734a5151aafb03b666d820221e8c9f80535cc0c3b45",
+    "packages/runtime/src/sessions.ts": "26590bf9ca4cfdbbbb934d07935efdbcf1aa955232f879bb57ce53863997a904",
+    "packages/codex-adapter/dist/index.js": "e0400c1c554b05d64ffce33256ac14b875e3f8e803b5be80f833712566fb716b",
+    "packages/codex-adapter/dist/rpc.js": "248e38f992a475d099744156e2c89c04283d914c3d38f15d2c7be0c8c5ba2aab"
+  },
+  "originalReportSha256": "6d0a9ecb0d51ad6f62d1c1e61486d0aacc954a0a4dcabaa593f1bddf358136c8",
+  "executableSha256": "134063e133f0b4244fa3b251acf973d4fe4b4aeeacbdc135211bf480f59f1477",
+  "notes": [
+    "Native source and probe were committed and pushed before execution. Source hashes use raw LF bytes.",
+    "This capture supersedes the earlier 91772b1 fixture record after stale-lock refusal was hardened; historical evidence is retained.",
+    "Prior full-check result is attributed to its own source. Current-source full matrix is linked separately.",
+    "No network packet capture, Windows Codex, physical W3 or real-model claim."
+  ],
+  "sourceCiConclusion": "success",
+  "sourceCiMatrix": [
+    "macos-latest/22",
+    "macos-latest/24",
+    "windows-latest/22",
+    "windows-latest/24"
+  ]
+}

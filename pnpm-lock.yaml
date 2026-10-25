@@ -60,11 +60,54 @@ importers:
         specifier: workspace:*
         version: link:../protocol
 
+  packages/codex-adapter:
+    dependencies:
+      '@lam/adapter-sdk':
+        specifier: workspace:*
+        version: link:../adapter-sdk
+      '@lam/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@lam/private-storage':
+        specifier: workspace:*
+        version: link:../private-storage
+      '@lam/storage':
+        specifier: workspace:*
+        version: link:../storage
+
   packages/domain:
     dependencies:
       zod:
         specifier: 3.25.76
         version: 3.25.76
+
+  packages/dsh-adapter:
+    dependencies:
+      '@lam/adapter-sdk':
+        specifier: workspace:*
+        version: link:../adapter-sdk
+      '@lam/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@lam/private-storage':
+        specifier: workspace:*
+        version: link:../private-storage
+      '@lam/storage':
+        specifier: workspace:*
+        version: link:../storage
+      zod:
+        specifier: 3.25.76
+        version: 3.25.76
+    devDependencies:
+      '@lam/mcp-contract':
+        specifier: workspace:*
+        version: link:../mcp-contract
+      '@lam/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      '@modelcontextprotocol/client':
+        specifier: 2.4.0
+        version: 2.4.0
 
   packages/mcp-contract:
     dependencies:
