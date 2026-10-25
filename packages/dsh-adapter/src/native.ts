@@ -38,8 +38,8 @@ export function fixtureEnvironment(home: string, baseUrl: string, powerShell?: F
     XDG_CONFIG_HOME: join(home, 'xdg-config'), XDG_DATA_HOME: join(home, 'xdg-data'), DSH_HOME: home,
     TEMP: home, TMP: home, DEEPSEEK_BASE_URL: baseUrl, DEEPSEEK_API_KEY: 'lam-local-fixture-not-a-real-key', DSH_PERMISSION_MODE: 'read-only' };
 }
-async function version(command: string, args: string[], cwd: string, env: NodeJS.ProcessEnv): Promise<string> {
-  const child = spawn(command, args, { cwd, env, windowsHide: true, windowsVerbatimArguments: true, stdio: 'pipe' });
+async function version(command: string, args: string[], cwd: string, env: NodeJS.ProcessEnv, windowsVerbatimArguments = true): Promise<string> {
+  const child = spawn(command, args, { cwd, env, windowsHide: true, windowsVerbatimArguments, stdio: 'pipe' });
   let observed = false, output = '', invalid = false;
   const exited = new Promise<void>(resolve => child.once('close', () => { observed = true; resolve(); }));
   child.stderr.resume(); child.stdin.on('error', () => {});
@@ -88,8 +88,10 @@ export async function openDshAdapter(options: DshAdapterOptions): Promise<DshAda
         phase = 'powershell-file';
         verifyFixturePowerShell(options.powerShell);
         phase = 'powershell-version-process';
+        // Only the reviewed cmd launcher supplies prequoted arguments. Direct executables
+        // need Node's regular Windows quoting, including Program Files paths.
         const shellVersion = await version(options.powerShell.executable,
-          ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', '$PSVersionTable.PSVersion.ToString()'], context.nativeHome, env);
+          ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', '$PSVersionTable.PSVersion.ToString()'], context.nativeHome, env, false);
         phase = 'powershell-version-format';
         if (!/^7\.\d+\.\d+(?:[-+][\w.-]+)?$/.test(shellVersion)) throw new Error();
         verifyFixturePowerShell(options.powerShell);
