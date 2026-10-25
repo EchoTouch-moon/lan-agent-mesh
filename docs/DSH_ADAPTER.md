@@ -76,7 +76,7 @@ it validates quoting/version/hash/private-home wiring, not an installed DSH desk
 Native Windows DSH fixed-response acceptance, causal permission marker positive control, actual restart
 recovery and remote Mac MCP→Windows DSH are **not yet verified for this new adapter**.
 Historical R3/R4 probe observations establish the dialect only; they do not transfer native verification
-to this source. A dedicated committed native acceptance runner/evidence package is still needed.
+to this source. A [committed native acceptance runner](DSH_WINDOWS_ACCEPTANCE.md) now prepares that evidence; installed Windows execution remains outstanding.
 DSH outbound MCP/tools, real models and GUI attachment remain separate unverified work.
 
 The deferred physical #15 window is unchanged. Building or running these synthetic tests does not
