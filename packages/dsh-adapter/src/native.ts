@@ -71,6 +71,7 @@ export async function openDshAdapter(options: DshAdapterOptions): Promise<DshAda
   const root = process.env.SystemRoot;
   if (!root || !isAbsolute(root)) throw new MeshError('unsupported', 'Windows system launcher unavailable');
   verifyFixturePowerShell(options.powerShell);
+  let phase = 'launcher-file';
   try {
     if (!isAbsolute(options.launcher) || realpathSync(options.launcher) !== resolve(options.launcher) || !lstatSync(options.launcher).isFile() || lstatSync(options.launcher).size > 65536)
       throw new Error();
@@ -84,15 +85,20 @@ export async function openDshAdapter(options: DshAdapterOptions): Promise<DshAda
         options.powerShell.executable, options.powerShell.sha256]) }, async context => {
       const env = fixtureEnvironment(context.nativeHome, base.href, options.powerShell);
       try {
+        phase = 'powershell-file';
         verifyFixturePowerShell(options.powerShell);
+        phase = 'powershell-version-process';
         const shellVersion = await version(options.powerShell.executable,
           ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', '$PSVersionTable.PSVersion.ToString()'], context.nativeHome, env);
+        phase = 'powershell-version-format';
         if (!/^7\.\d+\.\d+(?:[-+][\w.-]+)?$/.test(shellVersion)) throw new Error();
         verifyFixturePowerShell(options.powerShell);
+        phase = 'launcher-version';
         if (await version(command, check.args, context.nativeHome, env) !== options.expectedVersion || hash() !== options.launcherSha256) throw new Error();
       } catch { context.onLost('process'); throw new Error('Version check refused'); }
+      phase = 'acp-startup';
       return DshAcpClient.open({ command, args: acp.args, cwd: context.nativeHome, env, windowsVerbatimArguments: true,
         timeoutMs: 60000, onText: context.onText, onLost: context.onLost });
     });
-  } catch { throw new MeshError('internal', 'Native DSH initialization refused; inspect pinned launcher, version and private home'); }
+  } catch { throw new MeshError('internal', `Native DSH initialization refused at ${phase}; inspect pinned programs, versions and private home`); }
 }
