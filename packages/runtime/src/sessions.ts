@@ -17,6 +17,7 @@ export class Sessions {
   private reservations = 0;
   readonly adapters = new Map<string, HarnessAdapter>();
   readonly agents = new Map<string, Agent>();
+  readonly harnesses = new Map<string, { kind: 'codex' | 'dsh' | 'zcode' | 'workbuddy' | 'mock'; version: string }>();
   constructor(
     readonly store: Store,
     readonly nodeId: string,
@@ -33,6 +34,7 @@ export class Sessions {
       if (agent.nodeId !== this.nodeId || this.adapters.has(agent.id))
         throw new MeshError('conflict', 'Agent ownership or duplicate registration');
       this.agents.set(agent.id, agent);
+      this.harnesses.set(agent.harnessId, { kind: probe.kind ?? 'mock', version: probe.version });
       this.adapters.set(agent.id, adapter);
       this.store.put('agents', agent.id, agent);
     }
