@@ -87,6 +87,14 @@ it('recovers an original outbox retry after its cached ACK expires without repea
     expect(sessionRetry.payload).toEqual(created.payload);
     expect(sessionRetry.messageId).not.toBe(created.messageId);
     expect(b.store.list('sessions')).toHaveLength(1);
+    try {
+      for (const broken of [{ ...cached, deadline: 'invalid' }, { ...cached, correlationId: randomUUID() }]) {
+        b.store.db.prepare('UPDATE inbox SET response=? WHERE id=?').run(JSON.stringify(broken), request.messageId);
+        await expect(a.mesh.request(b.mesh.id, { kind: 'envelope', value: request })).rejects.toMatchObject({ code: 'invalid_message' });
+      }
+    } finally {
+      b.store.db.prepare('UPDATE inbox SET response=? WHERE id=?').run(JSON.stringify(cached), request.messageId);
+    }
     await expect(a.mesh.request(b.mesh.id, { kind: 'envelope', value: {
       ...request, payload: { ...request.payload, text: 'changed cached request' },
     } })).rejects.toMatchObject({ code: 'conflict' });
