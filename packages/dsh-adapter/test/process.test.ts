@@ -94,7 +94,10 @@ describe('DSH ACP owned process control (synthetic peer, no native DSH)', () => 
       expect(error).toMatchObject({ ambiguous: true });
       expect(String(error)).not.toContain('SECRET_NATIVE_DIAGNOSTIC');
       await expect(client.prompt(id, 'greeting')).rejects.toMatchObject({ ambiguous: true });
-      await client.close();
+      if (mode === 'exit' && process.platform === 'win32') {
+        clients.splice(clients.indexOf(client), 1);
+        await expect(client.close()).rejects.toThrow('cleanup uncertain');
+      } else await client.close();
       expect(lost).toHaveLength(1);
       expect(audit(config.cwd).filter(m => m.method === 'session/prompt')).toHaveLength(1);
       expect(JSON.stringify(lost)).not.toContain('SECRET_NATIVE_DIAGNOSTIC');

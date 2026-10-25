@@ -110,3 +110,5 @@ node packages/mcp-server/dist/cli.js --credentials <explicit-private-credential-
 ```
 
 No existing host configuration is changed automatically. The caller chain is validated against a paired remote Mock; Codex/ACP native adapters and physical cross-host acceptance remain separate tasks.
+
+The candidate [DSH fixture Adapter](docs/DSH_ADAPTER.md) adds private owned-process/session/task management on ACP. Its implementation tests include a synthetic peer behind encrypted loopback Gateways; the new adapter's installed Windows DSH and physical cross-host acceptance are still pending.

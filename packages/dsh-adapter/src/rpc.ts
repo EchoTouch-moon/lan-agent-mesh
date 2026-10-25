@@ -1,6 +1,7 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
-import { isAbsolute, join } from 'node:path';
+import { isAbsolute } from 'node:path';
 import { TextDecoder } from 'node:util';
+import { terminateOwnedChild } from './process-tree.js';
 
 export type NativeObject = Record<string, unknown>;
 type RpcId = string | number;
@@ -131,27 +132,8 @@ export class AcpRpc {
     void this.terminate().catch(() => {});
   }
   private terminate(): Promise<void> {
-    return this.termination ??= (async () => {
-      // Kill the owned tree while its parent still exists. Ending stdin first can orphan tools on Windows.
-      if (this.child.pid) {
-        if (process.platform === 'win32' && !this.exitObserved) {
-          const killer = spawn(join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'taskkill.exe'),
-            ['/pid', String(this.child.pid), '/t', '/f'], { windowsHide: true, stdio: 'ignore' });
-          await new Promise<void>((resolve, reject) => {
-            const timer = setTimeout(() => { killer.kill(); reject(new AcpError('process', true)); }, 5000);
-            killer.once('error', () => { clearTimeout(timer); reject(new AcpError('process', true)); });
-            killer.once('close', code => { clearTimeout(timer); if (code === 0 || this.exitObserved) resolve(); else reject(new AcpError('process', true)); });
-          });
-        } else if (process.platform !== 'win32') {
-          try { process.kill(-this.child.pid, 'SIGKILL'); }
-          catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw new AcpError('process', true); }
-        }
-      }
-      await new Promise<void>((resolve, reject) => {
-        const timer = setTimeout(() => reject(new AcpError('process', true)), 5000);
-        void this.exited.then(() => { clearTimeout(timer); resolve(); });
-      });
-    })();
+    // Kill the owned tree before ending stdin; a parent that exits first may orphan its tools.
+    return this.termination ??= terminateOwnedChild(this.child, this.exited, () => this.exitObserved);
   }
   close(): Promise<void> { this.fail('closed'); return this.terminate(); }
 }

@@ -1,12 +1,13 @@
 # DSH ACP process client — implementation foundation for LAM-18
 
 This package implements the owned-process protocol portion of [LAM-18](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/18).
-It is **not yet a `HarnessAdapter`** and is not registered or exported by Gateway.
-Native DSH execution, durable Gateway/native mapping, and remote Mac→Windows acceptance remain outstanding.
+`DshAcpClient` is the low-level transport, not itself a `HarnessAdapter`.
+The follow-on [private fixture SDK adapter](DSH_ADAPTER.md) supplies durable mapping and Gateway integration;
+native DSH and remote Mac→Windows acceptance remain outstanding for that implementation.
 
 ## Contract and evidence
 
-`packages/dsh-adapter/src/index.ts` exports `DshAcpClient`. Its dialect is based on the previously committed
+`packages/dsh-adapter/src/index.ts` exports `DshAcpClient` from `client.ts`. Its dialect is based on the previously committed
 [Windows R3 fixture observations](evidence/windows/win-20261023T174935Z/)
 and [R4 permission correction](evidence/windows/win-20261023T190428Z/).
 Those historical reports cover their exact probe sources, **not this new client**.
@@ -59,10 +60,10 @@ It does not create a private home, validate private-storage lineage, enforce wor
 pin executable hashes, restrict network access, or construct a Windows `.cmd` command line.
 Do not wire it to production configuration before the adapter layer implements those requirements.
 
-The next adapter layer must retain #47's Gateway ownership/lifecycle conventions, require a marked
-private home with an exclusive lock, allow only a version-pinned desktop launcher and loopback model
-fixture, sanitize the environment, map and persist Gateway/native sessions/tasks, enforce durable
-idempotency, and turn ambiguous native execution into UNKNOWN without re-execution.
+The [SDK adapter layer](DSH_ADAPTER.md) retains #47's Gateway ownership/lifecycle conventions. It requires a marked
+private home with an exclusive lock, permits only a version-pinned desktop launcher and loopback model
+fixture, sanitizes the environment, persists Gateway/native sessions/tasks, enforces durable
+idempotency, and turns ambiguous native execution into UNKNOWN without re-execution.
 An unclean process exit does not prove all descendants stopped, especially on Windows; stale locks
 must remain refused until explicit operator cleanup. POSIX groups and `taskkill` do not establish
 containment against deliberately detached/breakaway descendants.

@@ -81,7 +81,23 @@ importers:
         specifier: 3.25.76
         version: 3.25.76
 
-  packages/dsh-adapter: {}
+  packages/dsh-adapter:
+    dependencies:
+      '@lam/adapter-sdk':
+        specifier: workspace:*
+        version: link:../adapter-sdk
+      '@lam/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@lam/private-storage':
+        specifier: workspace:*
+        version: link:../private-storage
+      '@lam/storage':
+        specifier: workspace:*
+        version: link:../storage
+      zod:
+        specifier: 3.25.76
+        version: 3.25.76
 
   packages/mcp-contract:
     dependencies:

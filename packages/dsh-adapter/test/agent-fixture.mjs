@@ -3,7 +3,8 @@ import { createInterface } from 'node:readline';
 import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawn } from 'node:child_process';
-const mode = process.argv[2] ?? 'normal';
+if (process.argv.includes('--version')) { console.log('0.2.1-rc.2'); process.exit(0); }
+const mode = process.argv[2] === '--profile' ? 'normal' : process.argv[2] ?? 'normal';
 const audit = join(process.cwd(), 'fixture-audit.jsonl');
 const state = join(process.cwd(), 'fixture-sessions.json');
 const sessions = existsSync(state) ? JSON.parse(readFileSync(state, 'utf8')) : [];
@@ -46,6 +47,7 @@ input.on('line', line => {
       } else { update(params.sessionId, 'cancelled'); reply(pending.id, { stopReason: 'cancelled' }); }
     }
   } else if (method === 'session/prompt') {
+    if (params.prompt[0].text === 'incomplete') { reply(id, { stopReason: 'max_tokens' }); return; }
     if (mode === 'duplicate-permission') {
       send({ id: 'dup', method: 'session/request_permission', params: { sessionId: 'unknown', options: [] } });
       send({ id: 'dup', method: 'session/request_permission', params: { sessionId: 'unknown', options: [] } }); return;
