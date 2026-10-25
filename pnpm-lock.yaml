@@ -98,6 +98,16 @@ importers:
       zod:
         specifier: 3.25.76
         version: 3.25.76
+    devDependencies:
+      '@lam/mcp-contract':
+        specifier: workspace:*
+        version: link:../mcp-contract
+      '@lam/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      '@modelcontextprotocol/client':
+        specifier: 2.4.0
+        version: 2.4.0
 
   packages/mcp-contract:
     dependencies:

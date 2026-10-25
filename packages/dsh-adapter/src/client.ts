@@ -22,6 +22,7 @@ export class DshAcpClient {
   private readonly cancelling = new Set<string>();
   private creating = 0;
   private denied = 0;
+  private rejectedOnce = 0;
   private readonly requestIds = new Set<string>();
   private constructor(private readonly options: DshAcpOptions) {}
   static async open(options: DshAcpOptions): Promise<DshAcpClient> {
@@ -54,6 +55,7 @@ export class DshAcpClient {
       }) : undefined;
       this.rpc.reply(id, { outcome: reject ? { outcome: 'selected', optionId: object(reject).optionId } : { outcome: 'cancelled' } });
       this.denied++;
+      if (reject) this.rejectedOnce++;
       return;
     }
     if (message.method !== 'session/update') return;
@@ -128,5 +130,6 @@ export class DshAcpClient {
     finally { this.busy.delete(id); }
   }
   get deniedNativeRequests() { return this.denied; }
+  get rejectedOnceRequests() { return this.rejectedOnce; }
   close(): Promise<void> { this.online = false; return this.rpc.close(); }
 }

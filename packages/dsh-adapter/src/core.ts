@@ -16,6 +16,7 @@ export interface DshDriver {
   cancel(id: string): void;
   close(): Promise<void>;
   readonly deniedNativeRequests: number;
+  readonly rejectedOnceRequests?: number;
 }
 export type DriverFactory = (context: {
   nativeHome: string; onText: (id: string, text: string) => void; onLost: (reason: LossReason) => void;
@@ -277,6 +278,7 @@ export class DshAdapterCore implements HarnessAdapter {
   }
   async answerPermission(): Promise<void> { return fail('unsupported', 'Native permissions are always denied; human bridge not implemented'); }
   get deniedNativeRequests() { return this.driver?.deniedNativeRequests ?? 0; }
+  get rejectedOnceRequests() { return this.driver?.rejectedOnceRequests ?? 0; }
   close(): Promise<void> {
     return this.closing ??= (async () => {
       this.online = false;

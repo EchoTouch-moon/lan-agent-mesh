@@ -8,5 +8,8 @@
   "dependencies": {
     "@lam/adapter-sdk": "workspace:*", "@lam/domain": "workspace:*", "@lam/storage": "workspace:*",
     "@lam/private-storage": "workspace:*", "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@lam/runtime": "workspace:*", "@lam/mcp-contract": "workspace:*", "@modelcontextprotocol/client": "2.4.0"
   }
 }
