@@ -1,0 +1,44 @@
+{
+  "kind": "operator prepare; physical claim requires counterpart review",
+  "testedSourceSha": "8c6b4c614140280a0b990a4e80db858c41e3be75",
+  "sourceCleanBeforeStart": true,
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "startedUtc": "2026-10-25T14:00:38.277Z",
+  "status": "prepared",
+  "results": {},
+  "cleanup": [
+    {
+      "role": "prepare",
+      "gatewayStopped": true,
+      "portsReleased": true,
+      "dataRemoved": false,
+      "preparedIdentityPreservedForRunner": true
+    }
+  ],
+  "externalModels": 0,
+  "sourceSha256": {
+    "packages/runtime/src/index.ts": "c3dde0fdf25dbd95fd6cc37f441c7cf487c1dd19dea43312bc8501d5e431e622",
+    "packages/runtime/src/router.ts": "54ca41ed6ee87689e71d353755ab18c363c9af56da2d50062f828e1ab7bbf3bd",
+    "packages/runtime/src/sessions.ts": "e65be9985c69452bf146aa11d70278d7ff4008a309d6350f0db146d1f86f6a5e",
+    "packages/mesh/src/index.ts": "04a836465e6710d7ff5635f96b6e9d9dda9bb3e7188930e9dbb3245a9e5f81ff",
+    "packages/storage/src/index.ts": "f9869b333dfd8429b5c64a8f7879d7f573f27f0bdbaf96f19b295fa38eabced6",
+    "packages/mock-adapter/src/index.ts": "7de304a6dc00994b15ec3418599d3be346cdd1f78ad2f8c0340269898e37aa1a"
+  },
+  "distSha256": {
+    "packages/runtime/dist/index.js": "09f8dcb8893dbdfb4eed46c8c4fb438f472716a76a19ef7d09c26d0c84e231a3",
+    "packages/runtime/dist/router.js": "7ddf3b659ef268cd1dcc570eaa536b7a4513ff9e1edbaf9a16e5117c58c1ee00",
+    "packages/runtime/dist/sessions.js": "8b2110ab7f4afdf10721fdcafcf2a4df7cde10c9fa2d1d64dbddc558248375b1",
+    "packages/mesh/dist/index.js": "639f88da6f2d0edc1027b3699e21b0d2559391e6fc09f8c51497000f8006f548",
+    "packages/storage/dist/index.js": "1c9d203a4a42871e324d1730c1ffacd72b0558a801461549918fff614fa8f29f",
+    "packages/mock-adapter/dist/index.js": "9f431c73f22e7211a61e7cb13a9af1c6649358993cd25787fba5d9dea5419a11"
+  },
+  "probeWorkingBytesSha256": "a9e7bdca098960666c0181243fb3b9b53989a61650803d6dee69abb99d551fa0",
+  "nodeIdSha256": "65918c79f2a5577e3afeeb0cdbdad1be59ea327ebac01770520319ce88097ba2",
+  "operatorWindow": {
+    "waitMs": 14362177,
+    "expiresUtc": "2026-10-25T18:00:00.529Z"
+  },
+  "stopReason": "control_shutdown",
+  "endedUtc": "2026-10-25T15:18:58.522Z"
+}

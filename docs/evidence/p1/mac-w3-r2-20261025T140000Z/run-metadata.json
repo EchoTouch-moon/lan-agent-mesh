@@ -1,0 +1,41 @@
+{
+  "runId": "w3-r2-20261025-long",
+  "testedSourceSha": "8c6b4c614140280a0b990a4e80db858c41e3be75",
+  "sourceCleanAtRoleStart": true,
+  "evidenceKind": "physical-cross-host-mock-caller-half",
+  "status": "mac-runner-passed-receiver-cross-reviewed",
+  "host": { "platform": "darwin", "node": "v22.23.2", "pnpm": "10.18.3" },
+  "plannedWindowUtc": { "start": "2026-10-25T14:00:00Z", "end": "2026-10-25T18:00:00Z" },
+  "roles": [
+    { "role": "prepare", "startedUtc": "2026-10-25T14:00:38.277Z", "endedUtc": "2026-10-25T15:18:58.522Z", "exitCode": 0, "status": "prepared", "stopReason": "control_shutdown" },
+    { "role": "runner", "startedUtc": "2026-10-25T15:19:31.246Z", "endedUtc": "2026-10-25T15:19:53.987Z", "exitCode": 0, "status": "passed" }
+  ],
+  "commands": [
+    { "command": "pnpm build (fixed W3 source)", "exitCode": 0 },
+    { "command": "node scripts/p1-w3-fault-probe.mjs --role prepare --data [NEW_PRIVATE_DATA] --output [PRIVATE_REPORTS]/prepare.json --expected-source 8c6b4c614140280a0b990a4e80db858c41e3be75 --wait-ms [REMAINING_WINDOW_MS]", "exitCode": 0 },
+    { "command": "authenticated local control confirm, Mac attempt 2 (private args file)", "exitCode": 0, "observed": "trusted=false; then expired before remote confirmation" },
+    { "command": "authenticated local registry after attempt 2 expired", "exitCode": 1, "expectedRejection": "permission_denied" },
+    { "command": "authenticated local control confirm, Mac attempt 3 (private args file)", "exitCode": 0, "observed": "trusted=false initially; then localConfirmed=true and remoteConfirmed=true" },
+    { "command": "authenticated local registry after attempt 3 double confirmation", "exitCode": 0 },
+    { "command": "authenticated local control shutdown prepare", "exitCode": 0 },
+    { "command": "node scripts/p1-w3-fault-probe.mjs --role runner --data [SAME_PREPARED_DATA] --output [PRIVATE_REPORTS]/runner.json --expected-source 8c6b4c614140280a0b990a4e80db858c41e3be75 --peer [NEW_WINDOWS_PEER] --address [PRIVATE_ENDPOINT] --peer-platform win32", "exitCode": 0 }
+  ],
+  "macPairingAttempts": 3,
+  "firstExpiredAttemptNote": "Expiry guard exited 1; shell did not stop, so a subsequent confirm CLI lacking its args file also failed; the final empty-output reader exited 0. That aggregate exit is not confirmation evidence. No valid confirm was executed for attempt 1. Later orchestration used set -e.",
+  "reports": [
+    { "file": "prepare.json", "sha256": "7dd31a037c35d540c3f43636e7aeb167f79c8f58d719f183dda27e4c638e2c38" },
+    { "file": "runner.json", "sha256": "3e7020278cd8ce4f1374c865861b80a89ddf0423b1ada275edf235c3f28b39a5" }
+  ],
+  "privacy": "Only original sanitized role reports copied; raw operator outputs stay private. No private endpoints, full pairing values, user paths, credentials, identity keys or databases published.",
+  "counterpartReview": {
+    "pullRequest": 62,
+    "reviewedCommit": "0068e6248d33b6f205c5841d8d6a24f83e7a4fdd",
+    "receiverReportSha256": "d098b993b7049efaa7bb941559939d82378ca4f9beef4e482b927bca0de6e35f",
+    "matchingDeliveriesAndFullEvents": true,
+    "receiverProcessExitCode": 0,
+    "receiverCleanupVerified": true,
+    "windowsAuxiliaryCommandExitCodes": "unknown: shell pipeline tail exit was captured instead of each underlying process",
+    "exactWindowsPairingTime": null
+  },
+  "limitations": ["Windows auxiliary command exit codes and exact pairing timestamp not independently retained", "Not a single-SHA rerun of all first-round cases", "No native Harness, GUI, real model, packet-loss capture or hard-crash claim", "No merge or issue-close performed"]
+}
