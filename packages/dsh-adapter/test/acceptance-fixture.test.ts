@@ -8,10 +8,10 @@ async function post(base: string, body: unknown) {
 }
 it('serves complete Messages SSE with required usage and fixed text, and refuses unknown/invalid requests', async () => {
   const fixture = await setup();
-  const response = await post(fixture.baseUrl, { tools: [], messages: [] });
+  const response = await post(fixture.baseUrl, { model: 'fixture-request-model', tools: [], messages: [] });
   const text = await response.text();
   const events = text.split('\n\n').filter(Boolean).map(frame => JSON.parse(frame.split('\n').find(line => line.startsWith('data: '))!.slice(6)) as Record<string, unknown>);
-  expect(events[0]).toMatchObject({ type: 'message_start', message: { usage: { input_tokens: 1, output_tokens: 1 } } });
+  expect(events[0]).toMatchObject({ type: 'message_start', message: { model: 'fixture-request-model', usage: { input_tokens: 1, output_tokens: 1 } } });
   expect(events.at(-1)?.type).toBe('message_stop'); expect(text).toContain(FIXTURE_TEXT);
   expect((await fetch(fixture.baseUrl)).status).toBe(404);
   expect((await post(fixture.baseUrl, [])).status).toBe(400);

@@ -28,7 +28,7 @@ export async function startAcceptanceFixture(marker: string) {
       calls++;
       response.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-cache' });
       const event = (type: string, data: Record<string, unknown>) => response.write(`event: ${type}\ndata: ${JSON.stringify({ type, ...data })}\n\n`);
-      event('message_start', { message: { id: `msg_lam_${calls}`, type: 'message', role: 'assistant', model: 'lam-fixture', content: [],
+      event('message_start', { message: { id: `msg_lam_${calls}`, type: 'message', role: 'assistant', model: typeof body.model === 'string' ? body.model : 'deepseek-v4-flash', content: [],
         stop_reason: null, usage: { input_tokens: 1, output_tokens: 1 } } });
       if (mode === 'hold') {
         event('content_block_start', { index: 0, content_block: { type: 'text', text: '' } });
