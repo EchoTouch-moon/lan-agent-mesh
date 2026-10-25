@@ -1,0 +1,40 @@
+{
+  "kind": "combined-candidate-local-acceptance",
+  "testedSourceSha": "5fed1448337d82f72972270c99447205f02ea2d7",
+  "sourceClean": true,
+  "sourceCommittedAndPushedBeforeExecution": true,
+  "host": { "platform": "darwin", "node": "v22.23.2", "pnpm": "10.18.3" },
+  "codeChecks": {
+    "source": "ff726726daaeb2015730cffb40d072c20b630d90",
+    "frozenInstallExit": 0,
+    "pnpmCheckExit": 0,
+    "testsPassed": 107,
+    "testsSkipped": 4,
+    "testsDefined": 111,
+    "differenceToFormalProbeSource": "README.md and two integration documents only"
+  },
+  "runs": [
+    {
+      "command": "node packages/dsh-adapter/dist/smoke.js --self-test --expected-source 5fed1448337d82f72972270c99447205f02ea2d7 --output [NEW_PRIVATE_OUTPUT]",
+      "exitCode": 0,
+      "file": "dsh-synthetic.json",
+      "sha256": "1454263d57014fef845dbbea364ec333dbbaf6e0fe5297f823505619faf10a2b",
+      "status": "passed-synthetic",
+      "actualWindowsDsh": false
+    },
+    {
+      "command": "LAM_CODEX_BIN=[PREVIOUSLY_VERIFIED_ABSOLUTE_PROGRAM] node scripts/codex-adapter-smoke.mjs",
+      "exitCode": 0,
+      "file": "codex-native-mac.json",
+      "sha256": "10262e414944190227c294ee91f3b6b6270a964e49a236080f9b88e74e547cb3",
+      "status": "passed",
+      "actualMacCodex": true,
+      "codexVersion": "codex-cli 0.146.0"
+    }
+  ],
+  "cleanup": "Both original reports affirm owned resource cleanup; both command handles exited 0",
+  "hostNetworkMonitoring": "not-performed",
+  "physicalCrossHost": "not-run-on-this-combined-source",
+  "windowsNativeCombinedSource": "pending",
+  "mainOrIssueStateChanges": "none"
+}

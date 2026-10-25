@@ -22,7 +22,7 @@ Gateway CLI 没有默认开启真实 Adapter；嵌入者仍须显式配置工厂
 
 组合代码已在本机执行 frozen install、build、typecheck、lint、完整测试：107通过、4平台跳过，共111项定义。随后只增加本文档和包含清单，不据此重跑实体实验。
 
-正式执行验收入口前必须先提交并推送候选、记录实际完整执行 SHA，并确认干净；后续结果应独立归档。需要检查：跨平台四组 CI 中的完整 synthetic collector，及本机现有 Codex 原生 loopback fixture 验收（严格固定版本，若本地程序版本已变则如实拒绝，不安装或降级）。Windows 实机 native 组合验证应单独发新固定源任务，不能把旧 #60 报告改成候选已经执行。
+正式执行源 `5fed1448337d82f72972270c99447205f02ea2d7` 已先提交并推送，再在干净源码运行 DSH 完整 synthetic collector 和现有 Mac Codex0.146.0 原生 loopback fixture，均退出0且清理完成；[原样报告与实际命令](evidence/integration/p2-20261025T160043Z/SUMMARY.md)独立归档。跨平台四组CI的组合检查另行记录。Windows 实机 native 组合验证仍须在同一5fed源运行，不把旧 #60 的97源报告改成候选已经执行；不重开物理窗口。
 
 ## 证据保留与限制
 
