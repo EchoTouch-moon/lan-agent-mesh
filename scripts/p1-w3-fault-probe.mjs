@@ -19,7 +19,7 @@ const { values } = parseArgs({ options: {
   'wait-ms': { type: 'string' }, listen: { type: 'string' }, 'self-test-delay-ms': { type: 'string' }, 'self-test-ack-age-ms': { type: 'string' },
 } });
 if (values.help) {
-  console.log('Build first. --self-test | --role prepare|receiver|runner --data <outside-repo private directory> --output <new private report> --expected-source <full SHA> [--peer ID --address host:port --peer-platform win32|darwin] [--listen /ip4/0.0.0.0/tcp/48731] [--wait-ms 1200000]');
+  console.log('Build first. --self-test | --role prepare|receiver|runner --data <outside-repo private directory> --output <new private report> --expected-source <full SHA> [--peer ID --address host:port --peer-platform win32|darwin] [--listen /ip4/0.0.0.0/tcp/48731] [--wait-ms 7200000 (maximum 14400000; prepare/receiver only)]');
   process.exit(0);
 }
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -284,7 +284,8 @@ try {
     assert.equal(within(repository, data) || within(repository, output) || within(data, output), false, 'Keep data/output outside source; report must survive data cleanup');
     assert.equal(present(output), false, 'Never overwrite a report');
     outputLease = await privateDirectory(dirname(output), { create: true, files: [basename(output)] });
-    const waitMs = Number(values['wait-ms'] ?? 1200000); assert.ok(Number.isInteger(waitMs) && waitMs >= 1000 && waitMs <= 1200000);
+    if (values.role === 'runner') assert.equal(values['wait-ms'], undefined, '--wait-ms only controls prepare/receiver readiness, not task deadlines');
+    const waitMs = Number(values['wait-ms'] ?? 7200000); assert.ok(Number.isInteger(waitMs) && waitMs >= 1000 && waitMs <= 14400000);
     const listen = values.listen ?? '/ip4/0.0.0.0/tcp/48731'; assert.match(listen, /^\/ip4\/(?:127\.0\.0\.1|0\.0\.0\.0)\/tcp\/\d+$/);
     const entry = await start(data, values.role, listen, 10000), g = entry.gateway;
     report.nodeIdSha256 = sha(g.mesh.id);
@@ -295,7 +296,8 @@ try {
       await faultCases(g, values.peer, values.address, values['peer-platform']); report.status = 'passed';
     } else {
       const observer = values.role === 'receiver' ? observe(g) : undefined;
-      console.log(JSON.stringify({ phase: 'ready_for_local_human_pairing', role: values.role, nodeId: g.mesh.id, addresses: g.mesh.addresses, source }));
+      report.operatorWindow = { waitMs, expiresUtc: new Date(Date.now() + waitMs).toISOString() };
+      console.log(JSON.stringify({ phase: 'ready_for_local_human_pairing', role: values.role, nodeId: g.mesh.id, addresses: g.mesh.addresses, source, operatorWindow: report.operatorWindow }));
       stage = 'operator_window';
       // Snapshot synchronously on close, before Gateway tears down its Store.
       g.server.once('close', () => { if (observer) report.results.receiver = snapshot(observer); });
