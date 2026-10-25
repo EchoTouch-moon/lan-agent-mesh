@@ -1,0 +1,204 @@
+{
+  "harness": "dsh-desktop",
+  "platform": "win32",
+  "launcherKind": "bundled dsh.cmd (ELECTRON_RUN_AS_NODE headless host)",
+  "inference": "localhost deterministic fixture; no external model",
+  "externalModelRequests": 0,
+  "fixtureRequests": 3,
+  "promptsSent": 1,
+  "results": {
+    "permissionSetup": {
+      "pwshAdvertised": true,
+      "initialSandboxDenialObserved": true
+    },
+    "permissionWriteCommand": {
+      "status": "verified",
+      "wroteControlMarker": true,
+      "controlMarkerRemoved": true,
+      "scope": "Probe-owned positive control only; not a harness permission grant"
+    },
+    "create": {
+      "status": "verified",
+      "returnedSessionId": true
+    },
+    "permissions": {
+      "status": "verified",
+      "nativeRequestMethod": "session/request_permission",
+      "decision": "reject_once"
+    },
+    "permissionTurn": {
+      "stopReason": "end_turn"
+    },
+    "deniedOperation": {
+      "status": "verified",
+      "markerCreated": false
+    },
+    "attachExistingGui": {
+      "status": "unknown",
+      "reason": "Only this probe-owned ACP session was controlled"
+    },
+    "resume": {
+      "status": "unknown",
+      "reason": "Not reached by this probe"
+    },
+    "send": {
+      "status": "unknown",
+      "reason": "Not reached by this probe"
+    },
+    "stream": {
+      "status": "unknown",
+      "reason": "Not reached by this probe"
+    },
+    "cancel": {
+      "status": "unknown",
+      "reason": "Not reached by this probe"
+    }
+  },
+  "scope": "permissions",
+  "version": "0.2.1-rc.2",
+  "requestLog": [
+    {
+      "method": "POST",
+      "url": "/v1/messages",
+      "bodyKeys": [
+        "model",
+        "stream",
+        "messages",
+        "max_tokens",
+        "thinking",
+        "output_config",
+        "system",
+        "tools",
+        "dsh_session_log",
+        "dsh_plugin_packages"
+      ],
+      "stream": true,
+      "model": "deepseek-v4-flash",
+      "tools": [
+        "create_goal",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "pwsh",
+        "read",
+        "read_image",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "working_directory",
+        "write"
+      ]
+    },
+    {
+      "method": "POST",
+      "url": "/v1/messages",
+      "bodyKeys": [
+        "model",
+        "stream",
+        "messages",
+        "max_tokens",
+        "thinking",
+        "output_config",
+        "system",
+        "tools",
+        "dsh_session_log",
+        "dsh_plugin_packages"
+      ],
+      "stream": true,
+      "model": "deepseek-v4-flash",
+      "tools": [
+        "create_goal",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "pwsh",
+        "read",
+        "read_image",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "working_directory",
+        "write"
+      ]
+    },
+    {
+      "method": "POST",
+      "url": "/v1/messages",
+      "bodyKeys": [
+        "model",
+        "stream",
+        "messages",
+        "max_tokens",
+        "thinking",
+        "output_config",
+        "system",
+        "tools",
+        "dsh_session_log",
+        "dsh_plugin_packages"
+      ],
+      "stream": true,
+      "model": "deepseek-v4-flash",
+      "tools": [
+        "create_goal",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "pwsh",
+        "read",
+        "read_image",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "working_directory",
+        "write"
+      ]
+    }
+  ],
+  "diagnostics": {
+    "exit": {
+      "code": 0,
+      "signal": null
+    },
+    "stderrTail": "",
+    "stdoutTextTail": ""
+  }
+}
