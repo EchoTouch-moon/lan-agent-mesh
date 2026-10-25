@@ -1,0 +1,65 @@
+{
+  "runId": "win-w3-r2-20261025T140000Z",
+  "runLabel": "w3-r2-20261025-long",
+  "role": "windows-receiver",
+  "testedSourceSha": "8c6b4c614140280a0b990a4e80db858c41e3be75",
+  "sourceCleanBeforeStart": true,
+  "status": "passed",
+  "kind": "operator receiver; physical claim requires counterpart review",
+  "host": {
+    "platform": "win32",
+    "operatingSystem": "Windows 10.0.22621 x64",
+    "node": "v24.12.0",
+    "pnpm": "10.18.3"
+  },
+  "window": {
+    "agreedUtc": "2026-10-25 14:00 -> 18:00 (common deadline earlier-expiring)",
+    "receiverWaitMs": 13210404,
+    "receiverExpiresUtc": "2026-10-25T18:00:10.662Z",
+    "receiverStartedUtc": "2026-10-25T14:19:58.805Z",
+    "receiverEndedUtc": "2026-10-25T15:28:11.649Z",
+    "stopReason": "control_shutdown"
+  },
+  "pairing": {
+    "attempts": 3,
+    "firstCodeExpired": "operator approval arrived after the 120s window; confirm correctly returned permission_denied; expired pending cleared without reuse",
+    "successfulPairingUtc": "2026-10-25T15:17:xxZ (second code, both sides confirmed in-window; code values never published)",
+    "macPeerNodeIdSha256": "65918c79f2a5577e3afeeb0cdbdad1be59ea327ebac01770520319ce88097ba2",
+    "windowsNodeIdSha256": "82fd7096933a45efe9d33f0ff30c53c35edb4e7d00a86afe93c0db9e695f4e38"
+  },
+  "commands": [
+    { "command": "pnpm install --frozen-lockfile", "exitCode": 0 },
+    { "command": "pnpm build", "exitCode": 0 },
+    { "command": "node scripts/p1-w3-fault-probe.mjs --role receiver --data [NEW_PRIVATE_DATA] --output [NEW_PRIVATE_REPORT] --expected-source 8c6b4c614140280a0b990a4e80db858c41e3be75 --wait-ms 13210404", "exitCode": 0 },
+    { "command": "control --command pairings (poll every 10s)", "exitCode": 0 },
+    { "command": "control --command confirm (operator-approved, second code, in-window)", "exitCode": 0, "result": "{\"trusted\":true}" },
+    { "command": "control --command revoke --args {peer: [MAC_PEER]} (after RUNNER_DONE)", "exitCode": 0 },
+    { "command": "control --command registry --args {peer: [MAC_PEER]}", "exitCode": 0, "result": "{\"code\":\"permission_denied\"}" },
+    { "command": "control --command spawn --args {peer: [MAC_PEER], agentId: [MAC_PEER]/mock/default, workspaceAlias: project-a}", "exitCode": 0, "result": "{\"code\":\"permission_denied\"}" },
+    { "command": "control --command shutdown (authenticated)", "exitCode": 0, "result": "{\"stopping\":true}" }
+  ],
+  "mainReport": {
+    "file": "receiver.json",
+    "sha256": "d098b993b7049efaa7bb941559939d82378ca4f9beef4e482b927bca0de6e35f"
+  },
+  "crossAnchorsMatched": {
+    "ackTaskIdSha256": "14e5a0de997c17c9737225faad6c6c25e9202a1b519f77e10c280d3cb749d3d4",
+    "originalEnvelopeSha256": "99b178f54ea274164bb9bb99d9e92707f9a09bc1c1ab19922c1c3a9040846162",
+    "replyOutcomeSha256": "c481874e98d6c4c8122d30997a86f6a50d8a075715bb5bb3d94522f0c9274bb0",
+    "cancelledTaskIdSha256": "bd9a7b587532e8330a06b9be50876d0e12f7a06943be3ed05186a110de693acc",
+    "allMatchMacRunnerDonePublication": true
+  },
+  "observedSemantics": {
+    "identicalAckEnvelopeDeliveredTwice": "same envelopeSha256 at 15:19:32.068Z and 15:19:52.749Z mapped to exactly one COMPLETED task (started/delta/delta/completed), no second task or inference",
+    "cancelledTask": "started then cancelled, no completed event",
+    "revocation": "peer revoked after RUNNER_DONE; cached agent entries dropped (cachedBefore 0 / cachedAfter 0, cacheWasPopulatedDuringRun true), registry and spawn both refused with permission_denied",
+    "cleanup": "gatewayStopped true, portsReleased true, dataRemoved true"
+  },
+  "externalModels": 0,
+  "privacyScan": "Report contains SHA-256 digests and fixture texts only; no IP addresses, pairing codes, private paths, keys or tokens",
+  "limitations": [
+    "Counterpart (Mac) review of this receiver evidence is required before the physical two-sided claim is accepted; see Mac PR #61",
+    "mDNS discovery unavailable on this host (TUN proxy environment); manual addressing per prior private channel, addresses not published",
+    "First pairing code expired unused (operator approval late); documented, not replayed or extended"
+  ]
+}
