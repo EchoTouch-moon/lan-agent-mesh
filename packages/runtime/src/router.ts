@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
-import { MeshError, decodeEnvelope, encodeEnvelope, type Envelope } from '@lam/protocol';
+import { MeshError, EnvelopeSchema, decodeEnvelope, encodeEnvelope, type Envelope } from '@lam/protocol';
 import type { AdapterEvent } from '@lam/adapter-sdk';
 import { Store, fingerprint, type TaskStatus } from '@lam/storage';
 import { Sessions } from './sessions.js';
@@ -48,12 +48,29 @@ export class Router {
       }),
     );
   }
+  private replay(request: Envelope, peer: string, value: unknown): Envelope {
+    const parsed = EnvelopeSchema.safeParse(value);
+    if (!parsed.success) throw new MeshError('invalid_message', 'Cached reply does not match protocol');
+    const previous = parsed.data;
+    if (previous.source.nodeId !== this.sessions.nodeId || previous.target.nodeId !== peer ||
+        previous.correlationId !== request.messageId || previous.taskId !== request.taskId)
+      throw new MeshError('invalid_message', 'Cached reply scope mismatch');
+    if (request.type === 'session.create' || request.type === 'session.resume') {
+      if (previous.type !== 'session.event' || previous.payload.nodeId !== this.sessions.nodeId ||
+        (request.type === 'session.create' && (previous.payload.agentId !== request.payload.agentId || previous.payload.workspaceAlias !== request.payload.workspaceAlias)) ||
+        (request.type === 'session.resume' && previous.payload.id !== request.payload.sessionId))
+        throw new MeshError('invalid_message', 'Cached session result scope mismatch');
+    }
+    // The original authenticated request is still valid. Only refresh transport fields;
+    // the recorded business outcome and both durable replay ledgers remain unchanged.
+    return Date.parse(previous.deadline) > Date.now() ? previous : this.response(request, previous.type, previous.payload);
+  }
   async receive(peer: string, input: unknown): Promise<Envelope> {
     const request = decodeEnvelope(encodeEnvelope(input));
     if (request.source.nodeId !== peer || request.target.nodeId !== this.sessions.nodeId)
       throw new MeshError('permission_denied', 'Envelope identity mismatch');
     const cached = this.store.inbox(request.messageId, peer, request);
-    if (cached) return cached as Envelope;
+    if (cached) return this.replay(request, peer, cached);
     let response: Envelope;
     if (request.type === 'session.create' || request.type === 'session.resume') {
       const key = `operation/${peer}/${request.idempotencyKey}`;
@@ -63,7 +80,7 @@ export class Router {
           throw new MeshError('conflict', 'Operation key conflict');
         if (!prior.response)
           throw new MeshError('disconnected', 'Session operation outcome unknown; do not repeat');
-        return prior.response;
+        return this.replay(request, peer, prior.response);
       }
       // Rejected/uncertain operations also retain a reservation; cap them before effects.
       if (Number(this.store.query("SELECT count(*) AS n FROM messages WHERE id LIKE 'operation/%'")[0]?.n) >= 1000)
@@ -72,8 +89,8 @@ export class Router {
       this.store.put('messages', key, { fingerprint: fingerprint(request) });
       const session =
         request.type === 'session.create'
-          ? await this.sessions.spawn(peer, request.payload.agentId, request.payload.workspaceAlias)
-          : await this.sessions.resume(peer, request.payload.sessionId);
+          ? await this.sessions.spawn(peer, request.payload.agentId, request.payload.workspaceAlias, request.deadline)
+          : await this.sessions.resume(peer, request.payload.sessionId, request.deadline);
       response = this.response(request, 'session.event', session);
       this.store.put('messages', key, { fingerprint: fingerprint(request), response });
     } else if (request.type === 'task.request') {
@@ -89,6 +106,8 @@ export class Router {
           throw new MeshError('permission_denied', 'Delegation depth exceeds Gateway budget');
         if (Date.parse(request.deadline) - Date.now() > 300000)
           throw new MeshError('invalid_message', 'Task budget exceeds five minutes');
+        await this.sessions.requireAvailable(binding.session.agentId, ['send', 'watch']);
+        if (Date.parse(request.deadline) <= Date.now()) throw new MeshError('deadline_exceeded', 'Task expired during admission');
         if (this.sessions.busy(binding.session.id) || this.running.size >= 16)
           throw new MeshError('busy', 'Session or Gateway busy');
       }

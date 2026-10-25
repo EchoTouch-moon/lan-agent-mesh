@@ -1,0 +1,45 @@
+{
+  "kind": "reviewed-candidate-composition-not-main-merge",
+  "base": "d226c2cc4bdea624e3807078a5b17f29aa380fa9",
+  "includedPullRequests": [
+    { "number": 47, "head": "c5b666afa33dbc788a0ea2947eb57f3ddc3cba1d" },
+    { "number": 48, "head": "db0e36989cfc5d343e9a42c3910cb3bb916f2f64" },
+    { "number": 49, "head": "4f24dc5f6fd80392c228e171dbec1ddecd7c8656" },
+    { "number": 50, "head": "245c44fd433b78ae5a8fb7ece54caac0b1076484" },
+    { "number": 51, "head": "b0161f27d56c4efdb0717153104667852dcbdb63" },
+    { "number": 52, "head": "77fc56a6ba61215e48d483ad168672998c3dc474" },
+    { "number": 53, "head": "354d840a0288ba04d569ce7d45391ebe0d7ef5be" },
+    { "number": 54, "head": "fdf9a39a513a0d8eb6a94044b45683a520e71bb0" },
+    { "number": 55, "head": "3303fd693bd026b64221caf4732f15f41584f9ec" },
+    { "number": 56, "head": "d19ee8b6380515ec3bd8d79a382e6237e247758e" },
+    { "number": 57, "head": "8c6b4c614140280a0b990a4e80db858c41e3be75" },
+    { "number": 58, "head": "604b5564fad1a782c03836ae9b9ce66e2e3b7033" },
+    { "number": 59, "head": "97a4be844f52148bcb57b70504831547287c9a56" },
+    { "number": 60, "head": "534a073bfda738ac04771209bd1e5d1b511ba017" },
+    { "number": 61, "head": "2eb1242fb79bd3e279e0e3ed674c6f9354452754" },
+    { "number": 62, "head": "0068e6248d33b6f205c5841d8d6a24f83e7a4fdd" }
+  ],
+  "excludedPullRequests": [
+    { "number": 45, "head": "518030e579a985b75722e1ee8da0597b723c706a", "reason": "Alternative ACL gate explicitly retained unmerged; main native private-storage implementation unchanged" }
+  ],
+  "additionalEvidence": [
+    {
+      "number": 64,
+      "originalHead": "83b27f46fd429ce3b2305a1b927f574bc77c19ad",
+      "incorporation": "Evidence-only commit cherry-picked with original attribution; all three original file blobs match. Original head is not claimed as an ancestor.",
+      "directory": "docs/evidence/dsh-adapter/windows-native-local-20261025T1614Z/",
+      "testedSourceSha": "5fed1448337d82f72972270c99447205f02ea2d7",
+      "reportSha256": "7633e22b62ba738f678fea51d563432be63543f9e9cadb1b67fc78fdd117fc0a"
+    }
+  ],
+  "integrationMethod": "Seven ordinary no-ff merges of maximal dependency heads; no manual conflict resolutions or cherry-picked copies",
+  "historicalEvidence": {
+    "firstPhysicalRoundSource": "d226c2cc4bdea624e3807078a5b17f29aa380fa9",
+    "secondPhysicalRoundSource": "8c6b4c614140280a0b990a4e80db858c41e3be75",
+    "windowsNativeFailureSource": "60e6e8835469e29babc1840bab0b533200d7230d",
+    "windowsNativePassedSource": "97a4be844f52148bcb57b70504831547287c9a56",
+    "interpretation": "Historical reports are retained with original source labels. They do not prove the combined candidate ran those physical/native cases."
+  },
+  "mergeAndCloseAuthorization": "not-granted",
+  "physicalOrNativeCrossHostWindow": "closed; no new window opened by this candidate"
+}

@@ -1,0 +1,60 @@
+{
+  "runId": "windows-native-local-20261025T1227Z",
+  "testedSourceSha": "60e6e8835469e29babc1840bab0b533200d7230d",
+  "sourceClean": true,
+  "evidenceKind": "windows-native-local",
+  "status": "failed",
+  "failureStage": "permissions",
+  "host": {
+    "platform": "win32",
+    "operatingSystem": "Windows 10.0.22621 x64",
+    "node": "v24.12.0",
+    "pnpm": "10.18.3"
+  },
+  "launcher": {
+    "kind": "installed desktop 0.2.1-rc.2 bundled dsh.cmd (local path withheld)",
+    "sha256": "c6c38be7f9f66a7bfb96d5ac9490618f9713df5ffb552cb7e66b831affb20ab9"
+  },
+  "parent": "G2 operator-managed exclusive parent reused; full lineage re-verified by the existing native private-storage gate immediately before the run (five stages verified, exit 0)",
+  "commands": [
+    { "command": "pnpm install --frozen-lockfile", "exitCode": 0 },
+    { "command": "pnpm build", "exitCode": 0 },
+    { "command": "pnpm typecheck", "exitCode": 0 },
+    { "command": "node packages/mcp-server/dist/windows-private-smoke.js --parent [G2_PARENT] --output [PARENT_PRECHECK_JSON]", "exitCode": 0 },
+    { "command": "node packages/dsh-adapter/dist/smoke.js --expected-source 60e6e8835469e29babc1840bab0b533200d7230d --parent [G2_PARENT] --launcher [BUNDLED_DSH_CMD] --launcher-sha256 c6c38be7f9f66a7bfb96d5ac9490618f9713df5ffb552cb7e66b831affb20ab9 --output [NEW_ABSOLUTE_REPORT] (native mode, no --self-test)", "exitCode": 1 }
+  ],
+  "mainReport": {
+    "file": "dsh-adapter-native-20261025T202716.json",
+    "sha256": "4fcc31b77879d75a17c681569a2c9559eb267fd266a1e6d12adb57eba7e71271"
+  },
+  "passedStages": ["sendStreamAndRetry", "restartResume"],
+  "failedStageDetail": {
+    "stage": "permissions",
+    "control": true,
+    "rejectedOnce": false,
+    "sandboxDenied": false,
+    "markerExists": false,
+    "permissionStages": 1,
+    "pwshAdvertised": true
+  },
+  "cleanup": { "complete": true, "rootRemoved": true, "fixtureClosed": true },
+  "rootCauseDiagnostics": {
+    "method": "Unmodified committed R4 probe at 4f17ff0 (scripts/probe-dsh-desktop-fixture.mjs, scope=permissions) re-run three times; only the child-process PATH differed. All three outputs are archived unedited.",
+    "runs": [
+      { "file": "r4-replica-fullenv.json", "env": "full inherited PATH (pwsh 7 resolvable via the user's PowerShell install directory)", "sha256": "40675784205400a4127d1cab1e2ddc275ef3ca28f6a61ecb20cb6d9165147837", "result": "initialSandboxDenialObserved=true, permissions verified (reject_once), marker not created, 3 fixture requests" },
+      { "file": "r4-replica-restrictedpath.json", "env": "PATH restricted to System32 + System32/WindowsPowerShell/v1.0 (the smoke runner fixtureEnvironment allowlist value)", "sha256": "0aa57627bb22f15e69479959cef1f5bfdabb273555abd466ef09af75b8a37f12", "result": "initialSandboxDenialObserved=false, permissions not reached, marker not created, 2 fixture requests — reproduces the smoke failure signature" },
+      { "file": "r4-replica-runnerpath-with-pwsh.json", "env": "runner PATH plus the directory that provides pwsh.exe 7.6.5 on this host", "sha256": "40675784205400a4127d1cab1e2ddc275ef3ca28f6a61ecb20cb6d9165147837", "result": "identical bytes to the full-env run: all four permission elements verified again" }
+    ],
+    "conclusion": "Desktop 0.2.1-rc.2 still behaves as observed in R4. The failure is caused by the smoke runner's sanitized PATH allowlist: DSH's pwsh resolution tries Program Files/PowerShell/7, then every PATH entry's pwsh.exe, then falls back to System32 WindowsPowerShell 5.1. This host has pwsh 7.6.5 only via a user-directory install that is on the normal user PATH but not on the runner's allowlist, so the fixture-owned write ran under the 5.1 fallback and its read-only sandbox result no longer contained the observed 'sandbox: file access denied' tool_result dialect the fixture matches; the permission stage therefore stayed at stage 1 and session/request_permission was never reached.",
+    "fixDirection": "Runner fixtureEnvironment (packages/dsh-adapter/src/native.ts) needs a reviewed way to resolve or allowlist a verified pwsh 7 location (e.g. add an operator-verified pwsh directory to PATH, or an explicit pinned pwsh path), instead of silently degrading to the 5.1 fallback. Implementation and dialect decision belong to the maintainer; no source was changed for this run."
+  },
+  "privacyScan": "No absolute user paths, HTTP endpoints, pairing codes, control tokens or credentials in any archived file; launcher and parent local paths withheld",
+  "limitations": [
+    "Failed run: not passed-windows-native-local; acceptance boxes on #18 remain unchecked",
+    "Not physical cross-host Mac-to-Windows",
+    "No real model; loopback fixed-response fixture only",
+    "No host network monitoring claim",
+    "No hard-crash recovery claim",
+    "Root-cause diagnostics use the historical R4 probe, not the new acceptance runner; they isolate the environment variable but do not capture the raw tool_result text (sanitized out by design)"
+  ]
+}

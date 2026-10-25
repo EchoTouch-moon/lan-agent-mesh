@@ -2,7 +2,9 @@
 
 **A peer-to-peer local network for existing AI agent harnesses.** Discover, wake, message and delegate work across macOS and Windows while keeping each harness and machine's native execution permissions.
 
-> **Status (2026-10-24):** The P1 encrypted Gateway, Windows W1/W2 reports, scoped MCP-to-Mock tools and Windows private-storage checks are integrated into `main` through [PR #44](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/44). [Post-merge CI](https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40090060616) passed on macOS/Windows × Node 22/24. Windows host ACL revalidation passed and its [Windows host evidence](docs/evidence/security/windows-private-win-priv-20261024T145925Z/SUMMARY.md) was merged through [PR #46](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/46). **Physical Mac↔Windows W3, native Harness adapters and human approval remain incomplete; real Harness execution is not authorized by this evidence.** See [integration review](docs/INTEGRATION_REVIEW_2026-10-24.md) and the [next-phase plan](docs/NEXT_PHASE_2026-10-24.md).
+> **Main baseline:** The P1 encrypted Gateway, scoped MCP-to-Mock tools and native Windows private-storage gate were integrated through [PR #44](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/44); [Windows host ACL evidence](docs/evidence/security/windows-private-win-priv-20261024T145925Z/SUMMARY.md) was merged through [PR #46](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/46).
+>
+> **This integration candidate:** Codex/DSH fixture adapters, registry liveness and durable-reply fixes, and both physical Mock rounds are combined for review. Historical native/physical reports retain their actual execution sources; they do not prove the new combined source ran those cases. Real Harness-to-Harness cross-host calls, production model use, GUI attachment and the human approval bridge remain incomplete. See the [candidate manifest and validation boundaries](docs/P2_CANDIDATE_INTEGRATION.md).
 
 ## Goal
 
@@ -71,6 +73,8 @@ Workspace layout:
 - `packages/protocol`: versioned typed messages, errors and UTF-8 size limits.
 - `packages/adapter-sdk`: capability-gated inbound control contract.
 - `packages/mock-adapter`: deterministic sessions, streaming, scoped mock permissions, cancellation and fault injection.
+- `packages/codex-adapter`: [Mac App Server fixture slice](docs/CODEX_ADAPTER.md), owned threads, native deny and durable UNKNOWN; Windows/physical cross-host/production acceptance remains open.
+- `packages/dsh-adapter`: [Windows desktop ACP fixture slice](docs/DSH_ADAPTER.md), explicit PowerShell 7, native permission denial, durable sessions and [source-pinned acceptance](docs/DSH_WINDOWS_ACCEPTANCE.md).
 - `packages/storage`, `packages/mesh`, `packages/runtime`: persistent paired Gateway with bounded task/session routing.
 - `packages/mcp-contract`, `packages/mcp-server`: scoped local stdio tools for remote Mock sessions.
 - `packages/private-storage`: fail-closed Windows native ACL checks and POSIX private-mode checks.
@@ -109,3 +113,5 @@ node packages/mcp-server/dist/cli.js --credentials <explicit-private-credential-
 ```
 
 No existing host configuration is changed automatically. The caller chain is validated against a paired remote Mock; Codex/ACP native adapters and physical cross-host acceptance remain separate tasks.
+
+The candidate [DSH fixture Adapter](docs/DSH_ADAPTER.md) adds private owned-process/session/task management on ACP. Its implementation tests include a synthetic peer behind encrypted loopback Gateways; the new adapter's installed Windows DSH and physical cross-host acceptance are still pending.

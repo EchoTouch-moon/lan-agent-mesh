@@ -5,7 +5,7 @@ import { MeshError, type PermissionDecision, type PermissionRequest } from '@lam
 export { MeshError } from '@lam/protocol';
 export type { PermissionDecision, PermissionRequest } from '@lam/protocol';
 export type Agent = ReturnType<typeof AgentSchema.parse>;
-export interface ProbeResult { available: boolean; version: string; capabilities: Capabilities }
+export interface ProbeResult { available: boolean; version: string; capabilities: Capabilities; kind?: 'codex' | 'dsh' | 'zcode' | 'workbuddy' | 'mock' }
 export interface SpawnInput { agentId: string; workspaceAlias: string }
 export interface SendInput {
   sessionId: string; taskId: string; text: string; idempotencyKey: string; deadline: string;
@@ -27,7 +27,7 @@ export type AdapterOperations = {
   // Caller must authenticate/authorize the human BEFORE invoking this hook.
   answerPermission: (decision: PermissionDecision) => Promise<void>;
 };
-export interface HarnessAdapter extends AdapterOperations { probe(): Promise<ProbeResult> }
+export interface HarnessAdapter extends AdapterOperations { probe(): Promise<ProbeResult>; close?(): Promise<void> }
 export function negotiateCapabilities(local: Capabilities, remote: Capabilities): Capabilities {
   const result = { ...CapabilitiesSchema.parse(local) };
   CapabilitiesSchema.parse(remote);

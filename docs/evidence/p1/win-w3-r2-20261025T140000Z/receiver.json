@@ -1,0 +1,143 @@
+{
+  "kind": "operator receiver; physical claim requires counterpart review",
+  "testedSourceSha": "8c6b4c614140280a0b990a4e80db858c41e3be75",
+  "sourceCleanBeforeStart": true,
+  "platform": "win32",
+  "node": "v24.12.0",
+  "startedUtc": "2026-10-25T14:19:58.805Z",
+  "status": "passed",
+  "results": {
+    "receiver": {
+      "nodeIdSha256": "82fd7096933a45efe9d33f0ff30c53c35edb4e7d00a86afe93c0db9e695f4e38",
+      "peers": [
+        {
+          "nodeIdSha256": "65918c79f2a5577e3afeeb0cdbdad1be59ea327ebac01770520319ce88097ba2",
+          "platform": "darwin"
+        }
+      ],
+      "deliveries": [
+        {
+          "peerIdSha256": "65918c79f2a5577e3afeeb0cdbdad1be59ea327ebac01770520319ce88097ba2",
+          "text": "w3-fault ack fixture",
+          "envelopeSha256": "99b178f54ea274164bb9bb99d9e92707f9a09bc1c1ab19922c1c3a9040846162",
+          "replySha256": "7b1f9fa8bdedcb6716bcae467db97b9109d8ae8a001eac6b64621d7508852aa2",
+          "replyOutcomeSha256": "c481874e98d6c4c8122d30997a86f6a50d8a075715bb5bb3d94522f0c9274bb0",
+          "at": "2026-10-25T15:19:32.068Z",
+          "taskIdSha256": "14e5a0de997c17c9737225faad6c6c25e9202a1b519f77e10c280d3cb749d3d4"
+        },
+        {
+          "peerIdSha256": "65918c79f2a5577e3afeeb0cdbdad1be59ea327ebac01770520319ce88097ba2",
+          "text": "w3-fault ack fixture",
+          "envelopeSha256": "99b178f54ea274164bb9bb99d9e92707f9a09bc1c1ab19922c1c3a9040846162",
+          "replySha256": "7b1f9fa8bdedcb6716bcae467db97b9109d8ae8a001eac6b64621d7508852aa2",
+          "replyOutcomeSha256": "c481874e98d6c4c8122d30997a86f6a50d8a075715bb5bb3d94522f0c9274bb0",
+          "at": "2026-10-25T15:19:52.749Z",
+          "taskIdSha256": "14e5a0de997c17c9737225faad6c6c25e9202a1b519f77e10c280d3cb749d3d4"
+        },
+        {
+          "peerIdSha256": "65918c79f2a5577e3afeeb0cdbdad1be59ea327ebac01770520319ce88097ba2",
+          "text": "w3-fault cancel fixture",
+          "envelopeSha256": "26f0ad065fb553b464c20ab2064b0e425c1bf2eda6a503a33bf9372dd0fc93aa",
+          "replySha256": "0a4049d923b617e899b1b0f31e79fe40d8dc576c7c68db8595bd135c96e1d6af",
+          "replyOutcomeSha256": "1a4cd50332653e6f34f8b3e39f2a9072884a90680de21881b2fd7780b573a7d1",
+          "at": "2026-10-25T15:19:53.950Z",
+          "taskIdSha256": "bd9a7b587532e8330a06b9be50876d0e12f7a06943be3ed05186a110de693acc"
+        }
+      ],
+      "tasks": [
+        {
+          "taskIdSha256": "14e5a0de997c17c9737225faad6c6c25e9202a1b519f77e10c280d3cb749d3d4",
+          "state": "COMPLETED",
+          "eventTypes": [
+            "started",
+            "delta",
+            "delta",
+            "completed"
+          ],
+          "events": [
+            {
+              "type": "started",
+              "taskIdSha256": "14e5a0de997c17c9737225faad6c6c25e9202a1b519f77e10c280d3cb749d3d4"
+            },
+            {
+              "type": "delta",
+              "taskIdSha256": "14e5a0de997c17c9737225faad6c6c25e9202a1b519f77e10c280d3cb749d3d4",
+              "text": "mock:"
+            },
+            {
+              "type": "delta",
+              "taskIdSha256": "14e5a0de997c17c9737225faad6c6c25e9202a1b519f77e10c280d3cb749d3d4",
+              "text": "w3-fault ack fixture"
+            },
+            {
+              "type": "completed",
+              "taskIdSha256": "14e5a0de997c17c9737225faad6c6c25e9202a1b519f77e10c280d3cb749d3d4",
+              "text": "mock:w3-fault ack fixture"
+            }
+          ]
+        },
+        {
+          "taskIdSha256": "bd9a7b587532e8330a06b9be50876d0e12f7a06943be3ed05186a110de693acc",
+          "state": "CANCELLED",
+          "eventTypes": [
+            "started",
+            "cancelled"
+          ],
+          "events": [
+            {
+              "type": "started",
+              "taskIdSha256": "bd9a7b587532e8330a06b9be50876d0e12f7a06943be3ed05186a110de693acc"
+            },
+            {
+              "type": "cancelled",
+              "taskIdSha256": "bd9a7b587532e8330a06b9be50876d0e12f7a06943be3ed05186a110de693acc"
+            }
+          ]
+        }
+      ],
+      "revocations": [
+        {
+          "peerIdSha256": "65918c79f2a5577e3afeeb0cdbdad1be59ea327ebac01770520319ce88097ba2",
+          "cachedBefore": 0,
+          "cachedAfter": 0,
+          "cacheWasPopulatedDuringRun": true,
+          "registryRefused": true
+        }
+      ]
+    }
+  },
+  "cleanup": [
+    {
+      "role": "receiver",
+      "gatewayStopped": true,
+      "portsReleased": true,
+      "dataRemoved": true,
+      "preparedIdentityPreservedForRunner": false
+    }
+  ],
+  "externalModels": 0,
+  "sourceSha256": {
+    "packages/runtime/src/index.ts": "c3dde0fdf25dbd95fd6cc37f441c7cf487c1dd19dea43312bc8501d5e431e622",
+    "packages/runtime/src/router.ts": "54ca41ed6ee87689e71d353755ab18c363c9af56da2d50062f828e1ab7bbf3bd",
+    "packages/runtime/src/sessions.ts": "e65be9985c69452bf146aa11d70278d7ff4008a309d6350f0db146d1f86f6a5e",
+    "packages/mesh/src/index.ts": "04a836465e6710d7ff5635f96b6e9d9dda9bb3e7188930e9dbb3245a9e5f81ff",
+    "packages/storage/src/index.ts": "f9869b333dfd8429b5c64a8f7879d7f573f27f0bdbaf96f19b295fa38eabced6",
+    "packages/mock-adapter/src/index.ts": "7de304a6dc00994b15ec3418599d3be346cdd1f78ad2f8c0340269898e37aa1a"
+  },
+  "distSha256": {
+    "packages/runtime/dist/index.js": "09f8dcb8893dbdfb4eed46c8c4fb438f472716a76a19ef7d09c26d0c84e231a3",
+    "packages/runtime/dist/router.js": "7ddf3b659ef268cd1dcc570eaa536b7a4513ff9e1edbaf9a16e5117c58c1ee00",
+    "packages/runtime/dist/sessions.js": "8b2110ab7f4afdf10721fdcafcf2a4df7cde10c9fa2d1d64dbddc558248375b1",
+    "packages/mesh/dist/index.js": "639f88da6f2d0edc1027b3699e21b0d2559391e6fc09f8c51497000f8006f548",
+    "packages/storage/dist/index.js": "eb6adfe2e278727f48ed02eabe8cdf9ada24fce043f378f8b1e0b1f0669967f0",
+    "packages/mock-adapter/dist/index.js": "9f431c73f22e7211a61e7cb13a9af1c6649358993cd25787fba5d9dea5419a11"
+  },
+  "probeWorkingBytesSha256": "4b7214e5a9770f454f39e1ec59124c61d7d308f090c735cee72cc0790fbb02df",
+  "nodeIdSha256": "82fd7096933a45efe9d33f0ff30c53c35edb4e7d00a86afe93c0db9e695f4e38",
+  "operatorWindow": {
+    "waitMs": 13210404,
+    "expiresUtc": "2026-10-25T18:00:10.662Z"
+  },
+  "stopReason": "control_shutdown",
+  "endedUtc": "2026-10-25T15:28:11.649Z"
+}

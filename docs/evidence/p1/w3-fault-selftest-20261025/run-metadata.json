@@ -1,0 +1,37 @@
+{
+  "testedSourceSha": "a65ec3e58837152df854186a0cdaf82f6a4a0f19",
+  "sourceCleanBeforeRun": true,
+  "scriptCommittedAndPushedBeforeRun": true,
+  "reports": {
+    "fast": {
+      "sha256": "dfefe36a42a336462a0d453fd012b190b5f0f53a204d3c2c84a820f09c8816eb",
+      "startedUtc": "2026-10-24T17:01:10.988Z",
+      "endedUtc": "2026-10-24T17:01:15.310Z",
+      "receiverDelayMs": 1000,
+      "commandExitCode": 0
+    },
+    "slow": {
+      "sha256": "9dc39eff5bc069febae538538200abd9ae0e81d6a85378df970e1e397f6f7943",
+      "startedUtc": "2026-10-24T17:01:10.988Z",
+      "endedUtc": "2026-10-24T17:01:33.355Z",
+      "receiverDelayMs": 10000,
+      "commandExitCode": 0
+    }
+  },
+  "sourceCi": {
+    "url": "https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40114103895",
+    "conclusion": "success",
+    "matrix": [
+      "macos/22",
+      "macos/24",
+      "windows/22",
+      "windows/24"
+    ]
+  },
+  "scope": "same-host self-tests only; physical W3 still pending",
+  "developmentNotes": [
+    "First committed revision 9ba7906 failed before Gateway startup because trim() removed a legitimate trailing space in the repository path; 0fbf296 preserves the path.",
+    "Subsequent committed revisions strengthened ownership-transfer/close lifecycle, slow polling budget and task-bound receiver acceptance. Original Git history is preserved.",
+    "The passed execution source is a65ec3e. The source CI runs the standard-speed self-test; the 10000ms physical-delay shape was exercised locally as a separate self-test."
+  ]
+}

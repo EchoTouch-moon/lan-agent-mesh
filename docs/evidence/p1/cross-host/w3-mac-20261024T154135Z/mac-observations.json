@@ -1,0 +1,122 @@
+{
+  "kind": "physical macOS to Windows W3 operator observations",
+  "status": "partial",
+  "testedSourceSha": "d226c2cc4bdea624e3807078a5b17f29aa380fa9",
+  "sourceCleanBeforeStart": true,
+  "startedUtc": "2026-10-24T15:41:35Z",
+  "endedUtc": "2026-10-24T16:26:26.232807+00:00",
+  "platform": "darwin",
+  "osVersion": "27.0",
+  "nodeVersion": "v22.23.2",
+  "pnpmVersion": "10.18.3",
+  "externalModelRequests": 0,
+  "results": {
+    "mdnsDiscovery": {
+      "status": "not_observed",
+      "fallback": "manual address verified against expected peer ID"
+    },
+    "humanPairing": {
+      "status": "verified",
+      "expiredFirstConfirmRefused": true,
+      "secondCodeComparedByHuman": true,
+      "bothNativeSidesConfirmed": true
+    },
+    "macToWindows": {
+      "status": "verified",
+      "terminal": "COMPLETED",
+      "exactText": "mock:cross-host fixture",
+      "eventTypes": [
+        "started",
+        "delta",
+        "delta",
+        "completed"
+      ],
+      "finalCursorDrained": true,
+      "sameTaskKeyDeadlineOnRetry": true,
+      "resumeNativeIdentityUnchanged": true,
+      "receiverDuplicateExecutionCount": "awaiting Windows evidence PR",
+      "taskIdSha256": "6c14f32d343431998075eee681998c429259f328df34353a7ad87b11ecd91f2c",
+      "nativeSessionIdSha256": "cf6c66b472e89b379d29073d9da1f04bca1fdfc1b3a9828ee721962a9ca13780"
+    },
+    "windowsToMac": {
+      "status": "verified",
+      "receiverTasks": [
+        {
+          "taskIdSha256": "a1fed916b34630fe1daed40b1e680c123b8c63e781b305f194aa71fda54903e1",
+          "state": "COMPLETED",
+          "eventCount": 4,
+          "acceptedReceipts": 1
+        },
+        {
+          "taskIdSha256": "c7c27664ec3db720692800f43b72875ef36468075597eb2bd377f60605b289cb",
+          "state": "COMPLETED",
+          "eventCount": 4,
+          "acceptedReceipts": 1
+        },
+        {
+          "taskIdSha256": "228445fd38593dff9f469c9b7f2647a64ad775c9c604cd12fdf5de5d0f2a8991",
+          "state": "COMPLETED",
+          "eventCount": 4,
+          "acceptedReceipts": 2
+        },
+        {
+          "taskIdSha256": "5a451e506546c8e0ea6260c4f4656302b3ade7b7feb98a9fe06f1944d7f7630e",
+          "state": "UNKNOWN",
+          "eventCount": 2,
+          "acceptedReceipts": 2
+        }
+      ],
+      "correctedExactRetry": {
+        "state": "COMPLETED",
+        "acceptedReceipts": 2,
+        "eventCount": 4
+      },
+      "oldMockResumeAfterRestart": "Windows reports not_found; no fresh context created"
+    },
+    "receiverCrash": {
+      "status": "verified",
+      "beforeSignal": "RUNNING",
+      "signal": "SIGKILL",
+      "oldGatewayExitCode": 137,
+      "nodeIdentityAndFingerprintUnchanged": true,
+      "recoveredState": "UNKNOWN",
+      "eventTypes": [
+        "started",
+        "unknown"
+      ],
+      "acceptedReceiptsAfterExactRetry": 2,
+      "eventCountAfterExactRetry": 2,
+      "observedAfterRetryUtc": "2026-10-24T16:24:36.896Z"
+    },
+    "revoke": {
+      "status": "verified",
+      "localRegistryAfterRevoke": "permission_denied",
+      "cliExitCode": 1
+    },
+    "actualLostAckInjection": {
+      "status": "pending",
+      "reason": "Same-input retry was exercised, not a controlled delivery ACK discard"
+    },
+    "inFlightCancellation": {
+      "status": "pending",
+      "reason": "Windows cancellation attempt ended COMPLETED; no CANCELLED observation"
+    }
+  },
+  "cleanup": {
+    "ownFinalGatewayExitCode": 0,
+    "tcp48731Released": true,
+    "controlAndLockRemoved": true,
+    "ownGatewayDataRemoved": true,
+    "identityKeyControlTokenDatabaseNotArchived": true
+  },
+  "windowsEvidenceReview": "pending",
+  "limitations": [
+    "Operator used committed CLI/API at the fixed source, with one-shot local control/readonly SQLite commands rather than a dedicated committed W3 probe.",
+    "Some early combined shell commands did not retain separate CLI subcommand exit codes. Their original JSON is preserved privately; no exit code is invented.",
+    "A failed remote registry immediately before cleanup returned invalid_message; that is not labeled an authorization refusal.",
+    "Only the explicit post-local-revoke permission_denied is claimed as the cleanup access denial.",
+    "Reports do not contain endpoints, user paths, pairing codes, control credentials, identity keys or databases."
+  ],
+  "nodeIdSha256": "2c2d88ca6b26cb8ce0d95ddaa5e86da3e2045b7dab87f0cd4116273cb5a79a97",
+  "peerIdSha256": "6f8b9ef36288df925058985affe728c66bc16c1145d1a80d60655f778453aa96"
+}

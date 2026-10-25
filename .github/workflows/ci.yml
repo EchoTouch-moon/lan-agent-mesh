@@ -14,6 +14,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -37,8 +39,19 @@ jobs:
       - run: node apps/cli/dist/index.js
       - name: P1 independent Gateway process smoke
         run: node scripts/p1-process-smoke.mjs
+      - name: W3 fault probe same-host self-test (not physical evidence)
+        run: node scripts/p1-w3-fault-probe.mjs --self-test
       - name: P2 actual stdio MCP to remote Mock smoke
         run: node packages/mcp-server/dist/smoke.js
+      - name: DSH acceptance runner synthetic self-test (not installed DSH)
+        run: node packages/dsh-adapter/dist/smoke.js --self-test --expected-source "${{ github.sha }}" --output "${{ runner.temp }}/dsh-acceptance-synthetic.json"
+      - name: Preserve sanitized DSH synthetic acceptance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dsh-acceptance-synthetic-${{ matrix.os }}-node-${{ matrix.node }}
+          path: ${{ runner.temp }}/dsh-acceptance-synthetic.json
+          if-no-files-found: ignore
       - run: node scripts/check-rpc-probe.mjs
       - run: node scripts/check-windows-evidence-probes.mjs
       - name: Validate Windows helper scripts
