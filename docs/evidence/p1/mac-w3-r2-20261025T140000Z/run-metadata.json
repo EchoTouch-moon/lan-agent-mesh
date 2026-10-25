@@ -3,7 +3,7 @@
   "testedSourceSha": "8c6b4c614140280a0b990a4e80db858c41e3be75",
   "sourceCleanAtRoleStart": true,
   "evidenceKind": "physical-cross-host-mock-caller-half",
-  "status": "mac-runner-passed-awaiting-receiver-cross-review",
+  "status": "mac-runner-passed-receiver-cross-reviewed",
   "host": { "platform": "darwin", "node": "v22.23.2", "pnpm": "10.18.3" },
   "plannedWindowUtc": { "start": "2026-10-25T14:00:00Z", "end": "2026-10-25T18:00:00Z" },
   "roles": [
@@ -27,5 +27,15 @@
     { "file": "runner.json", "sha256": "3e7020278cd8ce4f1374c865861b80a89ddf0423b1ada275edf235c3f28b39a5" }
   ],
   "privacy": "Only original sanitized role reports copied; raw operator outputs stay private. No private endpoints, full pairing values, user paths, credentials, identity keys or databases published.",
-  "limitations": ["Await Windows receiver report and independent exit/cleanup evidence", "Not a single-SHA rerun of all first-round cases", "No native Harness, GUI, real model, packet-loss capture or hard-crash claim", "No merge or issue-close performed"]
+  "counterpartReview": {
+    "pullRequest": 62,
+    "reviewedCommit": "0068e6248d33b6f205c5841d8d6a24f83e7a4fdd",
+    "receiverReportSha256": "d098b993b7049efaa7bb941559939d82378ca4f9beef4e482b927bca0de6e35f",
+    "matchingDeliveriesAndFullEvents": true,
+    "receiverProcessExitCode": 0,
+    "receiverCleanupVerified": true,
+    "windowsAuxiliaryCommandExitCodes": "unknown: shell pipeline tail exit was captured instead of each underlying process",
+    "exactWindowsPairingTime": null
+  },
+  "limitations": ["Windows auxiliary command exit codes and exact pairing timestamp not independently retained", "Not a single-SHA rerun of all first-round cases", "No native Harness, GUI, real model, packet-loss capture or hard-crash claim", "No merge or issue-close performed"]
 }
