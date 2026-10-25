@@ -1,0 +1,44 @@
+{
+  "runId": "windows-native-local-20261025T1614Z",
+  "testedSourceSha": "5fed1448337d82f72972270c99447205f02ea2d7",
+  "sourceClean": true,
+  "evidenceKind": "windows-native-local",
+  "status": "passed-windows-native-local",
+  "task": "W-DSH-03 (composed candidate same-source native re-verification, claimed at #18 comment 6399996607)",
+  "host": {
+    "platform": "win32",
+    "operatingSystem": "Windows 10.0.22621 x64",
+    "node": "v24.12.0",
+    "pnpm": "10.18.3",
+    "powerShell": "7.6.5 (verified explicit canonical pwsh.exe, major 7)"
+  },
+  "launcher": { "kind": "installed desktop 0.2.1-rc.2 bundled dsh.cmd (local path withheld)", "sha256": "c6c38be7f9f66a7bfb96d5ac9490618f9713df5ffb552cb7e66b831affb20ab9" },
+  "powerShellExecutableSha256": "362a356ce7f0940ec74f73a8fc2c990a2cc24a38a11c90bbd8eca947110ad139",
+  "hashesMatchW02Record": true,
+  "parent": "G2 operator-managed exclusive parent re-verified via native private-storage gate before the run (five stages verified)",
+  "exitCodeMethod": "Every command's exit code below is the real child-process exit status captured immediately after direct invocation with output redirected to a file (no grep/tail pipeline end)",
+  "commands": [
+    { "command": "git clone (full history) + git checkout 5fed1448337d82f72972270c99447205f02ea2d7", "cloneExitCode": 0, "checkoutExitCode": 0 },
+    { "command": "pnpm install --frozen-lockfile", "exitCode": 0 },
+    { "command": "pnpm build", "exitCode": 0 },
+    { "command": "pnpm typecheck", "exitCode": 0 },
+    { "command": "node packages/mcp-server/dist/windows-private-smoke.js --parent [G2_PARENT] --output [PARENT_PRECHECK_JSON]", "exitCode": 0, "result": "status=passed, five stages verified, cleanup verified" },
+    { "command": "node packages/dsh-adapter/dist/smoke.js --expected-source 5fed1448337d82f72972270c99447205f02ea2d7 --parent [G2_PARENT] --launcher [VERIFIED_DSH_CMD] --launcher-sha256 c6c38be7... --pwsh [VERIFIED_PWSH_EXE] --pwsh-sha256 362a356c... --output [NEW_ABSOLUTE_REPORT] (native mode, no --self-test)", "exitCode": 0, "result": "passed-windows-native-local" }
+  ],
+  "mainReport": {
+    "file": "dsh-adapter-native-w03-20261025T161412.json",
+    "sha256": "7633e22b62ba738f678fea51d563432be63543f9e9cadb1b67fc78fdd117fc0a"
+  },
+  "passedStages": ["sendStreamAndRetry", "restartResume", "permissions", "inFlightCancel", "shutdownUnknown", "mcpMesh"],
+  "permissionsDetail": { "control": true, "rejectedOnce": true, "sandboxDenied": true, "markerExists": false, "permissionStages": 2, "pwshAdvertised": true, "simulatedSandbox": false },
+  "cleanup": { "complete": true, "rootRemoved": true, "fixtureClosed": true, "retainedForInspection": false },
+  "priorRuns": "W-DSH-01 failed run (60e6e88, PR #58) and W-DSH-02 passed run (97a4be8, PR #60) both preserved unedited; this run verifies the composed candidate 5fed144 only",
+  "privacyScan": "No absolute user paths, HTTP endpoints, pairing codes, control tokens or credentials in the archived report; launcher/pwsh/parent local paths withheld",
+  "limitations": [
+    "Not physical cross-host Mac-to-Windows (same-host loopback fixture endpoints only)",
+    "No real model; fixed-response loopback fixture only",
+    "No host network monitoring claim",
+    "No hard-crash recovery claim",
+    "GUI attachment, DSH outbound MCP, and #15 physical window not exercised; no W3 pairing reuse"
+  ]
+}
