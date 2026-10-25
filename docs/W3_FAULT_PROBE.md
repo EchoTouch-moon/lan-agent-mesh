@@ -5,7 +5,7 @@
 ## 语义和判定
 
 - **ACK 故障点**：调用方已通过真实 Mesh 收到与原 request/task/双方身份对应的 `task.accepted`，在 `sendEnvelope` 将 outbox 标记 ACK 之前受控丢弃回执。它是调用方 API 边界的故障注入，**不声称抓包证实网络丢包**。原始完整 envelope 必须仍在 durable outbox，`retry` 必须复用它，完成后 outbox 清除、原 task 的完整事件不增加。
-- **接收方交叉记录**：观察钩子位于原生配对认证之后，完整调用原始业务处理器，不跳过认证/去重。记录每次实际接受的固定 fixture 请求及响应摘要；重复 envelope 必须有相同请求和缓存响应摘要，只有一个逻辑 COMPLETED task。仅复制摘要、固定测试文本、task ID 哈希和事件类型，不输出密钥、Token 或配对码。
+- **接收方交叉记录**：观察钩子位于原生配对认证之后，完整调用原始业务处理器，不跳过认证/去重。重复 envelope 必须有相同请求摘要、同一缓存业务结果（含双方身份、关联、task、type、payload），只有一个逻辑 COMPLETED task。过期的传输回执可以更新 messageId/deadline，完整字节摘要也保留，但不要求旧传输时效继续有效。仅复制摘要、固定测试文本、task ID 哈希和事件，不输出密钥、Token 或配对码。
 - **在途取消**：独立 session/task，首先观察真实 RUNNING/started，才发 `task.cancel`；必须收到 CANCELLED/cancelled 且没有 completed。晚到的 COMPLETED 是失败，不能改标 cancelled。实体接收方每块延迟10000ms，本机自测1000ms。
 - **撤销/缓存**：调用方在缓存仍有卡片时 revoke，之后 registry 必须 permission_denied、卡片不可用。接收方记录运行中曾填充卡片、操作者显式 revoke 时的前后计数及拒绝；若对端已先断连使卡片失效，`cachedBefore=0` 如实保留，不冒充自己 revoke 独立导致了这次变化。
 
@@ -20,6 +20,8 @@ pnpm build
 node scripts/p1-w3-fault-probe.mjs --self-test
 # 可选：按实体接收方的最大延迟验证轮询和限流余量
 node scripts/p1-w3-fault-probe.mjs --self-test --self-test-delay-ms 10000
+# 可选：真实等到旧 ACK 的30秒有效期结束，验证缓存结果重发、任务不重做
+node scripts/p1-w3-fault-probe.mjs --self-test --self-test-ack-age-ms 31000
 ```
 
 自测只创建两个临时 loopback Mock 节点，自动配对仅发生在这两个自己创建的节点之间；报告明确标为 same-host，CI 也不把它算成实体 W3。

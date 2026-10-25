@@ -16,13 +16,15 @@ const { values } = parseArgs({ options: {
   'self-test': { type: 'boolean' }, help: { type: 'boolean' }, role: { type: 'string' },
   data: { type: 'string' }, output: { type: 'string' }, peer: { type: 'string' }, address: { type: 'string' },
   'expected-source': { type: 'string' }, 'peer-platform': { type: 'string' },
-  'wait-ms': { type: 'string' }, listen: { type: 'string' }, 'self-test-delay-ms': { type: 'string' },
+  'wait-ms': { type: 'string' }, listen: { type: 'string' }, 'self-test-delay-ms': { type: 'string' }, 'self-test-ack-age-ms': { type: 'string' },
 } });
 if (values.help) {
   console.log('Build first. --self-test | --role prepare|receiver|runner --data <outside-repo private directory> --output <new private report> --expected-source <full SHA> [--peer ID --address host:port --peer-platform win32|darwin] [--listen /ip4/0.0.0.0/tcp/48731] [--wait-ms 1200000]');
   process.exit(0);
 }
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+// A refreshed transport ID/deadline may differ; every business/correlation/identity field must match.
+const outcomeSha = reply => sha(JSON.stringify(Object.fromEntries(Object.entries(reply).filter(([key]) => !['messageId', 'deadline'].includes(key)))));
 const repository = resolve(fileURLToPath(new globalThis.URL('..', import.meta.url)));
 assert.equal(resolve(execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).replace(/\r?\n$/, '')), repository, 'Run from this repository');
 assert.equal(execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim(), '', 'Commit and push probe source before execution');
@@ -88,7 +90,7 @@ function observe(g) {
     const result = await original(peer, body); // Authentication and real routing remain in force.
     if (body?.kind === 'envelope' && body.value?.type === 'task.request' && [ACK_TEXT, CANCEL_TEXT].includes(body.value.payload?.text) && result?.type === 'task.accepted') {
       deliveries.push({ peerIdSha256: sha(peer), text: body.value.payload.text, taskId: body.value.taskId,
-        envelopeSha256: sha(JSON.stringify(body.value)), replySha256: sha(JSON.stringify(result)), at: new Date().toISOString() });
+        envelopeSha256: sha(JSON.stringify(body.value)), replySha256: sha(JSON.stringify(result)), replyOutcomeSha256: outcomeSha(result), at: new Date().toISOString() });
       if (deliveries.length > 64) throw new Error('Probe receipt capacity');
       // Populate the real private-card cache while this authenticated peer is online.
       const registry = await g.sync(peer);
@@ -120,7 +122,7 @@ async function collect(g, peer, taskId, predicate = b => ['COMPLETED', 'CANCELLE
   }
   throw new Error('Bounded event wait expired');
 }
-async function faultCases(g, peer, address, peerPlatform) {
+async function faultCases(g, peer, address, peerPlatform, minimumAckAgeMs = 0) {
   stage = 'trusted_mock_peer';
   assert.equal(g.mesh.trusted(peer), true, 'Human pairing must precede physical runner; no auto-confirm');
   if (address) await g.mesh.connect(address, peer);
@@ -133,14 +135,14 @@ async function faultCases(g, peer, address, peerPlatform) {
   const request = g.envelope(peer, 'task.request', { sessionId: session.id, text: ACK_TEXT, workspaceAlias: 'project-a', delegationDepth: 0 }, taskId, agent.id);
   request.deadline = new Date(Date.now() + 240000).toISOString();
   stage = 'discard_delivery_ack';
-  const real = g.mesh.request.bind(g.mesh); let dropped = false;
+  const real = g.mesh.request.bind(g.mesh); let dropped = false, firstReply, discardedAt;
   g.mesh.request = async (target, body) => {
     const value = await real(target, body);
     if (!dropped && target === peer && body?.kind === 'envelope' && body.value?.messageId === request.messageId) {
       const reply = decodeEnvelope(encodeEnvelope(value));
       assert.equal(reply.type, 'task.accepted'); assert.equal(reply.source.nodeId, peer);
       assert.equal(reply.target.nodeId, g.mesh.id); assert.equal(reply.correlationId, request.messageId);
-      assert.equal(reply.taskId, taskId); dropped = true;
+      assert.equal(reply.taskId, taskId); dropped = true; firstReply = reply; discardedAt = Date.now();
       throw new Error('W3_CONTROLLED_ACK_DISCARD');
     }
     return value;
@@ -152,12 +154,16 @@ async function faultCases(g, peer, address, peerPlatform) {
   assert.ok(pending); assert.deepEqual(pending.message, request);
   const first = await collect(g, peer, taskId);
   assert.equal(first.state, 'COMPLETED'); assert.equal(first.events.at(-1).text, `mock:${ACK_TEXT}`);
+  await delay(Math.max(0, minimumAckAgeMs - (Date.now() - discardedAt)));
   stage = 'retry_original_outbox_envelope';
-  await g.command('retry', { messageId: request.messageId });
+  const retried = await g.command('retry', { messageId: request.messageId });
+  assert.equal(outcomeSha(retried), outcomeSha(firstReply));
+  if (minimumAckAgeMs >= 31000) assert.notEqual(retried.messageId, firstReply.messageId, 'Expired transport reply needs a fresh identity');
   assert.equal(g.store.pending().some(p => p.id === request.messageId), false);
   assert.deepEqual(await collect(g, peer, taskId), first);
   report.results.deliveryAckDiscard = { status: 'verified', injection: 'caller API boundary after correlated real acceptance, before durable outbox ACK; no packet-loss claim',
     originalEnvelopeSha256: sha(JSON.stringify(request)), taskIdSha256: sha(taskId), outboxRetainedThenCleared: true, identicalEventsAfterRetry: true,
+    minimumAckAgeMs, businessOutcomeSha256: outcomeSha(retried), transportReplyRefreshed: retried.messageId !== firstReply.messageId,
     eventTypes: first.events.map(e => e.type), events: publicEvents(first.events) };
   stage = 'in_flight_cancel';
   const secondSession = await g.spawn(peer, agent.id, 'project-a'), cancelId = randomUUID();
@@ -194,7 +200,7 @@ function receiverVerified(r) {
   const ack = r.deliveries.filter(d => d.text === ACK_TEXT), cancel = r.deliveries.filter(d => d.text === CANCEL_TEXT);
   if (ack.length !== 2 || cancel.length !== 1 || r.tasks.length !== 2 ||
       ack[0].taskIdSha256 !== ack[1].taskIdSha256 || ack[0].taskIdSha256 === cancel[0].taskIdSha256 ||
-      ack[0].envelopeSha256 !== ack[1].envelopeSha256 || ack[0].replySha256 !== ack[1].replySha256) return false;
+      ack[0].envelopeSha256 !== ack[1].envelopeSha256 || ack[0].replyOutcomeSha256 !== ack[1].replyOutcomeSha256) return false;
   const completed = r.tasks.find(t => t.taskIdSha256 === ack[0].taskIdSha256);
   const cancelled = r.tasks.find(t => t.taskIdSha256 === cancel[0].taskIdSha256);
   return completed?.state === 'COMPLETED' && JSON.stringify(completed.eventTypes) === JSON.stringify(['started', 'delta', 'delta', 'completed']) &&
@@ -226,6 +232,8 @@ try {
     temporaryRoot = mkdtempSync(join(tmpdir(), 'LAM W3 self-test & '));
     const receiverDelay = Number(values['self-test-delay-ms'] ?? 1000);
     assert.ok(Number.isInteger(receiverDelay) && receiverDelay >= 1000 && receiverDelay <= 10000);
+    const minimumAckAge = Number(values['self-test-ack-age-ms'] ?? 0);
+    assert.ok(Number.isInteger(minimumAckAge) && minimumAckAge >= 0 && minimumAckAge <= 60000);
     let a = await start(join(temporaryRoot, 'caller'), 'prepare', '/ip4/127.0.0.1/tcp/0', 1000);
     const b = await start(join(temporaryRoot, 'receiver'), 'self-test', '/ip4/127.0.0.1/tcp/0', receiverDelay);
     report.selfTestReceiverDelayMs = receiverDelay;
@@ -244,10 +252,10 @@ try {
     assert.equal(a.gateway.mesh.id, preparedId);
     assert.equal(a.gateway.mesh.trusted(b.gateway.mesh.id), true);
     report.results.prepareRunnerAdoption = { status: 'verified', identityAndTrustPreserved: true, automaticPairingLimitedToOwnedLoopbackNodes: true };
-    await faultCases(a.gateway, b.gateway.mesh.id, b.gateway.mesh.addresses[0]);
+    await faultCases(a.gateway, b.gateway.mesh.id, b.gateway.mesh.addresses[0], undefined, minimumAckAge);
     await b.gateway.command('revoke', { peer: a.gateway.mesh.id });
     const observed = snapshot(observer), ack = observed.deliveries.filter(d => d.text === ACK_TEXT);
-    assert.equal(ack.length, 2); assert.equal(ack[0].envelopeSha256, ack[1].envelopeSha256); assert.equal(ack[0].replySha256, ack[1].replySha256);
+    assert.equal(ack.length, 2); assert.equal(ack[0].envelopeSha256, ack[1].envelopeSha256); assert.equal(ack[0].replyOutcomeSha256, ack[1].replyOutcomeSha256);
     assert.equal(observed.tasks.length, 2); assert.equal(observed.tasks.filter(t => t.state === 'COMPLETED').length, 1); assert.equal(observed.tasks.filter(t => t.state === 'CANCELLED').length, 1);
     assert.equal(observed.revocations[0].cacheWasPopulatedDuringRun, true); assert.equal(observed.revocations[0].cachedAfter, 0);
     assert.equal(receiverVerified(observed), true);
@@ -257,6 +265,9 @@ try {
     const changedEnvelope = globalThis.structuredClone(observed);
     changedEnvelope.deliveries.filter(d => d.text === ACK_TEXT)[1].envelopeSha256 = 'changed';
     assert.equal(receiverVerified(changedEnvelope), false, 'A different envelope is not an original-envelope retry');
+    const changedOutcome = globalThis.structuredClone(observed);
+    changedOutcome.deliveries.filter(d => d.text === ACK_TEXT)[1].replyOutcomeSha256 = 'changed';
+    assert.equal(receiverVerified(changedOutcome), false, 'Transport refresh cannot change the cached business outcome');
     const closedSnapshot = new Promise(resolveSnapshot => b.gateway.server.once('close', () => resolveSnapshot(snapshot(observer))));
     const receiverStop = waitForOperator(b.gateway, 10000);
     await b.gateway.command('shutdown', {});
@@ -265,6 +276,7 @@ try {
     report.results.receiver = observed; report.results.receiverCloseSnapshot = 'verified before Store teardown'; report.status = 'passed';
   } else {
     assert.equal(values['self-test-delay-ms'], undefined);
+    assert.equal(values['self-test-ack-age-ms'], undefined);
     assert.ok(['darwin', 'win32'].includes(process.platform));
     assert.ok(['prepare', 'receiver', 'runner'].includes(values.role));
     assert.equal(values['expected-source'], source, 'Physical roles require an explicit full source SHA');

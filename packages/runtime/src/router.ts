@@ -53,7 +53,14 @@ export class Router {
     if (request.source.nodeId !== peer || request.target.nodeId !== this.sessions.nodeId)
       throw new MeshError('permission_denied', 'Envelope identity mismatch');
     const cached = this.store.inbox(request.messageId, peer, request);
-    if (cached) return cached as Envelope;
+    if (cached) {
+      const previous = cached as Envelope;
+      // The incoming request is still valid, but its old transport reply may have expired.
+      // Reissue only the authenticated cached outcome; never re-enter adapter side effects.
+      return Date.parse(previous.deadline) > Date.now()
+        ? previous
+        : this.response(request, previous.type, previous.payload);
+    }
     let response: Envelope;
     if (request.type === 'session.create' || request.type === 'session.resume') {
       const key = `operation/${peer}/${request.idempotencyKey}`;
