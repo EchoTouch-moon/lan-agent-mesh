@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
-import { MeshError, decodeEnvelope, encodeEnvelope, type Envelope } from '@lam/protocol';
+import { MeshError, EnvelopeSchema, decodeEnvelope, encodeEnvelope, type Envelope } from '@lam/protocol';
 import type { AdapterEvent } from '@lam/adapter-sdk';
 import { Store, fingerprint, type TaskStatus } from '@lam/storage';
 import { Sessions } from './sessions.js';
@@ -53,7 +53,17 @@ export class Router {
     if (request.source.nodeId !== peer || request.target.nodeId !== this.sessions.nodeId)
       throw new MeshError('permission_denied', 'Envelope identity mismatch');
     const cached = this.store.inbox(request.messageId, peer, request);
-    if (cached) return cached as Envelope;
+    if (cached) {
+      const previous = EnvelopeSchema.parse(cached);
+      if (previous.source.nodeId !== this.sessions.nodeId || previous.target.nodeId !== peer ||
+          previous.correlationId !== request.messageId || previous.taskId !== request.taskId)
+        throw new MeshError('invalid_message', 'Cached reply scope mismatch');
+      // The incoming request is still valid, but its old transport reply may have expired.
+      // Reissue only the authenticated cached outcome; never re-enter adapter side effects.
+      return Date.parse(previous.deadline) > Date.now()
+        ? previous
+        : this.response(request, previous.type, previous.payload);
+    }
     let response: Envelope;
     if (request.type === 'session.create' || request.type === 'session.resume') {
       const key = `operation/${peer}/${request.idempotencyKey}`;

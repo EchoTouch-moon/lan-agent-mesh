@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
-import { afterEach, describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { Gateway } from '../src/index.js';
 import { createMockAdapter } from '@lam/mock-adapter';
 import { rotateIdentity } from '@lam/mesh';
@@ -46,6 +46,65 @@ async function finish(a: Gateway, b: Gateway, id: string) {
   }
   throw new Error('Task timeout');
 }
+it('recovers an original outbox retry after its cached ACK expires without repeating the task', async () => {
+  const a = await gateway(), b = await gateway();
+  await pair(a, b);
+  const registry = await a.sync(b.mesh.id);
+  const creation = a.envelope(b.mesh.id, 'session.create', { agentId: registry.agents[0]!.id, workspaceAlias: 'project-a' });
+  creation.deadline = new Date(Date.now() + 120000).toISOString();
+  const created = await a.sendEnvelope(b.mesh.id, creation);
+  if (created.type !== 'session.event') throw new Error('Missing session response');
+  const session = created.payload;
+  const request = a.envelope(b.mesh.id, 'task.request', {
+    sessionId: session.id, text: 'late ACK fixture', workspaceAlias: 'project-a', delegationDepth: 0,
+  }, randomUUID(), session.agentId);
+  request.deadline = new Date(Date.now() + 120000).toISOString();
+  const real = a.mesh.request.bind(a.mesh);
+  a.mesh.request = async (peer, body) => {
+    const response = await real(peer, body);
+    if ((body as { value?: { messageId?: string } }).value?.messageId === request.messageId)
+      throw new Error('Controlled ACK discard');
+    return response;
+  };
+  try { await expect(a.sendEnvelope(b.mesh.id, request)).rejects.toThrow('Controlled ACK discard'); }
+  finally { a.mesh.request = real; }
+  expect((await finish(a, b, request.taskId!)).state).toBe('COMPLETED');
+  const originalEvents = structuredClone(b.store.task(request.taskId!)!.events);
+  const cached = b.store.inbox(request.messageId, a.mesh.id, request) as { messageId: string; deadline: string; payload: unknown };
+  const clock = vi.spyOn(Date, 'now').mockReturnValue(Math.max(Date.parse(cached.deadline), Date.parse(created.deadline)) + 1);
+  try {
+    expect(Date.now()).toBeLessThan(Date.parse(request.deadline));
+    const response = await a.command('retry', { messageId: request.messageId }) as { messageId: string; correlationId: string; deadline: string; payload: unknown };
+    expect(response.payload).toEqual(cached.payload);
+    expect(response.messageId).not.toBe(cached.messageId);
+    expect(response.correlationId).toBe(request.messageId);
+    expect(Date.parse(response.deadline)).toBeGreaterThan(Date.now());
+    expect(a.store.pending()).toEqual([]);
+    expect(b.store.count('tasks')).toBe(1);
+    expect(b.store.task(request.taskId!)!.events).toEqual(originalEvents);
+    expect(b.store.inbox(request.messageId, a.mesh.id, request)).toEqual(cached);
+    const sessionRetry = await a.sendEnvelope(b.mesh.id, creation);
+    expect(sessionRetry.type).toBe('session.event');
+    expect(sessionRetry.payload).toEqual(created.payload);
+    expect(sessionRetry.messageId).not.toBe(created.messageId);
+    expect(b.store.list('sessions')).toHaveLength(1);
+    try {
+      for (const broken of [{ ...cached, deadline: 'invalid' }, { ...cached, correlationId: randomUUID() }]) {
+        b.store.db.prepare('UPDATE inbox SET response=? WHERE id=?').run(JSON.stringify(broken), request.messageId);
+        await expect(a.mesh.request(b.mesh.id, { kind: 'envelope', value: request })).rejects.toMatchObject({ code: 'invalid_message' });
+      }
+    } finally {
+      b.store.db.prepare('UPDATE inbox SET response=? WHERE id=?').run(JSON.stringify(cached), request.messageId);
+    }
+    await expect(a.mesh.request(b.mesh.id, { kind: 'envelope', value: {
+      ...request, payload: { ...request.payload, text: 'changed cached request' },
+    } })).rejects.toMatchObject({ code: 'conflict' });
+    clock.mockReturnValue(Date.parse(request.deadline) + 1);
+    await expect(a.sendEnvelope(b.mesh.id, request)).rejects.toMatchObject({ code: 'deadline_exceeded' });
+    expect(b.store.count('tasks')).toBe(1);
+    expect(b.store.task(request.taskId!)!.events).toEqual(originalEvents);
+  } finally { clock.mockRestore(); }
+});
 describe('real two-peer TCP/Noise/Yamux Gateway', () => {
   it('denies unpaired/private access, pairs on both sides, executes both directions and rejects replay conflicts', async () => {
     const a = await gateway(),

@@ -1,0 +1,217 @@
+{
+  "kind": "same-host two-node self-test; never physical W3 evidence",
+  "testedSourceSha": "491d8f4a8604fe3f88b2eb40f9f8e41bdc51d55c",
+  "sourceCleanBeforeStart": true,
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "startedUtc": "2026-10-25T03:36:31.965Z",
+  "status": "passed",
+  "results": {
+    "prepareRunnerAdoption": {
+      "status": "verified",
+      "identityAndTrustPreserved": true,
+      "automaticPairingLimitedToOwnedLoopbackNodes": true
+    },
+    "deliveryAckDiscard": {
+      "status": "verified",
+      "injection": "caller API boundary after correlated real acceptance, before durable outbox ACK; no packet-loss claim",
+      "originalEnvelopeSha256": "5d01d30804c74874d24c76f57e84a5c65307394329f330446343e82f5a059f84",
+      "taskIdSha256": "0b0cafd8269ba0d995043941686bd72801da2a90a90584b6a459de59708eaa8a",
+      "outboxRetainedThenCleared": true,
+      "identicalEventsAfterRetry": true,
+      "minimumAckAgeMs": 0,
+      "businessOutcomeSha256": "5564b4bb802eb7a165f1199fb6b770e7895944ffcb87ad7fa5000032474a6499",
+      "transportReplyRefreshed": false,
+      "eventTypes": [
+        "started",
+        "delta",
+        "delta",
+        "completed"
+      ],
+      "events": [
+        {
+          "type": "started",
+          "taskIdSha256": "0b0cafd8269ba0d995043941686bd72801da2a90a90584b6a459de59708eaa8a"
+        },
+        {
+          "type": "delta",
+          "taskIdSha256": "0b0cafd8269ba0d995043941686bd72801da2a90a90584b6a459de59708eaa8a",
+          "text": "mock:"
+        },
+        {
+          "type": "delta",
+          "taskIdSha256": "0b0cafd8269ba0d995043941686bd72801da2a90a90584b6a459de59708eaa8a",
+          "text": "w3-fault ack fixture"
+        },
+        {
+          "type": "completed",
+          "taskIdSha256": "0b0cafd8269ba0d995043941686bd72801da2a90a90584b6a459de59708eaa8a",
+          "text": "mock:w3-fault ack fixture"
+        }
+      ]
+    },
+    "inFlightCancel": {
+      "status": "verified",
+      "taskIdSha256": "e6b655da6216840063278ed336647bbf0c1e3430e4fe1b0f36232f947aacbd7c",
+      "observedBeforeRequest": "RUNNING",
+      "terminal": "CANCELLED",
+      "eventTypes": [
+        "started",
+        "cancelled"
+      ],
+      "events": [
+        {
+          "type": "started",
+          "taskIdSha256": "e6b655da6216840063278ed336647bbf0c1e3430e4fe1b0f36232f947aacbd7c"
+        },
+        {
+          "type": "cancelled",
+          "taskIdSha256": "e6b655da6216840063278ed336647bbf0c1e3430e4fe1b0f36232f947aacbd7c"
+        }
+      ]
+    },
+    "runnerRevoke": {
+      "status": "verified",
+      "registryRefused": true,
+      "cachedCardsUnavailable": true
+    },
+    "receiver": {
+      "nodeIdSha256": "9f3915d5f8a4e64a1f80bc670358d101a795546be052c017b70a5d8570def73b",
+      "peers": [
+        {
+          "nodeIdSha256": "990c36cb4e31a2339111161a4a3da1999aa7bafcaea2460f05bd82febdb4ac55",
+          "platform": "darwin"
+        }
+      ],
+      "deliveries": [
+        {
+          "peerIdSha256": "990c36cb4e31a2339111161a4a3da1999aa7bafcaea2460f05bd82febdb4ac55",
+          "text": "w3-fault ack fixture",
+          "envelopeSha256": "5d01d30804c74874d24c76f57e84a5c65307394329f330446343e82f5a059f84",
+          "replySha256": "35903e86f40b6a294395f60132507aa41284a5a2435c41cbe78265e2e433461c",
+          "replyOutcomeSha256": "5564b4bb802eb7a165f1199fb6b770e7895944ffcb87ad7fa5000032474a6499",
+          "at": "2026-10-25T03:36:32.102Z",
+          "taskIdSha256": "0b0cafd8269ba0d995043941686bd72801da2a90a90584b6a459de59708eaa8a"
+        },
+        {
+          "peerIdSha256": "990c36cb4e31a2339111161a4a3da1999aa7bafcaea2460f05bd82febdb4ac55",
+          "text": "w3-fault ack fixture",
+          "envelopeSha256": "5d01d30804c74874d24c76f57e84a5c65307394329f330446343e82f5a059f84",
+          "replySha256": "35903e86f40b6a294395f60132507aa41284a5a2435c41cbe78265e2e433461c",
+          "replyOutcomeSha256": "5564b4bb802eb7a165f1199fb6b770e7895944ffcb87ad7fa5000032474a6499",
+          "at": "2026-10-25T03:36:34.685Z",
+          "taskIdSha256": "0b0cafd8269ba0d995043941686bd72801da2a90a90584b6a459de59708eaa8a"
+        },
+        {
+          "peerIdSha256": "990c36cb4e31a2339111161a4a3da1999aa7bafcaea2460f05bd82febdb4ac55",
+          "text": "w3-fault cancel fixture",
+          "envelopeSha256": "e097b10d0dfda50ba5ce70e7d897fe7c21ab5a18a5984bf9eef7013deeaa5738",
+          "replySha256": "c31168fec1c8af051a42fd2f8d8585653848b5458167ad0c38571e432aca09cc",
+          "replyOutcomeSha256": "d69cf9e2a3f17dce52cf6de8c2478c068b92fcb1435ca33e4b9319ad7d1bc10d",
+          "at": "2026-10-25T03:36:35.742Z",
+          "taskIdSha256": "e6b655da6216840063278ed336647bbf0c1e3430e4fe1b0f36232f947aacbd7c"
+        }
+      ],
+      "tasks": [
+        {
+          "taskIdSha256": "0b0cafd8269ba0d995043941686bd72801da2a90a90584b6a459de59708eaa8a",
+          "state": "COMPLETED",
+          "eventTypes": [
+            "started",
+            "delta",
+            "delta",
+            "completed"
+          ],
+          "events": [
+            {
+              "type": "started",
+              "taskIdSha256": "0b0cafd8269ba0d995043941686bd72801da2a90a90584b6a459de59708eaa8a"
+            },
+            {
+              "type": "delta",
+              "taskIdSha256": "0b0cafd8269ba0d995043941686bd72801da2a90a90584b6a459de59708eaa8a",
+              "text": "mock:"
+            },
+            {
+              "type": "delta",
+              "taskIdSha256": "0b0cafd8269ba0d995043941686bd72801da2a90a90584b6a459de59708eaa8a",
+              "text": "w3-fault ack fixture"
+            },
+            {
+              "type": "completed",
+              "taskIdSha256": "0b0cafd8269ba0d995043941686bd72801da2a90a90584b6a459de59708eaa8a",
+              "text": "mock:w3-fault ack fixture"
+            }
+          ]
+        },
+        {
+          "taskIdSha256": "e6b655da6216840063278ed336647bbf0c1e3430e4fe1b0f36232f947aacbd7c",
+          "state": "CANCELLED",
+          "eventTypes": [
+            "started",
+            "cancelled"
+          ],
+          "events": [
+            {
+              "type": "started",
+              "taskIdSha256": "e6b655da6216840063278ed336647bbf0c1e3430e4fe1b0f36232f947aacbd7c"
+            },
+            {
+              "type": "cancelled",
+              "taskIdSha256": "e6b655da6216840063278ed336647bbf0c1e3430e4fe1b0f36232f947aacbd7c"
+            }
+          ]
+        }
+      ],
+      "revocations": [
+        {
+          "peerIdSha256": "990c36cb4e31a2339111161a4a3da1999aa7bafcaea2460f05bd82febdb4ac55",
+          "cachedBefore": 1,
+          "cachedAfter": 0,
+          "cacheWasPopulatedDuringRun": true,
+          "registryRefused": true
+        }
+      ]
+    },
+    "receiverCloseSnapshot": "verified before Store teardown"
+  },
+  "cleanup": [
+    {
+      "role": "runner",
+      "gatewayStopped": true,
+      "portsReleased": true,
+      "dataRemoved": true,
+      "preparedIdentityPreservedForRunner": false
+    },
+    {
+      "role": "self-test",
+      "gatewayStopped": true,
+      "portsReleased": true,
+      "dataRemoved": true,
+      "preparedIdentityPreservedForRunner": false
+    }
+  ],
+  "externalModels": 0,
+  "sourceSha256": {
+    "packages/runtime/src/index.ts": "c3dde0fdf25dbd95fd6cc37f441c7cf487c1dd19dea43312bc8501d5e431e622",
+    "packages/runtime/src/router.ts": "54ca41ed6ee87689e71d353755ab18c363c9af56da2d50062f828e1ab7bbf3bd",
+    "packages/runtime/src/sessions.ts": "e65be9985c69452bf146aa11d70278d7ff4008a309d6350f0db146d1f86f6a5e",
+    "packages/mesh/src/index.ts": "04a836465e6710d7ff5635f96b6e9d9dda9bb3e7188930e9dbb3245a9e5f81ff",
+    "packages/storage/src/index.ts": "f9869b333dfd8429b5c64a8f7879d7f573f27f0bdbaf96f19b295fa38eabced6",
+    "packages/mock-adapter/src/index.ts": "7de304a6dc00994b15ec3418599d3be346cdd1f78ad2f8c0340269898e37aa1a"
+  },
+  "distSha256": {
+    "packages/runtime/dist/index.js": "09f8dcb8893dbdfb4eed46c8c4fb438f472716a76a19ef7d09c26d0c84e231a3",
+    "packages/runtime/dist/router.js": "7ddf3b659ef268cd1dcc570eaa536b7a4513ff9e1edbaf9a16e5117c58c1ee00",
+    "packages/runtime/dist/sessions.js": "8b2110ab7f4afdf10721fdcafcf2a4df7cde10c9fa2d1d64dbddc558248375b1",
+    "packages/mesh/dist/index.js": "639f88da6f2d0edc1027b3699e21b0d2559391e6fc09f8c51497000f8006f548",
+    "packages/storage/dist/index.js": "1c9d203a4a42871e324d1730c1ffacd72b0558a801461549918fff614fa8f29f",
+    "packages/mock-adapter/dist/index.js": "9f431c73f22e7211a61e7cb13a9af1c6649358993cd25787fba5d9dea5419a11"
+  },
+  "probeWorkingBytesSha256": "954990dc5d266e8c9b8b9253da263dcfa82b2000e622e8d900442423787b9bf6",
+  "selfTestReceiverDelayMs": 1000,
+  "nodeIdSha256": "990c36cb4e31a2339111161a4a3da1999aa7bafcaea2460f05bd82febdb4ac55",
+  "peerIdSha256": "9f3915d5f8a4e64a1f80bc670358d101a795546be052c017b70a5d8570def73b",
+  "peerPlatform": "darwin",
+  "endedUtc": "2026-10-25T03:36:36.286Z"
+}

@@ -1,0 +1,211 @@
+{
+  "kind": "same-host two-node self-test; never physical W3 evidence",
+  "testedSourceSha": "a65ec3e58837152df854186a0cdaf82f6a4a0f19",
+  "sourceCleanBeforeStart": true,
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "startedUtc": "2026-10-24T17:01:10.988Z",
+  "status": "passed",
+  "results": {
+    "prepareRunnerAdoption": {
+      "status": "verified",
+      "identityAndTrustPreserved": true,
+      "automaticPairingLimitedToOwnedLoopbackNodes": true
+    },
+    "deliveryAckDiscard": {
+      "status": "verified",
+      "injection": "caller API boundary after correlated real acceptance, before durable outbox ACK; no packet-loss claim",
+      "originalEnvelopeSha256": "994bc007f5e97bca54d6678975f6db09cd0ff98994c688e44dab4f801a163bc0",
+      "taskIdSha256": "09dcabe88d11e5bc1269816255db3f37c639f91aad1ce9cd3e278d33feebb493",
+      "outboxRetainedThenCleared": true,
+      "identicalEventsAfterRetry": true,
+      "eventTypes": [
+        "started",
+        "delta",
+        "delta",
+        "completed"
+      ],
+      "events": [
+        {
+          "type": "started",
+          "taskIdSha256": "09dcabe88d11e5bc1269816255db3f37c639f91aad1ce9cd3e278d33feebb493"
+        },
+        {
+          "type": "delta",
+          "taskIdSha256": "09dcabe88d11e5bc1269816255db3f37c639f91aad1ce9cd3e278d33feebb493",
+          "text": "mock:"
+        },
+        {
+          "type": "delta",
+          "taskIdSha256": "09dcabe88d11e5bc1269816255db3f37c639f91aad1ce9cd3e278d33feebb493",
+          "text": "w3-fault ack fixture"
+        },
+        {
+          "type": "completed",
+          "taskIdSha256": "09dcabe88d11e5bc1269816255db3f37c639f91aad1ce9cd3e278d33feebb493",
+          "text": "mock:w3-fault ack fixture"
+        }
+      ]
+    },
+    "inFlightCancel": {
+      "status": "verified",
+      "taskIdSha256": "a8791700a494b68bbe861ae123aacd2cd8b44fbef5df6484f42b55ec95954a7b",
+      "observedBeforeRequest": "RUNNING",
+      "terminal": "CANCELLED",
+      "eventTypes": [
+        "started",
+        "cancelled"
+      ],
+      "events": [
+        {
+          "type": "started",
+          "taskIdSha256": "a8791700a494b68bbe861ae123aacd2cd8b44fbef5df6484f42b55ec95954a7b"
+        },
+        {
+          "type": "cancelled",
+          "taskIdSha256": "a8791700a494b68bbe861ae123aacd2cd8b44fbef5df6484f42b55ec95954a7b"
+        }
+      ]
+    },
+    "runnerRevoke": {
+      "status": "verified",
+      "registryRefused": true,
+      "cachedCardsUnavailable": true
+    },
+    "receiver": {
+      "nodeIdSha256": "2fbb2761fab9656c7c661d4c55b34c075d9783ced020afdc8e5d5df37388eddc",
+      "peers": [
+        {
+          "nodeIdSha256": "ad31a27dad948939aa7cb4b3cc32b374d61341cfc7ed9bb8da4aff49e828cbc5",
+          "platform": "darwin"
+        }
+      ],
+      "deliveries": [
+        {
+          "peerIdSha256": "ad31a27dad948939aa7cb4b3cc32b374d61341cfc7ed9bb8da4aff49e828cbc5",
+          "text": "w3-fault ack fixture",
+          "envelopeSha256": "994bc007f5e97bca54d6678975f6db09cd0ff98994c688e44dab4f801a163bc0",
+          "replySha256": "504c029c1f0b1f826ab55226f1e55cb811e1d733d829b2330e0b5eb3b72fe484",
+          "at": "2026-10-24T17:01:11.131Z",
+          "taskIdSha256": "09dcabe88d11e5bc1269816255db3f37c639f91aad1ce9cd3e278d33feebb493"
+        },
+        {
+          "peerIdSha256": "ad31a27dad948939aa7cb4b3cc32b374d61341cfc7ed9bb8da4aff49e828cbc5",
+          "text": "w3-fault ack fixture",
+          "envelopeSha256": "994bc007f5e97bca54d6678975f6db09cd0ff98994c688e44dab4f801a163bc0",
+          "replySha256": "504c029c1f0b1f826ab55226f1e55cb811e1d733d829b2330e0b5eb3b72fe484",
+          "at": "2026-10-24T17:01:13.714Z",
+          "taskIdSha256": "09dcabe88d11e5bc1269816255db3f37c639f91aad1ce9cd3e278d33feebb493"
+        },
+        {
+          "peerIdSha256": "ad31a27dad948939aa7cb4b3cc32b374d61341cfc7ed9bb8da4aff49e828cbc5",
+          "text": "w3-fault cancel fixture",
+          "envelopeSha256": "f68683336c3258f9dbb259bae7676def886e942f869e758a9fb67e4244016ebe",
+          "replySha256": "3bbd49b0d53101278e435016a898b4aa6f1ed25466ebfac8701ffe55f7b6ef2d",
+          "at": "2026-10-24T17:01:14.770Z",
+          "taskIdSha256": "a8791700a494b68bbe861ae123aacd2cd8b44fbef5df6484f42b55ec95954a7b"
+        }
+      ],
+      "tasks": [
+        {
+          "taskIdSha256": "09dcabe88d11e5bc1269816255db3f37c639f91aad1ce9cd3e278d33feebb493",
+          "state": "COMPLETED",
+          "eventTypes": [
+            "started",
+            "delta",
+            "delta",
+            "completed"
+          ],
+          "events": [
+            {
+              "type": "started",
+              "taskIdSha256": "09dcabe88d11e5bc1269816255db3f37c639f91aad1ce9cd3e278d33feebb493"
+            },
+            {
+              "type": "delta",
+              "taskIdSha256": "09dcabe88d11e5bc1269816255db3f37c639f91aad1ce9cd3e278d33feebb493",
+              "text": "mock:"
+            },
+            {
+              "type": "delta",
+              "taskIdSha256": "09dcabe88d11e5bc1269816255db3f37c639f91aad1ce9cd3e278d33feebb493",
+              "text": "w3-fault ack fixture"
+            },
+            {
+              "type": "completed",
+              "taskIdSha256": "09dcabe88d11e5bc1269816255db3f37c639f91aad1ce9cd3e278d33feebb493",
+              "text": "mock:w3-fault ack fixture"
+            }
+          ]
+        },
+        {
+          "taskIdSha256": "a8791700a494b68bbe861ae123aacd2cd8b44fbef5df6484f42b55ec95954a7b",
+          "state": "CANCELLED",
+          "eventTypes": [
+            "started",
+            "cancelled"
+          ],
+          "events": [
+            {
+              "type": "started",
+              "taskIdSha256": "a8791700a494b68bbe861ae123aacd2cd8b44fbef5df6484f42b55ec95954a7b"
+            },
+            {
+              "type": "cancelled",
+              "taskIdSha256": "a8791700a494b68bbe861ae123aacd2cd8b44fbef5df6484f42b55ec95954a7b"
+            }
+          ]
+        }
+      ],
+      "revocations": [
+        {
+          "peerIdSha256": "ad31a27dad948939aa7cb4b3cc32b374d61341cfc7ed9bb8da4aff49e828cbc5",
+          "cachedBefore": 1,
+          "cachedAfter": 0,
+          "cacheWasPopulatedDuringRun": true,
+          "registryRefused": true
+        }
+      ]
+    },
+    "receiverCloseSnapshot": "verified before Store teardown"
+  },
+  "cleanup": [
+    {
+      "role": "runner",
+      "gatewayStopped": true,
+      "portsReleased": true,
+      "dataRemoved": true,
+      "preparedIdentityPreservedForRunner": false
+    },
+    {
+      "role": "self-test",
+      "gatewayStopped": true,
+      "portsReleased": true,
+      "dataRemoved": true,
+      "preparedIdentityPreservedForRunner": false
+    }
+  ],
+  "externalModels": 0,
+  "sourceSha256": {
+    "packages/runtime/src/index.ts": "c3dde0fdf25dbd95fd6cc37f441c7cf487c1dd19dea43312bc8501d5e431e622",
+    "packages/runtime/src/router.ts": "a4bb043eae1e5eff6d4dd1eac77556cfd5ce69f9f1270aab641377d4f4d7a693",
+    "packages/runtime/src/sessions.ts": "e65be9985c69452bf146aa11d70278d7ff4008a309d6350f0db146d1f86f6a5e",
+    "packages/mesh/src/index.ts": "04a836465e6710d7ff5635f96b6e9d9dda9bb3e7188930e9dbb3245a9e5f81ff",
+    "packages/storage/src/index.ts": "f9869b333dfd8429b5c64a8f7879d7f573f27f0bdbaf96f19b295fa38eabced6",
+    "packages/mock-adapter/src/index.ts": "7de304a6dc00994b15ec3418599d3be346cdd1f78ad2f8c0340269898e37aa1a"
+  },
+  "distSha256": {
+    "packages/runtime/dist/index.js": "09f8dcb8893dbdfb4eed46c8c4fb438f472716a76a19ef7d09c26d0c84e231a3",
+    "packages/runtime/dist/router.js": "46e1c06ce0566cd068216312fe3a2b27ee41dc012e334b7a708c51f1e9a60057",
+    "packages/runtime/dist/sessions.js": "8b2110ab7f4afdf10721fdcafcf2a4df7cde10c9fa2d1d64dbddc558248375b1",
+    "packages/mesh/dist/index.js": "639f88da6f2d0edc1027b3699e21b0d2559391e6fc09f8c51497000f8006f548",
+    "packages/storage/dist/index.js": "1c9d203a4a42871e324d1730c1ffacd72b0558a801461549918fff614fa8f29f",
+    "packages/mock-adapter/dist/index.js": "9f431c73f22e7211a61e7cb13a9af1c6649358993cd25787fba5d9dea5419a11"
+  },
+  "probeWorkingBytesSha256": "518d6448825d38fcc923b062fba445eb03dea50fa5d91ed7d77b7046eaf8f246",
+  "selfTestReceiverDelayMs": 1000,
+  "nodeIdSha256": "ad31a27dad948939aa7cb4b3cc32b374d61341cfc7ed9bb8da4aff49e828cbc5",
+  "peerIdSha256": "2fbb2761fab9656c7c661d4c55b34c075d9783ced020afdc8e5d5df37388eddc",
+  "peerPlatform": "darwin",
+  "endedUtc": "2026-10-24T17:01:15.310Z"
+}
