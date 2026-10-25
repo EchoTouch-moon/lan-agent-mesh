@@ -4,7 +4,11 @@
 
 ## 配对
 
-三次请求：第一次码 120 秒内操作者批准未达（confirm 按预期 `permission_denied`，过期 pending 清理，未重放）；第二次码在有效期内双侧确认（Mac 侧 remoteConfirmed 在先，Windows 侧操作者核对同码后批准，`{"trusted":true}`）。码值全程未公开。本机 mDNS 不可用（TUN 环境），按既定私密渠道手动寻址。
+Mac 侧共发起 3 次配对请求（前两次过期，见 Mac #61 记录）；Windows 本地观察到 2 个 pending：第一个码 120 秒内操作者批准未达（confirm 按预期 `permission_denied`，过期 pending 清理，未重放）；**最终请求的有效码在窗口内双侧确认**（Mac 侧 remoteConfirmed 在先，Windows 侧操作者核对同码后批准，`{"trusted":true}`；精确 confirm 时刻未独立记录，仅知介于 15:17:39Z 轮询与随后的 PAIRED 回报之间）。码值全程未公开。本机 mDNS 不可用（TUN 环境），按既定私密渠道手动寻址。
+
+## 退出码记录说明（可追溯性）
+
+receiver 主进程为直接调用，`RECEIVER_EXIT=0` 为真实进程退出码（`control_shutdown`）。其余 control 调用（pairings/confirm/revoke/registry/spawn/shutdown）与 pnpm install/build 均经 bash 管道（grep/tail）执行，此前误记的 0 为管道末端退出码而非 node CLI 原生退出码；CLI 对非成功 HTTP 会设 `process.exitCode=1`（本源 apps/gateway/src/index.ts），但该退出码未独立留存，故 metadata 一律记 null/unknown，不凭预期补记。HTTP 响应体（`{"trusted":true}`、`{"code":"permission_denied"}`、`{"stopping":true}`、null）为直接观察，见 metadata commands 各条。
 
 ## 接收记录（与 Mac RUNNER_DONE 锚点全部匹配）
 

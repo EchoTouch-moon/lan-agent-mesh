@@ -21,22 +21,25 @@
     "stopReason": "control_shutdown"
   },
   "pairing": {
-    "attempts": 3,
-    "firstCodeExpired": "operator approval arrived after the 120s window; confirm correctly returned permission_denied; expired pending cleared without reuse",
-    "successfulPairingUtc": "2026-10-25T15:17:xxZ (second code, both sides confirmed in-window; code values never published)",
+    "macSideRecord": "Mac initiated 3 pairing requests in total, first two expired (per Mac RUNNER_DONE/PR #61 review); the final request was confirmed on both sides in-window",
+    "windowsLocalPendingObservations": 2,
+    "firstLocalPending": "expired: operator approval arrived after the 120s window; confirm returned permission_denied as expected; expired pending cleared without reuse",
+    "finalLocalPending": "confirmed both sides in-window ({\"trusted\":true}); code values never published",
+    "successfulPairingUtc": null,
+    "successfulPairingUtcNote": "exact confirm timestamp not independently recorded locally; bracketed by the pairings poll at 2026-10-25T15:17:39Z (remoteConfirmed=true, localConfirmed=false) and the PAIRED issue comment shortly after",
     "macPeerNodeIdSha256": "65918c79f2a5577e3afeeb0cdbdad1be59ea327ebac01770520319ce88097ba2",
     "windowsNodeIdSha256": "82fd7096933a45efe9d33f0ff30c53c35edb4e7d00a86afe93c0db9e695f4e38"
   },
   "commands": [
-    { "command": "pnpm install --frozen-lockfile", "exitCode": 0 },
-    { "command": "pnpm build", "exitCode": 0 },
-    { "command": "node scripts/p1-w3-fault-probe.mjs --role receiver --data [NEW_PRIVATE_DATA] --output [NEW_PRIVATE_REPORT] --expected-source 8c6b4c614140280a0b990a4e80db858c41e3be75 --wait-ms 13210404", "exitCode": 0 },
-    { "command": "control --command pairings (poll every 10s)", "exitCode": 0 },
-    { "command": "control --command confirm (operator-approved, second code, in-window)", "exitCode": 0, "result": "{\"trusted\":true}" },
-    { "command": "control --command revoke --args {peer: [MAC_PEER]} (after RUNNER_DONE)", "exitCode": 0 },
-    { "command": "control --command registry --args {peer: [MAC_PEER]}", "exitCode": 0, "result": "{\"code\":\"permission_denied\"}" },
-    { "command": "control --command spawn --args {peer: [MAC_PEER], agentId: [MAC_PEER]/mock/default, workspaceAlias: project-a}", "exitCode": 0, "result": "{\"code\":\"permission_denied\"}" },
-    { "command": "control --command shutdown (authenticated)", "exitCode": 0, "result": "{\"stopping\":true}" }
+    { "command": "pnpm install --frozen-lockfile", "exitCode": null, "exitCodeNote": "invoked through a bash pipeline ending in tail; recorded 0 was the pipeline tail exit, not pnpm's own exit. Success is evidenced by the subsequent build/typecheck and the receiver run completing at the same source" },
+    { "command": "pnpm build", "exitCode": null, "exitCodeNote": "same pipeline caveat as install; build success evidenced by produced dist artifacts used by the run" },
+    { "command": "node scripts/p1-w3-fault-probe.mjs --role receiver --data [NEW_PRIVATE_DATA] --output [NEW_PRIVATE_REPORT] --expected-source 8c6b4c614140280a0b990a4e80db858c41e3be75 --wait-ms 13210404", "exitCode": 0, "exitCodeNote": "direct node invocation without pipeline; $? captured the real process exit code (RECEIVER_EXIT=0, stopReason control_shutdown)" },
+    { "command": "control --command pairings (poll every 10s, node CLI via bash pipeline with grep filters)", "exitCode": null, "exitCodeNote": "pipeline-end exit codes were not the node CLI's own; pending observations themselves are the recorded evidence" },
+    { "command": "control --command confirm (operator-approved final code, in-window)", "exitCode": null, "result": "{\"trusted\":true}", "exitCodeNote": "node CLI via bash grep pipeline; the trusted:true HTTP response body is the direct observation, CLI exit code not independently retained" },
+    { "command": "control --command revoke --args {peer: [MAC_PEER]} (after RUNNER_DONE)", "exitCode": null, "result": "null", "exitCodeNote": "node CLI via bash grep pipeline; null response body observed, CLI exit code not independently retained" },
+    { "command": "control --command registry --args {peer: [MAC_PEER]}", "exitCode": null, "result": "{\"code\":\"permission_denied\"}", "exitCodeNote": "node CLI invoked through a bash pipeline ending in grep; the recorded 0 was the grep exit code, not the CLI's. The HTTP refusal body permission_denied is the direct observation. The CLI itself would set process.exitCode=1 for non-success HTTP (apps/gateway/src/index.ts at this source), but that exit code was not independently captured and is not backfilled from expectation" },
+    { "command": "control --command spawn --args {peer: [MAC_PEER], agentId: [MAC_PEER]/mock/default, workspaceAlias: project-a}", "exitCode": null, "result": "{\"code\":\"permission_denied\"}", "exitCodeNote": "same pipeline caveat as registry; refusal body is the observation, CLI exit code not retained" },
+    { "command": "control --command shutdown (authenticated)", "exitCode": null, "result": "{\"stopping\":true}", "exitCodeNote": "same pipeline caveat; stopping:true body observed, CLI exit code not independently retained; receiver process itself then exited 0 with control_shutdown (real exit code, see receiver command above)" }
   ],
   "mainReport": {
     "file": "receiver.json",
