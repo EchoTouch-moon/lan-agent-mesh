@@ -82,8 +82,8 @@ export class Router {
       this.store.put('messages', key, { fingerprint: fingerprint(request) });
       const session =
         request.type === 'session.create'
-          ? await this.sessions.spawn(peer, request.payload.agentId, request.payload.workspaceAlias)
-          : await this.sessions.resume(peer, request.payload.sessionId);
+          ? await this.sessions.spawn(peer, request.payload.agentId, request.payload.workspaceAlias, request.deadline)
+          : await this.sessions.resume(peer, request.payload.sessionId, request.deadline);
       response = this.response(request, 'session.event', session);
       this.store.put('messages', key, { fingerprint: fingerprint(request), response });
     } else if (request.type === 'task.request') {
@@ -99,6 +99,8 @@ export class Router {
           throw new MeshError('permission_denied', 'Delegation depth exceeds Gateway budget');
         if (Date.parse(request.deadline) - Date.now() > 300000)
           throw new MeshError('invalid_message', 'Task budget exceeds five minutes');
+        await this.sessions.requireAvailable(binding.session.agentId, ['send', 'watch']);
+        if (Date.parse(request.deadline) <= Date.now()) throw new MeshError('deadline_exceeded', 'Task expired during admission');
         if (this.sessions.busy(binding.session.id) || this.running.size >= 16)
           throw new MeshError('busy', 'Session or Gateway busy');
       }

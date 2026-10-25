@@ -239,7 +239,7 @@ export class Gateway {
     if (this.stopping) throw new MeshError('busy', 'Gateway stopping');
     if (!this.router) throw new MeshError('busy', 'Gateway starting');
     const request = Remote.parse(value);
-    if (request.kind === 'registry') return this.localRegistry();
+    if (request.kind === 'registry') { await this.sessions.refresh(); return this.localRegistry(); }
     if (request.kind === 'events')
       return this.router.events(peer, { taskId: request.taskId, cursor: request.cursor });
     return this.router.receive(peer, request.value);
@@ -257,7 +257,7 @@ export class Gateway {
         nodeId: this.mesh.id,
         kind: this.sessions.harnesses.get(id)!.kind,
         version: this.sessions.harnesses.get(id)!.version,
-        capabilities: this.sessions.exported().find((a) => a.harnessId === id)!.capabilities,
+        capabilities: this.sessions.harnesses.get(id)!.capabilities,
       })),
       agents: this.sessions.exported(),
     });
@@ -486,6 +486,7 @@ export class Gateway {
   }
   private async close() {
     this.stopping = true;
+    this.sessions?.close();
     try {
       if (this.keepalive) clearInterval(this.keepalive);
       if (this.server) {
