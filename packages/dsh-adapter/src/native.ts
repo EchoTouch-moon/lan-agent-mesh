@@ -1,26 +1,39 @@
 import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { lstatSync, readFileSync, realpathSync } from 'node:fs';
-import { isAbsolute, join, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { MeshError } from '@lam/adapter-sdk';
 import { DshAdapterCore } from './core.js';
 import { DshAcpClient } from './client.js';
 import { windowsCmdLauncher } from './windows-command.mjs';
 import { terminateOwnedChild } from './process-tree.js';
 
+export interface FixturePowerShell { executable: string; sha256: string }
+export function verifyFixturePowerShell(shell: FixturePowerShell): void {
+  try {
+    if (!isAbsolute(shell.executable) || shell.executable.includes(';') || basename(shell.executable).toLowerCase() !== 'pwsh.exe' ||
+        realpathSync(shell.executable) !== resolve(shell.executable) || !/^[a-f0-9]{64}$/.test(shell.sha256)) throw new Error();
+    const stat = lstatSync(shell.executable);
+    if (!stat.isFile() || stat.size === 0 || stat.size > 32 * 1024 * 1024 ||
+        createHash('sha256').update(readFileSync(shell.executable)).digest('hex') !== shell.sha256) throw new Error();
+  } catch { throw new MeshError('unsupported', 'Explicit canonical PowerShell executable and matching SHA-256 required'); }
+}
 export interface DshAdapterOptions {
   nodeId: string; home: string; workspaces: Record<string, string>;
   /** Explicit desktop's resources/runtime/cli/bin/dsh.cmd; never discover or import user settings. */
   launcher: string;
   launcherSha256: string;
   expectedVersion: '0.2.1-rc.2';
+  /** Operator-selected existing PowerShell 7; never inherit the user's full PATH. */
+  powerShell: FixturePowerShell;
   /** Only fixed-response loopback fixtures are enabled in this implementation. */
   fixtureBaseUrl: string;
 }
-export function fixtureEnvironment(home: string, baseUrl: string): NodeJS.ProcessEnv {
+export function fixtureEnvironment(home: string, baseUrl: string, powerShell?: FixturePowerShell): NodeJS.ProcessEnv {
   const windowsRoot = process.env.SystemRoot;
   return { SystemRoot: windowsRoot, WINDIR: windowsRoot, ComSpec: windowsRoot && join(windowsRoot, 'System32', 'cmd.exe'),
-    PATH: windowsRoot && [join(windowsRoot, 'System32'), join(windowsRoot, 'System32', 'WindowsPowerShell', 'v1.0')].join(';'),
+    PATH: windowsRoot && [join(windowsRoot, 'System32'), join(windowsRoot, 'System32', 'WindowsPowerShell', 'v1.0'),
+      ...(powerShell ? [dirname(powerShell.executable)] : [])].join(';'),
     HOME: home, USERPROFILE: home, APPDATA: join(home, 'appdata'), LOCALAPPDATA: join(home, 'localappdata'),
     XDG_CONFIG_HOME: join(home, 'xdg-config'), XDG_DATA_HOME: join(home, 'xdg-data'), DSH_HOME: home,
     TEMP: home, TMP: home, DEEPSEEK_BASE_URL: baseUrl, DEEPSEEK_API_KEY: 'lam-local-fixture-not-a-real-key', DSH_PERMISSION_MODE: 'read-only' };
@@ -57,6 +70,7 @@ export async function openDshAdapter(options: DshAdapterOptions): Promise<DshAda
   if (options.expectedVersion !== '0.2.1-rc.2' || !/^[a-f0-9]{64}$/.test(options.launcherSha256)) throw new MeshError('unsupported', 'Pinned DSH desktop version and launcher hash required');
   const root = process.env.SystemRoot;
   if (!root || !isAbsolute(root)) throw new MeshError('unsupported', 'Windows system launcher unavailable');
+  verifyFixturePowerShell(options.powerShell);
   try {
     if (!isAbsolute(options.launcher) || realpathSync(options.launcher) !== resolve(options.launcher) || !lstatSync(options.launcher).isFile() || lstatSync(options.launcher).size > 65536)
       throw new Error();
@@ -66,9 +80,15 @@ export async function openDshAdapter(options: DshAdapterOptions): Promise<DshAda
     const check = windowsCmdLauncher(options.launcher, ['--version']);
     const command = join(root, 'System32', 'cmd.exe');
     return await DshAdapterCore.open({ nodeId: options.nodeId, home: options.home, workspaces: options.workspaces,
-      registration: JSON.stringify(['dsh-desktop', options.expectedVersion, options.launcher, options.launcherSha256, base.href]) }, async context => {
-      const env = fixtureEnvironment(context.nativeHome, base.href);
+      registration: JSON.stringify(['dsh-desktop', options.expectedVersion, options.launcher, options.launcherSha256, base.href,
+        options.powerShell.executable, options.powerShell.sha256]) }, async context => {
+      const env = fixtureEnvironment(context.nativeHome, base.href, options.powerShell);
       try {
+        verifyFixturePowerShell(options.powerShell);
+        const shellVersion = await version(options.powerShell.executable,
+          ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', '$PSVersionTable.PSVersion.ToString()'], context.nativeHome, env);
+        if (!/^7\.\d+\.\d+(?:[-+][\w.-]+)?$/.test(shellVersion)) throw new Error();
+        verifyFixturePowerShell(options.powerShell);
         if (await version(command, check.args, context.nativeHome, env) !== options.expectedVersion || hash() !== options.launcherSha256) throw new Error();
       } catch { context.onLost('process'); throw new Error('Version check refused'); }
       return DshAcpClient.open({ command, args: acp.args, cwd: context.nativeHome, env, windowsVerbatimArguments: true,

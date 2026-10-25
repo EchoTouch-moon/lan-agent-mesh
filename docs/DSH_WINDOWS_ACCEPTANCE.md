@@ -20,6 +20,12 @@ Keep full history (`git clone`, not a shallow checkout) so ancestry can be verif
 4. Reuse the operator-managed exclusive parent from G2 (`C:\lam-private-parent`, if still available and unchanged).
    Native private-storage verification checks its complete lineage. If rejected, report blocked; do not widen the checker,
    change existing directory ACLs, elevate, or substitute the broad default TEMP.
+5. Select the existing PowerShell 7 `pwsh.exe` by its canonical full path and hash it. No installation is allowed.
+   Pass `--pwsh` and `--pwsh-sha256`; the native factory rechecks the file/hash and major version 7 inside its
+   isolated home on each owned-process startup. Only this program's directory is added after the Windows system
+   PATH entries; the full user PATH is never inherited. If the desktop's higher-priority Program Files/PowerShell/7
+   candidate exists, select that existing candidate rather than assume PATH overrides its resolver. The hash covers
+   the selected executable, not PowerShell's complete runtime distribution. Report missing/unsupported PowerShell as blocked.
 
 PowerShell command template (replace the source/launcher from reviewed/local records; do not publish its private path):
 
@@ -27,14 +33,18 @@ PowerShell command template (replace the source/launcher from reviewed/local rec
 $source = '<reviewed full 40-character SHA from issue 18>'
 $launcher = (Resolve-Path -LiteralPath $env:LAM_DSH_DESKTOP_CMD).Path
 $launcherHash = (Get-FileHash -LiteralPath $launcher -Algorithm SHA256).Hash.ToLowerInvariant()
+$pwsh = (Resolve-Path -LiteralPath $env:LAM_FIXTURE_PWSH_EXE).Path
+$pwshHash = (Get-FileHash -LiteralPath $pwsh -Algorithm SHA256).Hash.ToLowerInvariant()
 $parent = 'C:\lam-private-parent'
 $output = Join-Path $parent ('dsh-adapter-native-' + (Get-Date -Format 'yyyyMMddTHHmmss') + '.json')
-node packages/dsh-adapter/dist/smoke.js --expected-source $source --parent $parent --launcher $launcher --launcher-sha256 $launcherHash --output $output
+node packages/dsh-adapter/dist/smoke.js --expected-source $source --parent $parent --launcher $launcher --launcher-sha256 $launcherHash --pwsh $pwsh --pwsh-sha256 $pwshHash --output $output
 $probeExit = $LASTEXITCODE
 Get-FileHash -LiteralPath $output -Algorithm SHA256
 ```
 
 If `LAM_DSH_DESKTOP_CMD` is not set, use the local path already established in the historical Windows evidence.
+`LAM_FIXTURE_PWSH_EXE` is a caller-supplied local program path, not a request to change permanent environment settings;
+use the existing path established by #58's diagnostics. Never publish either program path.
 Do not discover a different product by launching arbitrary candidates. The output must be a **new absolute file
 outside the repository and outside the temporary owned child directory**; it is never overwritten.
 The runner uses a fresh private child named `lam-dsh-acceptance-*`, and a fresh loopback fixture endpoint.
@@ -46,7 +56,7 @@ Ctrl+C requests cleanup; let it finish (native startup calls are bounded, so thi
   retry adds no fixture inference request, while changed input conflicts.
 - Close/reopen the owned ACP process, explicitly resume the same persisted native session, and send again.
   Original completed retries still return the same task without another model request.
-- For permissions, the runner's own PowerShell first writes/removes a control marker with the same Set-Content
+- For permissions, the runner's own explicitly selected PowerShell 7 first writes/removes a control marker with the same Set-Content
   command template. Then a fixture tool call first encounters the native read-only sandbox denial; a second
   request asks workspace-write and the ACP client selects `reject_once`. The denied target marker must not exist.
   All four causal conditions are required, plus two fixture permission stages and advertised `pwsh`.
@@ -63,7 +73,7 @@ Ctrl+C requests cleanup; let it finish (native startup calls are bounded, so thi
 
 ## Evidence and interpretation
 
-The report includes the tested source SHA, source hashes, actual built JS/DLL hashes, launcher hash,
+The report includes the tested source SHA, source hashes, actual built JS/DLL hashes, launcher and selected PowerShell hashes,
 UTC start/end, phase and bounded sanitized observations. It contains no raw prompts/tool transcripts,
 user paths, physical addresses, pairing codes, control tokens or credentials. Failed stages are retained;
 do not rewrite them into success. Only `passed-windows-native-local` with complete cleanup and exit 0 qualifies
@@ -87,4 +97,13 @@ MCP stdio. The peer simulates sandbox denial and executes no tool. Its positive 
 writes instead of PowerShell, and the report must say `passed-synthetic`, `evidenceKind: synthetic`, and
 `simulatedSandbox: true`. It can validate runner mechanics, never installed DSH or real permission enforcement.
 Self-test can make its own exclusive parent on a safe temp lineage; Windows may need `--parent` if its TEMP is broad.
-CI runs this on macOS/Windows × Node 22/24 and saves sanitized reports. Self-test refuses native launcher flags.
+CI runs this on macOS/Windows × Node 22/24 and saves sanitized reports. Self-test refuses native launcher and PowerShell flags.
+
+## Failed first native run (#58)
+
+The original source `60e6e88` passed send/retry and restart/resume but failed permissions; cleanup completed.
+The Windows PATH-only controls reproduced failure when PowerShell 7 was excluded and restored the historical
+R4 permission observations when its existing directory was present. Those diagnostics used the historical R4
+probe, not this adapter, and do not prove the new adapter fixed. The revised explicit program/hash requirement
+must be rerun on the new full source published in #18. Keep #58's failed report unchanged; retain the exact
+sandbox-denial matcher and all four permission conditions rather than accepting missing markers alone.

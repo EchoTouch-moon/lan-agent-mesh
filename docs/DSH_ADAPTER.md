@@ -8,13 +8,18 @@ from PR #52. Neither dependency nor this implementation is merged by this work.
 
 The package exports `openDshAdapter(options)`. The public factory permits only Windows, an explicitly
 selected absolute `.cmd` desktop launcher, operator-provided launcher SHA-256, version `0.2.1-rc.2`,
+an explicit canonical `powerShell: { executable, sha256 }` identifying an existing `pwsh.exe` of major version 7,
 and an HTTP `127.0.0.1:<explicit-port>/` fixture root. It checks the launcher file/hash, runs its fixed
 `--version` command inside the owned home, checks the hash again, then initializes the ACP agent.
 ACP identity is separately pinned to `deepseek-harness-acp` `0.0.1`, protocol 1.
 No PATH discovery, install, GUI attachment, user configuration import or real model credentials are enabled.
 The launcher hash covers that file, not the full desktop runtime distribution.
 
-Only required Windows system locations enter PATH. The child receives dedicated HOME/USERPROFILE,
+Only required Windows system locations and the selected PowerShell directory enter PATH; no complete user PATH is inherited.
+The PowerShell executable/hash and major version are checked on each process startup, and its identity is part
+of the persisted adapter registration. The positive control uses that explicit program too; missing or changed
+programs fail closed. The selected executable hash does not cover its whole runtime or override the desktop's
+own higher-priority Program Files resolver. The child receives dedicated HOME/USERPROFILE,
 APPDATA/LOCALAPPDATA, XDG paths, DSH_HOME and TEMP/TMP under `home/native`, a fixed fake model key,
 the caller's loopback fixture URL, and `DSH_PERMISSION_MODE=read-only`.
 Inherited model credentials, proxies, Node options, Harness configuration roots and PATH are excluded.
