@@ -191,17 +191,31 @@ try {
   report.observedMethods = [...new Set(messages.map(m => m.method).filter(Boolean))];
   process.exitCode = 1;
 } finally {
-  try {
+  const cleanup = {};
+  async function step(name, operation) {
+    try { await operation(); cleanup[name] = 'verified'; }
+    catch (error) { cleanup[name] = 'failed'; cleanup.errorKind = error?.code ?? 'runtime'; }
+  }
+  await step('nativeProcessGroup', async () => {
     await rpc?.close();
     if (rpc?.child.pid) {
       try { process.kill(-rpc.child.pid, 'SIGKILL'); } catch (error) { assert.equal(error.code, 'ESRCH'); }
+      await waitUntil(() => {
+        try { process.kill(-rpc.child.pid, 0); return false; } catch (error) { return error.code === 'ESRCH'; }
+      });
     }
-    for (const g of gateways.reverse()) await g.stop();
-    for (const server of servers) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
-    assert.ok((await Promise.all(ports.map(portClosed))).every(Boolean));
+  });
+  for (const [index, g] of gateways.reverse().entries()) await step(`gateway${index}`, () => g.stop());
+  for (const [index, server] of servers.entries()) await step(`fixture${index}`, async () => {
+    server.closeAllConnections(); await new Promise(resolve => server.close(resolve));
+  });
+  await step('portsClosed', async () => assert.ok((await Promise.all(ports.map(portClosed))).every(Boolean)));
+  // Keep private data when native process termination is unknown.
+  if (cleanup.nativeProcessGroup === 'verified') await step('privateDataRemoved', async () => {
     await rm(root, { recursive: true, force: true }); await assert.rejects(access(root), { code: 'ENOENT' });
-    report.cleanup = { nativeProcessGroup: 'stopped', ports: 'closed', privateData: 'removed' };
-  } catch { report.cleanup = 'failed'; report.status = 'failed'; process.exitCode = 1; }
+  });
+  report.cleanup = cleanup;
+  if (Object.values(cleanup).includes('failed')) { report.status = 'failed'; process.exitCode = 1; }
   report.endedUtc = new Date().toISOString();
   report.nativeTraceDigest = digest(report.nativeInvocations);
   const output = JSON.stringify(report, null, 2) + '\n';
