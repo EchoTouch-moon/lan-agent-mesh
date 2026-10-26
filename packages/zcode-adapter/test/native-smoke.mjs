@@ -14,6 +14,14 @@ import { ZcodeAdapter } from '../dist/index.js';
 
 const entry = process.env.LAM_ZCODE_ENTRY ?? '/Applications/ZCode.app/Contents/Resources/glm/zcode.cjs';
 const builtinConfig = process.env.LAM_ZCODE_BUILTIN_CONFIG ?? resolve(dirname(entry), '../config/provider/zcode-builtin.json');
+// Pre-approved digest of the installed bundled CLI entry, reviewed and pinned via the
+// LHI-1 probe / HARNESS_MATRIX evidence. Computing this from the entry under test would be
+// self-approval; it stays an independent constant until a human explicitly approves a new
+// one, and a mismatch must BLOCK the run before any native process starts.
+const APPROVED_ENTRY_SHA256 = '97490d0f06a7a225d54d47817acf4b4859cdb268b59f2490caaeda982bef063a';
+// Capture the event-attribution trace (types/keys only, never content) so evidence shows
+// which identifier native events actually carried.
+process.env.LAM_ZCODE_ADAPTER_DEBUG = '1';
 // Canonicalize up front: on macOS the TMPDIR symlink (/var -> /private/var) must not leak
 // into the adapter's canonical-path workspace validation.
 const root = realpathSync(mkdtempSync(join(tmpdir(), 'lam-lhi2-zcode-native-')));
@@ -63,11 +71,15 @@ function gate(name, pass, detail) { report.assertions.push({ name, pass: pass ==
 
 let adapter;
 try {
-  const pinnedSha256 = createHash('sha256').update(readFileSync(entry)).digest('hex');
+  const actualEntrySha256 = createHash('sha256').update(readFileSync(entry)).digest('hex');
+  gate('entry-sha-pinned-before-spawn', actualEntrySha256 === APPROVED_ENTRY_SHA256,
+    `actual=${actualEntrySha256.slice(0, 16)}… approved=${APPROVED_ENTRY_SHA256.slice(0, 16)}… (an unapproved installed entry must block the run)`);
+  if (actualEntrySha256 !== APPROVED_ENTRY_SHA256)
+    throw new Error(`Installed entry sha256 ${actualEntrySha256} is not the approved pin; native run blocked`);
   const options = {
     nodeId: 'lhi2-node', executable: entry, home, workspaces: { fixture: workspace },
     fixtureBaseUrl: `http://127.0.0.1:${fixture.address().port}/v1`, expectedVersion: '0.17.0', builtinConfig,
-    mode: 'build', expectedExecutableSha256: pinnedSha256,
+    mode: 'build', expectedExecutableSha256: APPROVED_ENTRY_SHA256,
   };
   adapter = await ZcodeAdapter.open(options);
   report.phases.open = { executableSha256: adapter.executableSha256, probe: await adapter.probe() };
@@ -108,6 +120,15 @@ try {
   report.phases.deadline = { events: stream4.map(e => e.type), onlineAfter: (await adapter.probe()).available };
   gate('deadline-ends-unknown', stream4.at(-1)?.type === 'unknown' && (await adapter.probe()).available === false);
 
+  // Snapshot attribution from the first adapter instance before it is closed: the deadline
+  // phase poisons it offline and the restart checks below use a fresh instance.
+  report.phases.eventAttributionFirstInstance = {
+    droppedUnattributedEvents: adapter.droppedUnattributedEvents,
+    streamingEventsWithSessionId: adapter.debugEventTrace.filter(e => e.type === 'model.streaming' && e.sessionId !== null).length,
+    streamingEventsTotal: adapter.debugEventTrace.filter(e => e.type === 'model.streaming').length,
+    traceTotal: adapter.debugEventTrace.length,
+  };
+
   await adapter.close();
   adapter = await ZcodeAdapter.open(options);
   const resumed = await adapter.resume(session.id);
@@ -121,6 +142,14 @@ try {
   gate('restart-resume-identity', resumed.nativeSessionId === session.nativeSessionId);
   gate('durable-idempotent-retry', retry.taskId === 'lhi2-t1' && replay.at(-1)?.type === 'completed');
   gate('new-task-streams-after-restart', afterRestart.at(-1)?.type === 'completed' && afterRestart.at(-1).text === 'LHI2 NATIVE OK');
+  // Protocol evidence for the attribution contract: which identifier each native event
+  // carried, and that nothing had to be dropped for lacking both (fail-closed counter).
+  report.phases.eventAttribution = {
+    droppedUnattributedEvents: adapter.droppedUnattributedEvents,
+    streamingEventsWithSessionId: adapter.debugEventTrace.filter(e => e.type === 'model.streaming' && e.sessionId !== null).length,
+    streamingEventsTotal: adapter.debugEventTrace.filter(e => e.type === 'model.streaming').length,
+    trace: adapter.debugEventTrace.slice(0, 120), traceTotal: adapter.debugEventTrace.length,
+  };
   gate('no-external-models-accounted', report.externalModelRequests === 0 && report.fixtureRequests > 0);
 } catch (error) {
   report.error = String(error?.message ?? error);

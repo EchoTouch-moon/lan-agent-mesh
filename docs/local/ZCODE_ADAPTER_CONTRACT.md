@@ -15,8 +15,8 @@
 | workspaces | 1–64 个别名→规范化绝对目录（realpath 一致） |
 | fixtureBaseUrl | **仅** `http://127.0.0.1:<port>/v1`（loopback、无凭据、无查询串；否则 `permission_denied`） |
 | builtinConfig | 可选绝对路径（原生必需、synthetic 省略）；复制入 home 后强制 chmod 0600（copyFile 保留源模式的坑已修） |
-| expectedExecutableSha256 | 可选 64 位小写十六进制；提供时与实际入口哈希**强比对，不匹配即拒绝打开**（fail closed），负例进 synthetic 测试 |
-| syntheticPeer | 仅测试：声明可执行文件是合成协议对端而非安装版 harness——跳过 darwin-only 原生入口门（该门只约束安装版入口），版本与其余校验全部照常 |
+| expectedExecutableSha256 | **必填** 64 位小写十六进制；缺失、格式错或不匹配都在任何 spawn/home 写入前拒绝打开（fail closed）。安装版入口必须 pin 到**独立审批**的 HARNESS_MATRIX 摘要（`97490d0f…`），不得从被测 entry 现算（自批准）；synthetic fixture 由测试自 pin。负例进 synthetic 测试 |
+| syntheticPeer | 仅测试：声明可执行文件是合成协议对端而非安装版 harness——跳过 darwin-only 原生入口门（该门只约束安装版入口），版本、sha256 pin 与其余校验全部照常 |
 | mode | `'plan'`（默认）或 `'build'`；**仅 build 模式会为工具调用弹原生权限请求**（本 CLI 世代实测），需要行使 deny 链的调用方显式选择 |
 
 ## 2. 隔离与凭据边界
@@ -30,7 +30,7 @@
 - **spawn**: `session/create`（plan/build、immediate 持久化、禁 title 生成）+ `session/subscribe`；LAM session id 与 native sessionId **分离持久**（SQLite durable map）。服务端回调 `session/requestRuntimePreferences` 以固定 headless 应答；`interaction/requestPermission` **恒 deny**（计数器 `deniedNativeRequests`）；其它 server request 一律 -32601。
 - **resume**: `session/resume` 后**显式 `session/subscribe` 重订阅**（重启后的新 app-server 进程没有订阅，不重订阅则该会话后续 turn 的事件不会投递——r13 以"重启后新任务真实流式完成"验证）。幂等回放历史。**已知边界**：resume 应答只含 messages、不含会话身份，适配器无法像 Codex 那样核对 native id 一致性——身份信任限于 id 往返（如实记录，LHI-3 集成时如需强核对须升级协议）。
 - **send**: 幂等（key+fingerprint 冲突拒绝）、taskId 复用拒绝、1000 任务保留上限、deadline 校验、**reserve-before-RPC**（ACK 丢失/超时/进程死亡 → 持久 UNKNOWN，永不重放）、会话级串行（active/ambiguous 拒绝）。
-- **watch**: 缓冲事件重放 + 终态即止。事件归属：生命周期事件按 `payload.inputId` 命中后**必须再通过会话归属交叉校验**（事件 `params.sessionId` === 该 run 所属会话的 nativeSessionId，不匹配即丢弃——外会话终态绝不收口他方任务，负例进 synthetic 测试）；**`model.streaming` 增量不带 inputId（原生实测形状），按 `params.sessionId` → 会话 active run 归属**；无法归属的增量一律丢弃（fail-closed，绝不猜）。容量：≤4090 事件 / 32768 字符。
+- **watch**: 缓冲事件重放 + 终态即止。事件归属：生命周期事件按 `payload.inputId` 命中后**必须再通过会话归属交叉校验**（事件 `params.sessionId` === 该 run 所属会话的 nativeSessionId，不匹配即丢弃——外会话终态绝不收口他方任务，负例进 synthetic 测试）；**`model.streaming` 增量不带 inputId（原生实测形状），按 `params.sessionId` → 会话 active run 归属**；**既无 inputId 又无 sessionId 的事件一律丢弃并计数**（`droppedUnattributedEvents`，fail-closed 绝不猜；不存在"唯一活跃 run"fallback——负例进 synthetic 测试）。容量：≤4090 事件 / 32768 字符。
 - **cancel**: `session/stop`；实测对真正 in-flight 的流产生 `turn.completed(resultType=cancelled)` → cancelled 终态。**调用方应等首个流事件后再取消**（turn 未启动时 stop 的行为不在本切片验证范围）。
 - **重启**: 非终态 run 一律 UNKNOWN（durable）；UNKNOWN 保守持有其会话（resume/send 拒绝），永不自动重放；幂等重试跨重启返回原 taskId。
 - **deadline 到期**: 本地定时器 → 连接 poison → 持久 UNKNOWN + 适配器离线（后续操作 `unsupported`）。

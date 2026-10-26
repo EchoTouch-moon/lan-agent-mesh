@@ -74,6 +74,14 @@ createInterface({ input: process.stdin }).on('line', line => {
     stream(text);
     if (text === 'hold') return;
     if (text === 'fail') return event('turn.failed', { inputId, error: { message: 'native failure' } });
+    if (text === 'noattrib') {
+      // Negative control: events carrying NEITHER inputId NOR sessionId while exactly one run
+      // is active. The adapter must drop them unattributed (fail-closed) instead of crediting
+      // the lone active run; the genuine session-keyed terminal then closes the turn.
+      send({ method: 'session/event', params: { type: 'model.streaming', payload: { kind: 'text_delta', delta: 'GHOST-NOATTRIB' } } });
+      send({ method: 'session/event', params: { type: 'turn.completed', payload: { resultType: 'cancelled' } } });
+      return complete(inputId);
+    }
     if (text === 'crosssession') {
       // Negative control: an inputId-keyed terminal claiming a FOREIGN session must be
       // dropped by the adapter; the genuine terminal with the owning session then closes the run.

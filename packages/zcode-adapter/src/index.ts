@@ -23,8 +23,10 @@ export interface ZcodeOptions {
   builtinConfig?: string;
   /** Session mode for spawned sessions; 'build' surfaces native permission requests for tool calls, 'plan' (default) does not ask for this CLI generation. */
   mode?: 'plan' | 'build';
-  /** Optional pinned sha256 of the executable; when provided, a mismatch refuses to open (fail closed). */
-  expectedExecutableSha256?: string;
+  /** Required pinned sha256 of the executable, approved independently of the executable itself
+   * (the reviewed HARNESS_MATRIX digest for the installed entry; the fixture digest in unit tests).
+   * open() refuses before any spawn when it is missing, malformed or mismatched. */
+  expectedExecutableSha256: string;
   /** Test-only: the executable is a synthetic protocol peer (e.g. the unit-test fake), not an installed harness. Skips the darwin-only native-entry gate; version and all other checks still apply. */
   syntheticPeer?: boolean;
 }
@@ -55,6 +57,7 @@ export class ZcodeAdapter implements HarnessAdapter {
   private online = false;
   private closing: Promise<void> | undefined;
   private denials = 0;
+  private unattributed = 0;
   private locked = false;
   readonly agentId: string;
   readonly executableSha256: string;
@@ -76,7 +79,9 @@ export class ZcodeAdapter implements HarnessAdapter {
       throw new MeshError('unsupported', 'Builtin provider config must be an absolute path');
     if (options.mode !== undefined && !['plan', 'build'].includes(options.mode))
       throw new MeshError('invalid_message', "Mode must be 'plan' or 'build'");
-    if (options.expectedExecutableSha256 !== undefined && !/^[0-9a-f]{64}$/.test(options.expectedExecutableSha256))
+    if (typeof options.expectedExecutableSha256 !== 'string')
+      throw new MeshError('unsupported', 'A pinned executable sha256 is required; unpinned launches are refused');
+    if (!/^[0-9a-f]{64}$/.test(options.expectedExecutableSha256))
       throw new MeshError('invalid_message', 'Expected executable sha256 must be 64 lowercase hex characters');
     const workspaces = Object.fromEntries(Object.entries(options.workspaces).map(([alias, path]) => {
       WorkspaceAliasSchema.parse(alias);
@@ -86,7 +91,7 @@ export class ZcodeAdapter implements HarnessAdapter {
     if (!Object.keys(workspaces).length || Object.keys(workspaces).length > 64)
       throw new MeshError('invalid_message', 'Register between one and 64 workspace aliases');
     const adapter = new ZcodeAdapter({ ...options, home: resolve(options.home), workspaces });
-    if (options.expectedExecutableSha256 !== undefined && adapter.executableSha256 !== options.expectedExecutableSha256)
+    if (adapter.executableSha256 !== options.expectedExecutableSha256)
       throw new MeshError('unsupported', 'Executable sha256 does not match the pinned value');
     try { await adapter.start(); return adapter; }
     catch (error) {
@@ -194,7 +199,9 @@ export class ZcodeAdapter implements HarnessAdapter {
       this.debugEvents.push({ type: String(params.type), payloadKeys: Object.keys(payload), inputId: typeof payload.inputId === 'string' ? payload.inputId : null, sessionId: typeof params.sessionId === 'string' ? params.sessionId : null, kind: typeof payload.kind === 'string' ? payload.kind : null });
     const inputId = typeof payload.inputId === 'string' ? payload.inputId : undefined;
     // Lifecycle events carry inputId; model.streaming deltas do NOT (native shape, verified
-    // against the installed CLI) — attribute those through the session's serialized active run.
+    // against the installed CLI) — attribute those only through an explicit native sessionId.
+    // Events with neither identifier are dropped and counted; a lone active run is never
+    // used to guess attribution (fail-closed, no single-active fallback).
     const nativeSessionId = typeof params.sessionId === 'string' ? params.sessionId : undefined;
     let run: Run | undefined;
     if (inputId !== undefined) {
@@ -209,7 +216,8 @@ export class ZcodeAdapter implements HarnessAdapter {
     else if (nativeSessionId !== undefined) {
       const session = [...this.sessions.values()].find(s => s.nativeSessionId === nativeSessionId);
       run = session ? this.active.get(session.id) : undefined;
-    } else if (this.active.size === 1) run = [...this.active.values()][0]!;
+    }
+    else this.unattributed++;
     if (!run || run.terminal) return; // events for unknown or replayed turns are dropped, never guessed
     if (params.type === 'model.streaming' && payload.kind === 'text_delta') {
       const text = payload.delta;
@@ -317,6 +325,8 @@ export class ZcodeAdapter implements HarnessAdapter {
   }
   async answerPermission(): Promise<void> { throw new MeshError('unsupported', 'Native approvals are always denied; human bridge not implemented'); }
   get deniedNativeRequests() { return this.denials; }
+  /** Events dropped because they carried neither inputId nor native sessionId. */
+  get droppedUnattributedEvents() { return this.unattributed; }
   /** Diagnostics (opt-in via LAM_ZCODE_ADAPTER_DEBUG=1): event types/keys only, never content. */
   get debugEventTrace() { return [...this.debugEvents]; }
   private readonly debugEvents: { type: string; payloadKeys: string[]; inputId: string | null; sessionId: string | null; kind: string | null }[] = [];

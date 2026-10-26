@@ -26,7 +26,10 @@ describe('ZCode adapter protocol invariants (synthetic app-server)', () => {
     const root = realpathSync(mkdtempSync(join(tmpdir(), 'lam-zcode-adapter-unit-')));
     const workspace = join(root, 'workspace'); mkdirSync(workspace, { mode: 0o700 });
     const executable = fileURLToPath(new URL('./fake-zcode-server.mjs', import.meta.url));
-    const options: ZcodeOptions = { nodeId: 'unit-node', executable, home: join(root, 'home'), workspaces: { fixture: workspace }, fixtureBaseUrl: 'http://127.0.0.1:12345/v1', expectedVersion: '0.17.0', syntheticPeer: true };
+    // Synthetic fixtures pin their own peer digest; only the installed native entry requires
+    // an externally reviewed digest (native-smoke pins the HARNESS_MATRIX value).
+    const expectedExecutableSha256 = createHash('sha256').update(readFileSync(executable)).digest('hex');
+    const options: ZcodeOptions = { nodeId: 'unit-node', executable, home: join(root, 'home'), workspaces: { fixture: workspace }, fixtureBaseUrl: 'http://127.0.0.1:12345/v1', expectedVersion: '0.17.0', syntheticPeer: true, expectedExecutableSha256 };
     return { root, options };
   }
   async function events(adapter: ZcodeAdapter, task: string) {
@@ -127,14 +130,34 @@ describe('ZCode adapter protocol invariants (synthetic app-server)', () => {
       expect(result.at(-1)).toEqual({ type: 'completed', taskId: 't2', text: 'afterrestart' });
     } finally { await adapter?.close(); rmSync(root, { recursive: true, force: true }); }
   });
-  it('pins the executable hash: a mismatched expectation refuses to open', async () => {
+  it('requires an explicit executable pin: missing, malformed and mismatched values all refuse to open', async () => {
     const { root, options } = setup(); let adapter: ZcodeAdapter | undefined;
     try {
       const digest = createHash('sha256').update(readFileSync(options.executable)).digest('hex');
+      // Runtime callers (plain JS) can omit the pin; simulate that by deleting it.
+      const unpinned: Partial<ZcodeOptions> = { ...options };
+      delete unpinned.expectedExecutableSha256;
+      await expect(ZcodeAdapter.open(unpinned as ZcodeOptions)).rejects.toThrow('pinned executable sha256 is required');
       await expect(ZcodeAdapter.open({ ...options, expectedExecutableSha256: '0'.repeat(64) })).rejects.toThrow('sha256 does not match');
       adapter = await ZcodeAdapter.open({ ...options, expectedExecutableSha256: digest });
       expect(adapter.executableSha256).toBe(digest);
       await expect(ZcodeAdapter.open({ ...options, expectedExecutableSha256: 'not-hex' })).rejects.toThrow('64 lowercase hex');
+    } finally { await adapter?.close(); rmSync(root, { recursive: true, force: true }); }
+  });
+  it('drops events lacking both inputId and sessionId instead of crediting the lone active run', async () => {
+    const { root, options } = setup(); let adapter: ZcodeAdapter | undefined;
+    try {
+      adapter = await ZcodeAdapter.open(options);
+      const session = await adapter.spawn({ agentId: adapter.agentId, workspaceAlias: 'fixture' });
+      await adapter.send(input(session.id, 't1', 'k1', 'noattrib'));
+      const result = await events(adapter, 't1');
+      // With a single-active-run fallback the unattributed cancelled terminal would close the
+      // run early and the genuine completion would arrive post-terminal as a dropped event.
+      expect(result).toEqual([
+        { type: 'delta', taskId: 't1', text: 'noattrib' },
+        { type: 'completed', taskId: 't1', text: 'noattrib' },
+      ]);
+      expect(adapter.droppedUnattributedEvents).toBe(2);
     } finally { await adapter?.close(); rmSync(root, { recursive: true, force: true }); }
   });
   it('refuses user configuration homes, external providers and concurrent ownership', async () => {
