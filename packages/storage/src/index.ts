@@ -175,6 +175,12 @@ export class Store {
     return JSON.parse(String(row.response));
   }
   receipt(id: string, peer: string, request: unknown, response: unknown) {
+    const previous = this.db.prepare('SELECT * FROM inbox WHERE id=?').get(id);
+    if (previous) {
+      if (previous.peer !== peer || previous.fingerprint !== fingerprint(request))
+        throw new MeshError('conflict', 'Message ID conflict');
+      return;
+    }
     if (this.count('inbox') >= 10000)
       throw new MeshError('busy', 'Inbox retention capacity reached');
     this.db

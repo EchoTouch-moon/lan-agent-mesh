@@ -5,7 +5,6 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { MeshError } from '@lam/protocol';
 import { Store, type TaskStatus } from '../src/index.js';
 
 const input = (overrides: Record<string, unknown> = {}) => ({
@@ -252,22 +251,24 @@ describe('glm53 inbox/outbox ledger: lost ACK, cross-peer isolation and retentio
     }
   });
 
-  it('fails closed when a foreign peer occupies the same message id (raw constraint error, not a forged reply)', () => {
+  it('maps duplicate receipt writes to semantic conflict and keeps the original row authoritative (#86)', () => {
     const store = new Store(':memory:');
     try {
       store.receipt('msg-1', 'peer-a', { hello: 1 }, { ok: true });
-      // Observation recorded in docs/security/glm53/recovery-results.md: the second peer's
-      // receipt write hits the table primary key and surfaces a raw SQLite constraint error
-      // instead of a MeshError code. Fail-closed, but the error code is not semantic.
-      let observed: unknown;
-      try {
-        store.receipt('msg-1', 'peer-b', { hello: 2 }, { forged: true });
-      } catch (error) {
-        observed = error;
-      }
-      expect(observed).toBeInstanceOf(Error);
-      expect(observed).not.toBeInstanceOf(MeshError);
+      // A foreign peer reusing the message id gets a bounded conflict, never a raw SQLite
+      // constraint error (F1 in docs/security/glm53/recovery-results.md; fixed per #86).
+      expect(() => store.receipt('msg-1', 'peer-b', { hello: 2 }, { forged: true })).toThrowError(
+        expect.objectContaining({ code: 'conflict' }),
+      );
+      // Same peer with a changed request fingerprint is likewise a conflict, not an overwrite.
+      expect(() => store.receipt('msg-1', 'peer-a', { hello: 2 }, { forged: true })).toThrowError(
+        expect.objectContaining({ code: 'conflict' }),
+      );
+      // Same peer re-receipting the identical request is an idempotent no-op: the original
+      // response stays authoritative even if a second response value is supplied.
+      store.receipt('msg-1', 'peer-a', { hello: 1 }, { ok: true, duplicate: true });
       expect(store.inbox('msg-1', 'peer-a', { hello: 1 })).toEqual({ ok: true });
+      expect(store.count('inbox')).toBe(1);
     } finally {
       store.close();
     }
