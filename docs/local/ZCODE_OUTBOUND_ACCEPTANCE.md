@@ -20,8 +20,13 @@ Windows 侧 **NOT-RUN**（按 Issue 要求独立复验，不借用本结论）�
 
 - 探针：`scripts/lhi-zcode-mcp-outbound-smoke.mjs`（runner）+ `scripts/lhi-zcode-mcp-contract.mjs`
   （MCP fixture，官方 `@modelcontextprotocol/server` 2.4.0 SDK 实现，`--self-test` 先行自证）
-- 隔离：一次性 `HOME/XDG_*/ZCODE_*` 全部指向 `mkdtemp` 私有目录；用户全局 `~/.zcode`、真实凭据、
-  GUI 一律未触碰；推理经 loopback Chat Completions 定值响应（假 key）
+- 隔离：一次性 `HOME/XDG_*/ZCODE_*` 全部指向 `mkdtemp` 私有目录；**子进程（app-server 及其 MCP
+  子进程）仅继承环境白名单**（PATH/TMPDIR/locale/TZ/TERM/SHELL/USER/LOGNAME/SYSTEMROOT），操作者
+  环境中的任何真实凭据变量不会进入被测进程；用户全局 `~/.zcode`、真实凭据、GUI 一律未触碰；
+  推理经 loopback Chat Completions 定值响应（假 key）
+- 探针自带 **16 项硬断言门**（r4 起）：任一关键证据缺失/为假 → 脚本以非零退出码结束并在报告
+  `assertions` 中逐项列出（advertised 名、正向 turn 完成、结果关联、恰好一次执行计数、各负例
+  fail-closed、零外部模型、双 app-server 退出码、无孤儿进程、HOME 删除验证）
 - MCP 注册（官方 07-mcp.md 合同原文形态）：`{ "mcp": { "servers": { "lam-lhi": { "type": "stdio",
   "command": "<node>", "args": ["<repo>/scripts/lhi-zcode-mcp-contract.mjs", "--stdio"],
   "enabled": true, "timeoutMs": 5000 } } } }`
@@ -43,9 +48,16 @@ Windows 侧 **NOT-RUN**（按 Issue 要求独立复验，不借用本结论）�
 |---|---|
 | 未知工具 `…lam-lhi__nonexistent_tool` | 后续请求含错误信息；无 server 端执行 |
 | 类型违规 `phrase: 12345` | 后续请求含 schema 校验错误（"expected string"类）；无执行 |
-| 服务端挂起 `probe_hang` | server 记录 1 次调用后不返回；harness 约 **5141ms**（≈配置 5000ms `timeoutMs`）后放弃并回错误；turn 完成 |
-| 配置级禁用（`features.mcp:false`，新 app-server 进程） | advertised 从 19 → 17，**不含** fixture 工具；强制发起调用得到错误回执；server 端零执行（JSONL 仅 2 条：echo+hang） |
-| 权限 | 全程 `interaction/requestPermission` 默认 deny 策略；本轮未触发（只读工具） |
+| 服务端挂起 `probe_hang` | server 记录 1 次调用后不返回；harness 约 **5075ms**（≈配置 5000ms `timeoutMs`）后放弃并回错误；turn 完成 |
+| 配置级禁用（`features.mcp:false`，新 app-server 进程） | advertised 从 19 → 17，**不含** fixture 工具；强制发起调用得到错误回执；server 端零执行（JSONL 仅 echo+hang+权限用例） |
+| **原生权限门（build 模式，r4 新增）** | build 模式下对 `probe_echo` 的 tool-call **触发了原生 `interaction/requestPermission`**；探针回复 deny 后：工具**零执行**（`lhi-perm` 计数 0）、后续请求含 denied/error 回执、turn 正常收束——完整 fail-closed 链 |
+
+## 4a. 清理与进程证据（r4 起）
+
+- 两个 app-server 进程（主会话 / 禁用对照）均**自然退出 exit code 0**（`appServerExitFirst/Second`）
+- 关闭后 `pgrep` 全量检查（fixture 脚本路径 + 一次性 HOME 两个模式）：**无孤儿进程**（MCP 子进程
+  随 app-server 退出；如发现属于本探针的孤儿会先验证命令行归属再 SIGKILL 并记录）
+- 一次性 HOME 删除后读验证失败（`disposableHomeRemoved: true`）；loopback 监听随 runner 关闭
 
 ## 5. 观察与限制（如实记录）
 
@@ -58,7 +70,8 @@ Windows 侧 **NOT-RUN**（按 Issue 要求独立复验，不借用本结论）�
 3. darwin-r1 失败是**探针脚本缺陷**（同相位重复发 tool_call 导致 turn 永不完成），非 harness 缺陷；
    失败历史保留在 evidence README。
 4. 未覆盖：GUI 会话、真实凭据、外网模型、入站（LHI-2 范围）、Windows（独立复验）、
-   `type:http/sse` 传输（本轮只验 stdio 合同）。
+   `type:http/sse` 传输（本轮只验 stdio 合同）、`enabled:false` 单服务器级禁用（只验了全局
+   `features.mcp:false`）、权限"允许"路径（按边界只测 deny）。
 
 ## 6. 授权与安全边界确认（运行前已核）
 

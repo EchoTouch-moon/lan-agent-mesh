@@ -26,9 +26,12 @@ const entry = process.env.LAM_ZCODE_ENTRY ?? '/Applications/ZCode.app/Contents/R
 const contractScript = resolve(dirname(fileURLToPath(import.meta.url)), 'lhi-zcode-mcp-contract.mjs');
 const root = await mkdtemp(join(tmpdir(), 'lam-lhi-zcode-outbound-'));
 const mcpLog = join(root, 'mcp-invocations.jsonl');
-const inherited = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('ZCODE_') && key !== 'LHI_MCP_LOG'));
+// Children (app-server, its MCP child) get an explicit allowlist only: inheriting the full
+// operator environment could leak real provider credentials into disposable processes.
+const allowEnvKeys = ['PATH', 'TMPDIR', 'LANG', 'LC_ALL', 'LC_CTYPE', 'TZ', 'TERM', 'SHELL', 'USER', 'LOGNAME', 'SYSTEMROOT'];
+const baseEnv = Object.fromEntries(allowEnvKeys.filter(key => process.env[key] !== undefined).map(key => [key, process.env[key]]));
 const env = {
-  ...inherited, HOME: root,
+  ...baseEnv, HOME: root,
   ...(process.platform === 'win32' ? { USERPROFILE: root, APPDATA: join(root, 'appdata'), LOCALAPPDATA: join(root, 'localappdata') } : {}),
   XDG_CONFIG_HOME: root, XDG_DATA_HOME: root, ZCODE_DATA_BASE_DIR: root,
   ZCODE_STORAGE_DIR: join(root, 'storage'), ZCODE_SESSION_DB_PATH: join(root, 'sessions.sqlite'),
@@ -107,6 +110,17 @@ const fixture = createServer(async (request, response) => {
     report.negatives.wrongTypeParam = { followupMentionsValidationError: /expected string|invalid input|validation/i.test(messagesText) };
     finishText('wrong type case done'); return;
   }
+  if (phase === 'permission') {
+    // Build-mode MCP tool call: does the harness gate read-only MCP tools behind a native
+    // permission request? Either outcome is evidence; the runner records which occurred.
+    if (!emitted) {
+      emitted = true;
+      delta(toolCallDelta(echoToolName ?? 'probe_echo', { phrase: 'lhi-perm' })); delta({}, 'tool_calls'); response.end('data: [DONE]\n\n'); return;
+    }
+    report.results.permissionProbe ??= {};
+    report.results.permissionProbe.followupMentionsDeniedOrError = /denied|deny|error|not authorized|permission/i.test(messagesText);
+    finishText('permission case done'); return;
+  }
   if (phase === 'hang') {
     if (!emitted) {
       emitted = true;
@@ -176,7 +190,9 @@ try {
       if (message.method === 'startup/storageState') report.startup.storageStates.push({ phase: message.params?.phase, elapsedMs: message.params?.elapsedMs, errorCode: message.params?.errorCode });
       if (message.method === 'interaction/requestPermission' && 'id' in message) {
         connection.reply(message.id, { decision: 'deny', reason: 'LHI fixture rejects this temporary operation.' });
-        report.results.permissionRequestsDenied ??= (report.results.permissionRequestsDenied ?? 0) + 1;
+        report.results.permissionProbe ??= {};
+        report.results.permissionProbe.nativeRequestObserved = true;
+        report.results.permissionProbe.nativeDecision = 'deny';
       }
       if (message.method === 'session/requestRuntimePreferences' && 'id' in message) {
         report.startup.preferenceRequests.push({ scope: message.params?.scope });
@@ -208,6 +224,13 @@ try {
     report.negatives.unknownToolTurn = await runTurn(rpc, sessionId, 'unknown');
     setPhase('wrongtype');
     report.negatives.wrongTypeTurn = await runTurn(rpc, sessionId, 'wrongtype');
+    // Permission negative: same read-only tool, build mode. If the harness requests native
+    // permission we deny it; if it does not, that absence is itself recorded evidence.
+    await rpc.call('session/setMode', { sessionId, mode: 'build' });
+    setPhase('permission');
+    report.results.permissionProbe ??= { nativeRequestObserved: false };
+    report.results.permissionTurn = await runTurn(rpc, sessionId, 'permission');
+    await rpc.call('session/setMode', { sessionId, mode: 'plan' });
     setPhase('hang');
     const hangStarted = Date.now();
     report.negatives.timeoutTurn = await runTurn(rpc, sessionId, 'hang');
@@ -216,6 +239,8 @@ try {
   await rpc.call('session/close', { sessionId });
   // Control: same binary, MCP disabled at config level in a fresh app-server process.
   await rpc.close();
+  report.cleanup ??= {};
+  report.cleanup.appServerExitFirst = rpc.diagnostics().exit;
   await writeFile(join(root, '.zcode', 'cli', 'config.json'), JSON.stringify({
     features: { mcp: false, subagent: false, memory: false, skill: false },
     plugins: { enabled: false }, hooks: { enabled: false },
@@ -237,14 +262,66 @@ try {
   process.exitCode = 1;
 } finally {
   await rpc?.close();
+  report.cleanup ??= {};
+  report.cleanup.appServerExitSecond = rpc ? rpc.diagnostics().exit : null;
   report.diagnostics = rpc ? JSON.parse(redactProbeText(JSON.stringify(rpc.diagnostics()), root)) : undefined;
   report.startup.logs = await startupLogSummary(join(root, 'logs'), root).catch(() => []);
   fixture.closeAllConnections(); await new Promise(resolve => fixture.close(resolve));
-  report.cleanup = { fixtureRequests: report.fixtureRequests, externalModelRequests: report.externalModelRequests };
+  report.cleanup.fixtureRequests = report.fixtureRequests;
+  report.cleanup.externalModelRequests = report.externalModelRequests;
   try { report.mcpServerLog = (await readFile(mcpLog, 'utf8')).trim().split('\n').map(line => JSON.parse(line)); }
   catch { report.mcpServerLog = null; }
+  // Orphan-process verification: any surviving process whose command references this probe's
+  // fixture script or disposable home is an orphan we own; kill only those, then re-check.
+  if (process.platform !== 'win32') {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const orphans = [];
+    for (const pattern of ['lhi-zcode-mcp-contract.mjs', root]) {
+      try {
+        const { stdout } = await execFileAsync('pgrep', ['-f', pattern], { timeout: 5000 });
+        for (const line of stdout.trim().split('\n').filter(Boolean)) {
+          const pid = Number(line);
+          if (!Number.isInteger(pid) || pid === process.pid) continue;
+          let command = 'unavailable';
+          try { ({ stdout: command } = await execFileAsync('ps', ['-p', String(pid), '-o', 'command='], { timeout: 5000 })); }
+          catch { /* process may have exited between pgrep and ps */ }
+          const match = command.includes('lhi-zcode-mcp-contract.mjs') || command.includes(root);
+          const entry = { pid, command: redactProbeText(command.trim(), root).slice(0, 200), owned: match };
+          if (match) { try { process.kill(pid, 'SIGKILL'); entry.killed = true; } catch { entry.killed = false; } }
+          orphans.push(entry);
+        }
+      } catch { /* pgrep exit 1 = no match */ }
+    }
+    report.cleanup.orphans = orphans.length
+      ? { status: 'orphans-found', note: 'probe-owned processes were SIGKILLed; verify list', found: orphans }
+      : { status: 'clean' };
+  } else report.cleanup.orphans = { status: 'unsupported-on-windows' };
   await rm(root, { recursive: true, force: true });
   try { await readFile(root); report.cleanup.disposableHomeRemoved = false; }
   catch { report.cleanup.disposableHomeRemoved = true; }
+  // Hard assertion gate: exit 0 only when every load-bearing piece of evidence held.
+  const phraseCount = phrase => (report.mcpServerLog ?? []).filter(entry => entry.args?.phrase === phrase).length;
+  const toolCount = tool => (report.mcpServerLog ?? []).filter(entry => entry.tool === tool).length;
+  const gates = [];
+  const gate = (name, pass, detail) => gates.push({ name, pass: pass === true, detail });
+  gate('advertised-echo-name', typeof echoToolName === 'string' && echoToolName.startsWith('mcp__lam-lhi__'), echoToolName ?? null);
+  gate('positive-turn-completed', report.results?.advertisedFirstTurn?.eventType === 'turn.completed' && report.results?.advertisedFirstTurn?.resultType === 'success');
+  gate('result-correlation', report.results?.resultCorrelation?.observedInFollowupRequest === true);
+  gate('echo-executed-exactly-once', phraseCount('lhi-positive') === 1, `count=${phraseCount('lhi-positive')}`);
+  gate('hang-invoked-exactly-once', toolCount('probe_hang') === 1, `count=${toolCount('probe_hang')}`);
+  gate('disabled-no-execution', phraseCount('should-not-execute') === 0, `count=${phraseCount('should-not-execute')}`);
+  gate('unknown-tool-fail-closed', report.negatives?.unknownTool?.followupMentionsError === true && report.negatives?.unknownToolTurn?.eventType === 'turn.completed');
+  gate('wrong-type-fail-closed', report.negatives?.wrongTypeParam?.followupMentionsValidationError === true && report.negatives?.wrongTypeTurn?.eventType === 'turn.completed');
+  gate('timeout-fail-closed', report.negatives?.timeout?.followupMentionsTimeoutOrError === true && report.negatives?.timeoutDurationMs > 3000 && report.negatives?.timeoutDurationMs < 20000, `${report.negatives?.timeoutDurationMs}ms`);
+  gate('disabled-control', report.negatives?.disabledMcp?.advertisedContainsEcho === false && report.negatives?.disabledMcp?.followupMentionsError === true);
+  const permission = report.results?.permissionProbe ?? {};
+  gate('permission-outcome-recorded', typeof permission.nativeRequestObserved === 'boolean' && (!permission.nativeRequestObserved || phraseCount('lhi-perm') === 0), JSON.stringify({ nativeRequestObserved: permission.nativeRequestObserved ?? null, lhiPermExecutions: phraseCount('lhi-perm') }));
+  gate('no-external-models', report.externalModelRequests === 0);
+  gate('app-server-exits-recorded', Boolean(report.cleanup.appServerExitFirst) && Boolean(report.cleanup.appServerExitSecond), JSON.stringify({ first: report.cleanup.appServerExitFirst, second: report.cleanup.appServerExitSecond }));
+  gate('no-orphan-processes', ['clean', 'unsupported-on-windows'].includes(report.cleanup.orphans?.status), report.cleanup.orphans?.status);
+  gate('disposable-home-removed', report.cleanup.disposableHomeRemoved === true);
+  report.assertions = gates;
+  report.verdict = gates.every(entry => entry.pass) ? 'PASS' : 'FAIL';
+  if (report.verdict === 'FAIL') process.exitCode = 1;
 }
 console.log(JSON.stringify(report, null, 2));
