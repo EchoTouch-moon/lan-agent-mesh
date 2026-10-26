@@ -79,8 +79,8 @@
     "testsPassed": 107,
     "testsSkipped": 4,
     "testsDefined": 111,
-    "testedSourceSha": "b723375c3dc13212c0732939259d7699ab530cec",
-    "scope": "Full check completed while subsequent edits were confined to optional probe/contract scripts; final scripts separately linted and contract-checked."
+    "testedSourceSha": null,
+    "scope": "Invocation source SHA was not independently captured; subsequent edits were confined to optional probe/contract scripts and docs. Product implementation stayed unchanged. Final scripts separately linted and contract-checked; CI records exact tested commit."
   },
   "approvalException": "Human explicitly approved exactly four local fixture MCP tool policies in this chat; native receiver permissions remain decline."
 }
