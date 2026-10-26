@@ -1,3 +1,5 @@
+> **最新目标架构（2026-10-26）**：旧正文是早期设计快照。正式演进依据 [ADR0004](adr/0004-standards-first-agent-interop.md) 和 [研究/工程重规划](INTEROP_REBASELINE_2026-10-26.md)。北向保留本机 MCP，并增加**默认关闭、loopback-only、scoped 的 A2A v1.0 Bridge**；核心维持 Gateway Node/Task/Session 持久与原生所有权，南向 Codex/DSH Adapter，底层维持 Noise/Yamux；SLIM/Directory、SHADI 属于验证后可选/参考组件，不是当前实现。原有 P2 已通过 #63 合入主干；仍未完成双向 Harness 主动调用的实体证据。
+
 # LAN Agent Mesh Architecture
 
 Status: target architecture. P0 domain/protocol/adapter/mock contracts are implemented locally; P1 network Gateway components are implemented on the P1 branch for Mac-local verification; physical cross-platform acceptance remains pending. See [ADR 0002](adr/0002-p1-mesh-runtime.md). See [ADR 0001](adr/0001-p0-contracts.md).
