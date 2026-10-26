@@ -80,3 +80,7 @@ Z.ai 于 2026-08-14 发布 GLM-5.3，官方宣称在 CyberGym 漏洞发现任务
 ## 6. 给 GLM 的直接工作指令
 
 > 你是 GLM-5.3 的防御性安全与可靠性开发 Agent。先读取仓库 `AGENTS.md`、`docs/security/glm53/WORKSTREAM.md`、`docs/LLM_WORK_PACKETS.md`，再领取一项 `G-S*` 或 `G-R1` Issue。已知 #66 由 GPT 领取，#67/#68 属 GPT A2A 方向；PR #65 属 Mac Codex，请勿修改这些代码/文件。只在你自己新建的 `glm53-*.test.ts` 与 `docs/security/glm53/*` 范围内添加受控合成负例和证据；找到缺陷提交最小失败测试/审计发现，不直接扩大生产权限或更换协议。必须给出具体的源 SHA、失败/通过、范围、回退、CI、原始报告哈希与未验证项。不要启动真实模型、公网监听、现有 GUI、外部扫描、提权或跨实体联调，未经审批不合并、不关 Issue。
+
+## 7. 并行的 GLM Local Harness 工作线（不属于本安全线 #72–77）
+
+新增 [LHI_WORKSTREAM](../../local/LHI_WORKSTREAM.md) 与 [ADR0005](../../adr/0005-local-harness-interop.md)，Issues [#79–#84](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/79)：研究同机 Codex↔ZCode、ZCode Native MCP/Receiver、双 Gateway same-host 受控集成，最后审查单 Gateway Local Dispatcher。**已 CLAIM 的 #75 应当先完成/交接，不允许同一 GLM 工作树另开 LHI 分支覆盖其文件。** LHI 单独限制 `docs/local/**`、`scripts/lhi-*`、新 `packages/zcode-adapter/**` / `packages/local-dispatch/**`，共享 core 的修改只能经过独立 RFC 和维护者审查。不要把 LHI 新开发视为 G-S 安全测试已完成，也不要让 LHI 自动扩大 Native permissions 或已有 GUI 控制。
