@@ -16,7 +16,6 @@ import { createHash, randomUUID } from 'node:crypto';
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync, chmodSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { ZcodeAdapter } from '../dist/index.js';
 import { ZcodeRpc } from '../dist/rpc.js';
 
@@ -126,7 +125,6 @@ try {
   await rpc.call('session/subscribe', { sessionId: requested, deliveryKind: 'desktop-continuous' });
   gate('session-create-subscribe', created && (created.sessionId === undefined || created.sessionId === requested), `echo=${created?.sessionId === requested ? 'requested-id' : String(created?.sessionId)}`);
 
-  const sessionEvent = (type, payloadKind) => events.find(e => e?.type === type && (payloadKind === undefined || e?.payload?.kind === payloadKind));
   async function turn(inputId, text) {
     const start = events.length;
     await rpc.call('session/send', { sessionId: requested, inputId, modelSelection, content: text });
