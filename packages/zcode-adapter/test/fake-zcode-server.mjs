@@ -15,11 +15,13 @@ if (process.env.OPENAI_API_KEY || process.env.ZCODE_OPENAI_API_KEY || process.en
 const file = join(process.env.ZCODE_DATA_BASE_DIR, 'fake-sessions.json');
 let sessions; try { sessions = JSON.parse(readFileSync(file, 'utf8')); } catch { sessions = []; }
 let permission; // { inputId, requestId }
+const subscribed = new Set(); // sessions the client explicitly subscribed to
 const send = value => console.log(JSON.stringify(value));
 // Mirror the native event shape: session-scoped params with sessionId; lifecycle payloads
 // carry inputId, model.streaming deltas do NOT (attribution is by session in the adapter).
+// Events are only delivered for subscribed sessions — a restarted client must re-subscribe.
 let activeSessionId;
-const event = (type, payload) => send({ method: 'session/event', params: { sessionId: activeSessionId, type, payload } });
+const event = (type, payload) => { if (subscribed.has(activeSessionId)) send({ method: 'session/event', params: { sessionId: activeSessionId, type, payload } }); };
 const stream = delta => event('model.streaming', { kind: 'text_delta', delta });
 const complete = (inputId, resultType = 'success') => event('turn.completed', { inputId, resultType });
 
@@ -45,7 +47,7 @@ createInterface({ input: process.stdin }).on('line', line => {
     sessions.push(session); writeFileSync(file, JSON.stringify(sessions), { mode: 0o600 });
     return send({ id: m.id, result: { sessionId: session.sessionId } });
   }
-  if (m.method === 'session/subscribe') return send({ id: m.id, result: {} });
+  if (m.method === 'session/subscribe') { subscribed.add(m.params.sessionId); return send({ id: m.id, result: {} }); }
   if (m.method === 'session/setMode' || m.method === 'session/close') return send({ id: m.id, result: {} });
   if (m.method === 'session/resume') {
     const session = sessions.find(s => s.sessionId === m.params.sessionId);
@@ -72,6 +74,17 @@ createInterface({ input: process.stdin }).on('line', line => {
     stream(text);
     if (text === 'hold') return;
     if (text === 'fail') return event('turn.failed', { inputId, error: { message: 'native failure' } });
+    if (text === 'crosssession') {
+      // Negative control: an inputId-keyed terminal claiming a FOREIGN session must be
+      // dropped by the adapter; the genuine terminal with the owning session then closes the run.
+      const real = activeSessionId;
+      activeSessionId = 'sess_foreign_claim';
+      subscribed.add('sess_foreign_claim'); // ensure delivery is attempted, so only the cross-check can save us
+      event('turn.completed', { inputId, resultType: 'cancelled' });
+      subscribed.delete('sess_foreign_claim');
+      activeSessionId = real;
+      return complete(inputId);
+    }
     complete(inputId);
     if (text === 'dedup') {
       // Noise the adapter must drop: a foreign inputId and post-terminal duplicates.

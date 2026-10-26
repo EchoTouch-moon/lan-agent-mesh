@@ -6,7 +6,8 @@
 // + durable idempotent retry -> cleanup proof. Assertion gate mirrors the LHI-1 probe:
 // exit 0 only if every load-bearing check holds. darwin only; Windows stays NOT-RUN.
 import { createServer } from 'node:http';
-import { mkdtempSync, rmSync, statSync, existsSync, mkdirSync, realpathSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { mkdtempSync, rmSync, statSync, existsSync, mkdirSync, readFileSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { ZcodeAdapter } from '../dist/index.js';
@@ -62,10 +63,11 @@ function gate(name, pass, detail) { report.assertions.push({ name, pass: pass ==
 
 let adapter;
 try {
+  const pinnedSha256 = createHash('sha256').update(readFileSync(entry)).digest('hex');
   const options = {
     nodeId: 'lhi2-node', executable: entry, home, workspaces: { fixture: workspace },
     fixtureBaseUrl: `http://127.0.0.1:${fixture.address().port}/v1`, expectedVersion: '0.17.0', builtinConfig,
-    mode: 'build',
+    mode: 'build', expectedExecutableSha256: pinnedSha256,
   };
   adapter = await ZcodeAdapter.open(options);
   report.phases.open = { executableSha256: adapter.executableSha256, probe: await adapter.probe() };
@@ -95,7 +97,7 @@ try {
   await adapter.send(t3);
   const stream3 = await events(adapter, 'lhi2-t3');
   report.phases.permission = { events: stream3.map(e => e.type), denials: adapter.deniedNativeRequests, markerCreated: existsSync(marker) };
-  gate('permission-fail-closed', !existsSync(marker) && stream3.at(-1)?.type === 'completed');
+  gate('permission-fail-closed', !existsSync(marker) && stream3.at(-1)?.type === 'completed' && adapter.deniedNativeRequests >= 1, `markerAbsent=${!existsSync(marker)},denials=${adapter.deniedNativeRequests} (a real native denial request must be observed, not just an absent marker)`);
 
   // The elapsed-deadline turn ends UNKNOWN and conservatively holds ITS session; use a
   // separate session so the restart/resume checks exercise a clean one.
@@ -111,9 +113,14 @@ try {
   const resumed = await adapter.resume(session.id);
   const retry = await adapter.send(t1);
   const replay = await events(adapter, 'lhi2-t1');
-  report.phases.restart = { resumedNativeId: resumed.nativeSessionId === session.nativeSessionId, retry, replayType: replay.at(-1)?.type };
+  // A NEW turn on the resumed session must stream live events from the restarted native
+  // process — this is what the resume re-subscribe exists for.
+  await adapter.send({ sessionId: session.id, taskId: 'lhi2-t5', text: 'LHI2 after restart', idempotencyKey: 'lhi2-k5', deadline: new Date(Date.now() + 120000).toISOString() });
+  const afterRestart = await events(adapter, 'lhi2-t5');
+  report.phases.restart = { resumedNativeId: resumed.nativeSessionId === session.nativeSessionId, retry, replayType: replay.at(-1)?.type, afterRestart: afterRestart.map(e => e.type), afterRestartText: afterRestart.at(-1)?.text };
   gate('restart-resume-identity', resumed.nativeSessionId === session.nativeSessionId);
   gate('durable-idempotent-retry', retry.taskId === 'lhi2-t1' && replay.at(-1)?.type === 'completed');
+  gate('new-task-streams-after-restart', afterRestart.at(-1)?.type === 'completed' && afterRestart.at(-1).text === 'LHI2 NATIVE OK');
   gate('no-external-models-accounted', report.externalModelRequests === 0 && report.fixtureRequests > 0);
 } catch (error) {
   report.error = String(error?.message ?? error);

@@ -23,6 +23,8 @@ export interface ZcodeOptions {
   builtinConfig?: string;
   /** Session mode for spawned sessions; 'build' surfaces native permission requests for tool calls, 'plan' (default) does not ask for this CLI generation. */
   mode?: 'plan' | 'build';
+  /** Optional pinned sha256 of the executable; when provided, a mismatch refuses to open (fail closed). */
+  expectedExecutableSha256?: string;
 }
 type Run = { input: SendInput; inputId: string; fingerprint: string; events: AdapterEvent[]; terminal: boolean };
 type NativeObject = Record<string, unknown>;
@@ -70,6 +72,8 @@ export class ZcodeAdapter implements HarnessAdapter {
       throw new MeshError('unsupported', 'Builtin provider config must be an absolute path');
     if (options.mode !== undefined && !['plan', 'build'].includes(options.mode))
       throw new MeshError('invalid_message', "Mode must be 'plan' or 'build'");
+    if (options.expectedExecutableSha256 !== undefined && !/^[0-9a-f]{64}$/.test(options.expectedExecutableSha256))
+      throw new MeshError('invalid_message', 'Expected executable sha256 must be 64 lowercase hex characters');
     const workspaces = Object.fromEntries(Object.entries(options.workspaces).map(([alias, path]) => {
       WorkspaceAliasSchema.parse(alias);
       if (!isAbsolute(path) || realpathSync(path) !== resolve(path)) throw new MeshError('permission_denied', 'Workspace must be a canonical local directory');
@@ -78,6 +82,8 @@ export class ZcodeAdapter implements HarnessAdapter {
     if (!Object.keys(workspaces).length || Object.keys(workspaces).length > 64)
       throw new MeshError('invalid_message', 'Register between one and 64 workspace aliases');
     const adapter = new ZcodeAdapter({ ...options, home: resolve(options.home), workspaces });
+    if (options.expectedExecutableSha256 !== undefined && adapter.executableSha256 !== options.expectedExecutableSha256)
+      throw new MeshError('unsupported', 'Executable sha256 does not match the pinned value');
     try { await adapter.start(); return adapter; }
     catch (error) {
       if (process.env.LAM_ZCODE_ADAPTER_DEBUG === '1')
@@ -187,7 +193,15 @@ export class ZcodeAdapter implements HarnessAdapter {
     // against the installed CLI) — attribute those through the session's serialized active run.
     const nativeSessionId = typeof params.sessionId === 'string' ? params.sessionId : undefined;
     let run: Run | undefined;
-    if (inputId !== undefined) run = [...this.runs.values()].find(r => r.inputId === inputId);
+    if (inputId !== undefined) {
+      run = [...this.runs.values()].find(r => r.inputId === inputId);
+      // Cross-check session ownership: an inputId-keyed terminal from a foreign session must
+      // never close a run that belongs to another session.
+      if (run && nativeSessionId !== undefined) {
+        const owner = this.sessions.get(run.input.sessionId);
+        if (owner?.nativeSessionId !== nativeSessionId) run = undefined;
+      }
+    }
     else if (nativeSessionId !== undefined) {
       const session = [...this.sessions.values()].find(s => s.nativeSessionId === nativeSessionId);
       run = session ? this.active.get(session.id) : undefined;
@@ -241,6 +255,9 @@ export class ZcodeAdapter implements HarnessAdapter {
       // limited to the id round-trip and is recorded as such in the adapter contract.
       const result = object(await this.rpc.call('session/resume', { sessionId: session.nativeSessionId, workspace: { workspacePath: this.options.workspaces[session.workspaceAlias], workspaceKey: this.options.workspaces[session.workspaceAlias] } }));
       if (!Array.isArray(result.messages)) throw new Error('Invalid native resume reply');
+      // A restarted app-server has no subscriptions; event delivery for subsequent turns on
+      // this session requires an explicit subscribe after resume.
+      await this.rpc.call('session/subscribe', { sessionId: session.nativeSessionId, deliveryKind: 'desktop-continuous' });
       return structuredClone(session);
     } finally { this.locks.delete(sessionId); }
   }

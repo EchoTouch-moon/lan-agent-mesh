@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, realpathSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { mkdtempSync, rmSync, mkdirSync, readFileSync, writeFileSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,7 +21,7 @@ it('bounds stdio, poisons timed-out mutations and redacts native error bodies', 
   finally { await error.close(); }
 });
 
-describe.skipIf(process.platform !== 'darwin')('ZCode adapter protocol invariants (synthetic app-server)', () => {
+describe('ZCode adapter protocol invariants (synthetic app-server)', () => {
   function setup() {
     const root = realpathSync(mkdtempSync(join(tmpdir(), 'lam-zcode-adapter-unit-')));
     const workspace = join(root, 'workspace'); mkdirSync(workspace, { mode: 0o700 });
@@ -94,6 +95,46 @@ describe.skipIf(process.platform !== 'darwin')('ZCode adapter protocol invariant
       expect(result.at(-1)?.type).toBe('unknown');
       await expect(adapter.send(input(session.id, 't1', 'k1', 'hold', 150))).rejects.toThrow('offline');
       await expect(adapter.send(input(session.id, 't2', 'k2'))).rejects.toThrow('offline');
+    } finally { await adapter?.close(); rmSync(root, { recursive: true, force: true }); }
+  });
+  it('drops foreign-session terminals and delivers only the owning session outcome', async () => {
+    const { root, options } = setup(); let adapter: ZcodeAdapter | undefined;
+    try {
+      adapter = await ZcodeAdapter.open(options);
+      const session = await adapter.spawn({ agentId: adapter.agentId, workspaceAlias: 'fixture' });
+      await adapter.send(input(session.id, 't1', 'k1', 'crosssession'));
+      const result = await events(adapter, 't1');
+      // The foreign claim (cancelled) must be dropped; the genuine terminal (success) closes the run.
+      expect(result).toEqual([
+        { type: 'delta', taskId: 't1', text: 'crosssession' },
+        { type: 'completed', taskId: 't1', text: 'crosssession' },
+      ]);
+    } finally { await adapter?.close(); rmSync(root, { recursive: true, force: true }); }
+  });
+  it('streams a NEW task on a resumed session after adapter restart', async () => {
+    const { root, options } = setup(); let adapter: ZcodeAdapter | undefined;
+    try {
+      adapter = await ZcodeAdapter.open(options);
+      const session = await adapter.spawn({ agentId: adapter.agentId, workspaceAlias: 'fixture' });
+      await adapter.send(input(session.id, 't1', 'k1', 'warm'));
+      expect((await events(adapter, 't1')).at(-1)?.type).toBe('completed');
+      await adapter.close(); adapter = await ZcodeAdapter.open(options);
+      await adapter.resume(session.id);
+      // Without a re-subscribe after resume the (fresh) native process never delivers events
+      // and this turn would end UNKNOWN at its deadline instead of completing.
+      await adapter.send(input(session.id, 't2', 'k2', 'afterrestart'));
+      const result = await events(adapter, 't2');
+      expect(result.at(-1)).toEqual({ type: 'completed', taskId: 't2', text: 'afterrestart' });
+    } finally { await adapter?.close(); rmSync(root, { recursive: true, force: true }); }
+  });
+  it('pins the executable hash: a mismatched expectation refuses to open', async () => {
+    const { root, options } = setup(); let adapter: ZcodeAdapter | undefined;
+    try {
+      const digest = createHash('sha256').update(readFileSync(options.executable)).digest('hex');
+      await expect(ZcodeAdapter.open({ ...options, expectedExecutableSha256: '0'.repeat(64) })).rejects.toThrow('sha256 does not match');
+      adapter = await ZcodeAdapter.open({ ...options, expectedExecutableSha256: digest });
+      expect(adapter.executableSha256).toBe(digest);
+      await expect(ZcodeAdapter.open({ ...options, expectedExecutableSha256: 'not-hex' })).rejects.toThrow('64 lowercase hex');
     } finally { await adapter?.close(); rmSync(root, { recursive: true, force: true }); }
   });
   it('refuses user configuration homes, external providers and concurrent ownership', async () => {
