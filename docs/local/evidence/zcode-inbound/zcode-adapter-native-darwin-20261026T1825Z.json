@@ -1,0 +1,338 @@
+{
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "entry": "/Applications/ZCode.app/Contents/Resources/glm/zcode.cjs",
+  "phases": {
+    "open": {
+      "executableSha256": "97490d0f06a7a225d54d47817acf4b4859cdb268b59f2490caaeda982bef063a",
+      "probe": {
+        "available": true,
+        "kind": "zcode",
+        "version": "0.17.0",
+        "capabilities": {
+          "discover": "supported",
+          "spawn": "supported",
+          "resume": "supported",
+          "send": "supported",
+          "watch": "supported",
+          "cancel": "supported",
+          "answerPermission": "unsupported",
+          "attachExistingGui": "unsupported"
+        }
+      }
+    },
+    "spawn": {
+      "session": "distinct-mapping"
+    },
+    "sendStream": {
+      "events": [
+        "delta",
+        "completed"
+      ],
+      "text": "LHI2 NATIVE OK"
+    },
+    "holdFirstEvent": "delta",
+    "cancel": {
+      "events": [
+        "delta",
+        "cancelled"
+      ]
+    },
+    "permission": {
+      "events": [
+        "delta",
+        "completed"
+      ],
+      "denials": 1,
+      "markerCreated": false
+    },
+    "deadline": {
+      "events": [
+        "delta",
+        "unknown"
+      ],
+      "onlineAfter": false
+    },
+    "eventAttributionFirstInstance": {
+      "droppedUnattributedEvents": 0,
+      "streamingEventsWithSessionId": 8,
+      "streamingEventsTotal": 8,
+      "traceTotal": 45
+    },
+    "restart": {
+      "resumedNativeId": true,
+      "retry": {
+        "taskId": "lhi2-t1"
+      },
+      "replayType": "completed",
+      "afterRestart": [
+        "delta",
+        "completed"
+      ],
+      "afterRestartText": "LHI2 NATIVE OK"
+    },
+    "eventAttribution": {
+      "droppedUnattributedEvents": 0,
+      "streamingEventsWithSessionId": 1,
+      "streamingEventsTotal": 1,
+      "trace": [
+        {
+          "type": "turn.started",
+          "payloadKeys": [
+            "executionStartedAt",
+            "turnNumber",
+            "input",
+            "messageId",
+            "inputId",
+            "foregroundExecutionId",
+            "queryId",
+            "intent"
+          ],
+          "inputId": "d1ae33f8-d664-4105-81b5-326c264339ae",
+          "sessionId": "sess_37aa0d5f-8dc6-488b-9891-0c631e9dff2a",
+          "kind": null
+        },
+        {
+          "type": "session.updated",
+          "payloadKeys": [
+            "pendingInputId",
+            "sourceCommandId",
+            "messageId"
+          ],
+          "inputId": null,
+          "sessionId": "sess_37aa0d5f-8dc6-488b-9891-0c631e9dff2a",
+          "kind": null
+        },
+        {
+          "type": "session.updated",
+          "payloadKeys": [
+            "messageCount",
+            "providerId",
+            "modelId",
+            "toolCount",
+            "iteration"
+          ],
+          "inputId": null,
+          "sessionId": "sess_37aa0d5f-8dc6-488b-9891-0c631e9dff2a",
+          "kind": null
+        },
+        {
+          "type": "session.updated",
+          "payloadKeys": [
+            "baseURL",
+            "maxAttempts",
+            "providerId",
+            "modelId",
+            "modelRequestSessionType",
+            "requestId",
+            "sessionId",
+            "spanId",
+            "parentSpanId",
+            "querySource",
+            "queryId",
+            "traceId",
+            "providerKind",
+            "transport",
+            "turnId",
+            "modelCall",
+            "attempt",
+            "requestHeaderCount",
+            "requestHeaders",
+            "timestamp",
+            "type",
+            "_meta"
+          ],
+          "inputId": null,
+          "sessionId": "sess_37aa0d5f-8dc6-488b-9891-0c631e9dff2a",
+          "kind": null
+        },
+        {
+          "type": "model.streaming",
+          "payloadKeys": [
+            "assistantMessageId",
+            "delta",
+            "done",
+            "kind"
+          ],
+          "inputId": null,
+          "sessionId": "sess_37aa0d5f-8dc6-488b-9891-0c631e9dff2a",
+          "kind": "text_delta"
+        },
+        {
+          "type": "session.updated",
+          "payloadKeys": [
+            "baseURL",
+            "maxAttempts",
+            "providerId",
+            "modelId",
+            "modelRequestSessionType",
+            "requestId",
+            "sessionId",
+            "spanId",
+            "parentSpanId",
+            "querySource",
+            "queryId",
+            "traceId",
+            "providerKind",
+            "transport",
+            "turnId",
+            "modelCall",
+            "attempt",
+            "durationMs",
+            "requestHeaderCount",
+            "requestHeaders",
+            "responseHeaderCount",
+            "responseHeaders",
+            "finishReason",
+            "usage",
+            "timeToFirstProviderEventMs",
+            "timeToFirstContentMs",
+            "timeToFirstTextMs",
+            "streamStallCount",
+            "streamOutputCommitted",
+            "timestamp",
+            "type",
+            "_meta"
+          ],
+          "inputId": null,
+          "sessionId": "sess_37aa0d5f-8dc6-488b-9891-0c631e9dff2a",
+          "kind": null
+        },
+        {
+          "type": "session.updated",
+          "payloadKeys": [
+            "content",
+            "contextWindow",
+            "querySource",
+            "stopReason",
+            "usage",
+            "contextUsageBreakdown",
+            "toolCallCount"
+          ],
+          "inputId": null,
+          "sessionId": "sess_37aa0d5f-8dc6-488b-9891-0c631e9dff2a",
+          "kind": null
+        },
+        {
+          "type": "turn.completed",
+          "payloadKeys": [
+            "response",
+            "tokenCount",
+            "toolCallCount",
+            "historyRoundCount",
+            "duration",
+            "resultType",
+            "cacheStats",
+            "inputId"
+          ],
+          "inputId": "d1ae33f8-d664-4105-81b5-326c264339ae",
+          "sessionId": "sess_37aa0d5f-8dc6-488b-9891-0c631e9dff2a",
+          "kind": null
+        }
+      ],
+      "traceTotal": 8
+    }
+  },
+  "assertions": [
+    {
+      "name": "entry-sha-pinned-before-spawn",
+      "pass": true,
+      "detail": "actual=97490d0f06a7a225… approved=97490d0f06a7a225… (an unapproved installed entry must block the run)"
+    },
+    {
+      "name": "send-stream-completes",
+      "pass": true
+    },
+    {
+      "name": "stream-ordered-deltas",
+      "pass": true
+    },
+    {
+      "name": "cancel-terminal",
+      "pass": true
+    },
+    {
+      "name": "permission-fail-closed",
+      "pass": true,
+      "detail": "markerAbsent=true,denials=1 (a real native denial request must be observed, not just an absent marker)"
+    },
+    {
+      "name": "deadline-ends-unknown",
+      "pass": true
+    },
+    {
+      "name": "restart-resume-identity",
+      "pass": true
+    },
+    {
+      "name": "durable-idempotent-retry",
+      "pass": true
+    },
+    {
+      "name": "new-task-streams-after-restart",
+      "pass": true
+    },
+    {
+      "name": "no-external-models-accounted",
+      "pass": true
+    },
+    {
+      "name": "lock-released-on-close",
+      "pass": true,
+      "detail": "true"
+    },
+    {
+      "name": "disposable-root-removed",
+      "pass": true,
+      "detail": "true"
+    }
+  ],
+  "externalModelRequests": 0,
+  "fixtureRequests": 6,
+  "fixtureLog": [
+    {
+      "request": 1,
+      "lastUser": "LHI2 plain turn",
+      "wantsPermission": false,
+      "wantsHold": false,
+      "toolTracePresent": false
+    },
+    {
+      "request": 2,
+      "lastUser": "LHI2_HOLD",
+      "wantsPermission": false,
+      "wantsHold": true,
+      "toolTracePresent": false
+    },
+    {
+      "request": 3,
+      "lastUser": "LHI2_PERMISSION",
+      "wantsPermission": true,
+      "wantsHold": false,
+      "toolTracePresent": false
+    },
+    {
+      "request": 4,
+      "lastUser": "LHI2_PERMISSION",
+      "wantsPermission": true,
+      "wantsHold": false,
+      "toolTracePresent": true
+    },
+    {
+      "request": 5,
+      "lastUser": "LHI2_HOLD",
+      "wantsPermission": false,
+      "wantsHold": true,
+      "toolTracePresent": false
+    },
+    {
+      "request": 6,
+      "lastUser": "LHI2 after restart",
+      "wantsPermission": false,
+      "wantsHold": false,
+      "toolTracePresent": true
+    }
+  ],
+  "fixtureRequestsTotal": 6,
+  "verdict": "PASS"
+}
