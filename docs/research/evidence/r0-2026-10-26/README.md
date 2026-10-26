@@ -12,3 +12,9 @@
 本仓库现有 CI 范围：macOS/Windows × Node22/24，包含 build/typecheck/lint/test 与既有 synthetic smoke。PR CI 实际结果在 Issue RESULT/PR 中记录，不因本索引描述了矩阵就标通过。
 
 源码下载缓存仅含公开文本，保留在系统临时目录供本轮检查；可移除且可从固定 URL 重建。没有启动新的上游服务/端口/沙箱；不存在本轮待撤销的运行授权或凭据。回退研究 PR 不影响运行代码。
+
+## 增量与原件解释
+
+`source-02/sources.json` 与 `validation-02*` 补录实际 API 定义，并将最终 lock 与两份来源快照离线交叉核验；source-01 和 validation-01 保持原样。validation-01 的 `cleanup.newServiceListeners=0` 仅指本轮上游研究未启动 listener，不能解释为 pnpm check 没有启动既有 loopback Mock。既有测试确实启动 synthetic Gateway/MCP，107 通过、4 跳过；未另做端口/进程残留审计，独立清理证据为 unknown。后续报告使用更明确字段，不改原件。
+
+MCP registry 元数据没有 gitHead，发行物与所选 source tag 的字节对应仍 unknown；A2A SDK registry gitHead 与选定 commit 一致。所有 integrity 是 registry 声明值，本轮未下载 tarball 比对或核验签名。

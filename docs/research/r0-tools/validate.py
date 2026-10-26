@@ -3,6 +3,7 @@
 Existing upstream collectors/fixtures are never executed. pnpm check is the
 repository's existing regression suite, not permission for native probes.
 """
+import argparse
 import datetime
 import hashlib
 import json
@@ -24,29 +25,36 @@ def output(*args):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--supplement', action='store_true')
+    args = parser.parse_args()
+    run_id = '02' if args.supplement else '01'
     source = output('git', 'rev-parse', 'HEAD')
     clean = output('git', 'status', '--porcelain') == ''
     if not clean:
         raise SystemExit('Refusing authoritative run: commit intended changes first.')
-    target = EVIDENCE / 'validation-01.json'
+    target = EVIDENCE / f'validation-{run_id}.json'
     if target.exists():
         raise SystemExit('Refusing to overwrite old evidence; use a new run id in a new committed runner.')
     raw_dir = pathlib.Path(tempfile.mkdtemp(prefix='lam-r0-validation-raw-'))
     files = ['docs/research/r0-tools/collect.py', 'docs/research/r0-tools/check.mjs', 'docs/research/r0-tools/validate.py', 'docs/research/upstream-locks.json', 'docs/research/upstream-locks.schema.json', 'package.json', 'pnpm-lock.yaml', '.github/workflows/ci.yml', 'eslint.config.js']
-    report = {'testedSourceSha': source, 'worktreeCleanBefore': clean, 'evidenceClass': 'docs', 'nativeModelCalls': 'not-used', 'environment': {'os': platform.platform(), 'python': platform.python_version(), 'node': output('node', '--version'), 'pnpm': output('pnpm', '--version'), 'harness': None}, 'inputHashes': {file: hashlib.sha256((ROOT / file).read_bytes()).hexdigest() for file in files}, 'commands': [], 'ciScope': 'macos-latest/windows-latest x Node22/24; results tracked separately on PR', 'rawLogStorage': 'local temporary directory, not committed; immutable raw SHA256 below; committed logs redact only repository/home path strings', 'cleanup': {'upstreamProcessesStarted': 0, 'newServiceListeners': 0, 'credentialsCreated': 0, 'aclFirewallChanges': 0, 'upstreamCacheContainsOnlyPublicText': True}}
+    files += ['docs/research/r0-tools/supplement.py', 'docs/research/r0-tools/check-evidence.py']
+    report = {'testedSourceSha': source, 'worktreeCleanBefore': clean, 'evidenceClass': 'docs', 'nativeModelCalls': 'not-used', 'environment': {'os': platform.platform(), 'python': platform.python_version(), 'node': output('node', '--version'), 'pnpm': output('pnpm', '--version'), 'harness': None}, 'inputHashes': {file: hashlib.sha256((ROOT / file).read_bytes()).hexdigest() for file in files}, 'commands': [], 'ciScope': 'macos-latest/windows-latest x Node22/24; results tracked separately on PR', 'rawLogStorage': 'local temporary directory, not committed; immutable raw SHA256 below; committed logs redact only repository/home path strings', 'cleanup': {'upstreamProcessesStarted': 0, 'upstreamServiceListeners': 0, 'existingRegressionLoopbackFixtures': 'pnpm check may start existing synthetic sockets; no separate port audit', 'credentialsCreated': 0, 'aclFirewallChanges': 0, 'upstreamCacheContainsOnlyPublicText': True}}
     commands = [
         ['python3', 'docs/research/r0-tools/collect.py', '--output', 'docs/research/evidence/r0-2026-10-26/source-01'],
         ['node', 'docs/research/r0-tools/check.mjs'],
         ['pnpm', 'check'],
         ['git', 'diff', '--check']
     ]
+    if args.supplement:
+        commands = [['python3', 'docs/research/r0-tools/supplement.py'], ['node', 'docs/research/r0-tools/check.mjs'], ['python3', 'docs/research/r0-tools/check-evidence.py'], ['git', 'diff', '--check']]
     for index, command in enumerate(commands):
         started = now()
         result = subprocess.run(command, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
         finished = now()
         (raw_dir / f'{index}.log').write_bytes(result.stdout)
         text = result.stdout.decode('utf-8', errors='replace').replace(str(ROOT), '<repo>').replace(str(pathlib.Path.home()), '<home>')
-        log = EVIDENCE / f'validation-01-{index}.log'
+        log = EVIDENCE / f'validation-{run_id}-{index}.log'
         log.write_text(text)
         report['commands'].append({'command': command, 'exitCode': result.returncode, 'startedAt': started, 'finishedAt': finished, 'rawSha256': hashlib.sha256(result.stdout).hexdigest(), 'log': log.name, 'logSha256': hashlib.sha256(log.read_bytes()).hexdigest()})
         # Preserve even an interrupted partial run as evidence, without masking failures.

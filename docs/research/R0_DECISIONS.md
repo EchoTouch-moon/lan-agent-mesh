@@ -1,7 +1,7 @@
 # R0-A 上游冻结与安全边界审查
 
 日期：2026-10-26（Asia/Shanghai）。任务：[#66](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/66)。
-基线：`main@1c5697219a7d3281f37d57981b5b548d7c1c9d5b`；分支：`codex/r0-upstream-audit`。
+基线：`main@1c5697219a7d3281f37d57981b5b548d7c1c9d5b`；分支：`codex/r0-upstream-audit`。复核时远端 main 已前进至 `d939abab847be75aaeac95ecdfee4ab5a4882edf`，新增仅为独立的 `docs/security/glm53/WORKSTREAM.md`；保留原始起跑与 tested SHA，不将别的提交并作实测来源。
 
 ## 结论与证据等级
 
@@ -110,8 +110,9 @@ SDK 特别边界：
 - [证据入口](evidence/r0-2026-10-26/README.md)：分离预研失败、固定源码采集、文档契约与本仓库回归结果，保留真实退出码、时间、源 SHA、工具版本及 SHA256。
 - `python3 docs/research/r0-tools/collect.py --output <全新目录>`：只读 HTTPS，重新解析 pin，记录全部目标源码 SHA256/git blob SHA 和定位摘录、npm 版本/许可/integrity；输出不覆盖旧目录。摘录不是完整源码，复核全文件须按固定 URL 下载比对 hash。AgentBridge 与 SHADI 共用 workspace sources。
 - `node docs/research/r0-tools/check.mjs`：Draft-07 schema、固定 URL/许可 sanity；负例覆盖未知许可伪升级、浮动 pin、缺来源、虚构 verified、UNKNOWN 终态/失败映射、cancel 误报、认证/撤销约束缺失、研究越权运行。负例是检测到错误即 PASS，不冒充真实 auth/sandbox 测试。
+- `python3 docs/research/r0-tools/check-evidence.py`：把最终 lock 的 API/许可 URL 与两次采集交叉核验；SDK registry gitHead 与 pin 对应，MCP registry gitHead 缺失仍 unknown。
 - `pnpm check`：按根 AGENTS 要求执行现有 build/typecheck/lint/test；该命令不运行上游 demo、native probe 或新增跨机实验。四组 GitHub CI 范围是 macOS/Windows × Node22/24；实际 PR 结果单独记录，不把本机通过当四组通过。
 
 未验证：所有上游安装运行/二进制/签名、转依赖完整许可与 advisories、实际 auth/revocation/SSRF/cache 行为、A2A 官方 client/server conformance、stream/cancel/UNKNOWN 扩展、Mac/Win 等强 sandbox、真实进程树/端口清理及跨机。ACP/Codex 继续现有 P2 任务，本轮不升级 launcher/API，也不补写任何历史物理证据。
 
-清理：本轮只下载公开文本及生成文档证据；无新服务、端口、上游子进程、账户/凭据、ACL 或防火墙变更。已有本仓库测试启动的 Mock 由其测试清理；其日志保留。公开源码临时缓存可删除，审查复现不依赖缓存。回退仅撤销本研究 PR 的 docs 变更；内部 wire、SQLite、生产开关、依赖锁完全无 diff。不自动合并、关闭 #66 或任何父 Issue。
+清理：本轮只下载公开文本及生成文档证据；无新服务、端口、上游子进程、账户/凭据、ACL 或防火墙变更。已有本仓库测试启动的 Mock 由其测试清理；其日志保留，未另做独立的进程/端口残留审计，不能据 suite 通过宣称清理 verified。公开源码临时缓存可删除，审查复现不依赖缓存。回退仅撤销本研究 PR 的 docs 变更；内部 wire、SQLite、生产开关、依赖锁完全无 diff。不自动合并、关闭 #66 或任何父 Issue。

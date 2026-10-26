@@ -1,0 +1,153 @@
+
+> lan-agent-mesh@0.0.0 check <repo>
+> pnpm build && pnpm typecheck && pnpm lint && pnpm test
+
+
+> lan-agent-mesh@0.0.0 build <repo>
+> pnpm -r build
+
+Scope: 15 of 16 workspace projects
+packages/mcp-contract build$ tsc -p tsconfig.json
+packages/domain build$ tsc -p tsconfig.json
+packages/private-storage build$ tsc -p tsconfig.json && node build-helper.mjs
+packages/private-storage build: Done
+packages/mcp-contract build: Done
+packages/domain build: Done
+packages/protocol build$ tsc -p tsconfig.json
+apps/console build$ tsc -p tsconfig.json
+apps/console build: Done
+packages/protocol build: Done
+packages/adapter-sdk build$ tsc -p tsconfig.json
+packages/storage build$ tsc -p tsconfig.json
+packages/storage build: Done
+packages/adapter-sdk build: Done
+packages/mesh build$ tsc -p tsconfig.json
+packages/codex-adapter build$ tsc -p tsconfig.json
+packages/mock-adapter build$ tsc -p tsconfig.json
+packages/codex-adapter build: Done
+packages/mock-adapter build: Done
+packages/mesh build: Done
+apps/cli build$ tsc -p tsconfig.json
+packages/runtime build$ tsc -p tsconfig.json
+apps/cli build: Done
+packages/runtime build: Done
+apps/gateway build$ tsc -p tsconfig.json
+packages/dsh-adapter build$ tsc -p tsconfig.json
+packages/mcp-server build$ tsc -p tsconfig.json
+apps/gateway build: Done
+packages/mcp-server build: Done
+packages/dsh-adapter build: Done
+
+> lan-agent-mesh@0.0.0 typecheck <repo>
+> pnpm -r typecheck && tsc -p tsconfig.test.json
+
+Scope: 15 of 16 workspace projects
+packages/domain typecheck$ tsc -p tsconfig.json --noEmit
+packages/mcp-contract typecheck$ tsc -p tsconfig.json --noEmit
+packages/private-storage typecheck$ tsc -p tsconfig.json --noEmit
+packages/private-storage typecheck: Done
+packages/mcp-contract typecheck: Done
+packages/domain typecheck: Done
+apps/console typecheck$ tsc -p tsconfig.json --noEmit
+packages/protocol typecheck$ tsc -p tsconfig.json --noEmit
+apps/console typecheck: Done
+packages/protocol typecheck: Done
+packages/storage typecheck$ tsc -p tsconfig.json --noEmit
+packages/adapter-sdk typecheck$ tsc -p tsconfig.json --noEmit
+packages/storage typecheck: Done
+packages/adapter-sdk typecheck: Done
+packages/codex-adapter typecheck$ tsc -p tsconfig.json --noEmit
+packages/mesh typecheck$ tsc -p tsconfig.json --noEmit
+packages/mock-adapter typecheck$ tsc -p tsconfig.json --noEmit
+packages/mock-adapter typecheck: Done
+packages/codex-adapter typecheck: Done
+packages/mesh typecheck: Done
+packages/runtime typecheck$ tsc -p tsconfig.json --noEmit
+apps/cli typecheck$ tsc -p tsconfig.json --noEmit
+apps/cli typecheck: Done
+packages/runtime typecheck: Done
+packages/mcp-server typecheck$ tsc -p tsconfig.json --noEmit
+apps/gateway typecheck$ tsc -p tsconfig.json --noEmit
+packages/dsh-adapter typecheck$ tsc -p tsconfig.json --noEmit
+apps/gateway typecheck: Done
+packages/mcp-server typecheck: Done
+packages/dsh-adapter typecheck: Done
+
+> lan-agent-mesh@0.0.0 lint <repo>
+> eslint .
+
+
+> lan-agent-mesh@0.0.0 test <repo>
+> vitest run
+
+
+ RUN  v3.2.4 <repo>
+
+(node:73701) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73707) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73704) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73703) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73702) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73705) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ packages/codex-adapter/test/codex.test.ts (4 tests) 1022ms
+   ✓ Codex adapter protocol invariants (synthetic app-server) > persists distinct thread mapping, exact retries, conflict rejection and native deny  332ms
+   ✓ Codex adapter protocol invariants (synthetic app-server) > serializes turns, cancels in-flight work and keeps crash outcomes UNKNOWN across restart  347ms
+(node:73771) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ packages/dsh-adapter/test/acceptance-cli.test.ts (2 tests) 1651ms
+   ✓ refuses an output inside the repository without creating it  621ms
+   ✓ records a source-preflight refusal outside the repository and never overwrites a prior report  1029ms
+ ✓ packages/runtime/test/adapter-liveness.test.ts (8 tests) 145ms
+(node:73829) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ packages/runtime/test/router-capacity.test.ts (1 test) 344ms
+   ✓ bounds durable session-operation reservations including denied requests while retaining exact retries  343ms
+ ✓ packages/dsh-adapter/test/acceptance-fixture.test.ts (3 tests) 110ms
+(node:73838) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ packages/runtime/test/session-reply-recovery.test.ts (6 tests) 37ms
+ ✓ packages/mock-adapter/test/mock.test.ts (9 tests) 129ms
+ ✓ packages/mesh/test/transport.test.ts (1 test) 2098ms
+   ✓ binds pairing to identity/session, expires short-lived codes and refuses oversized encrypted frames  2096ms
+(node:73842) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ packages/storage/test/storage.test.ts (1 test) 11ms
+ ✓ packages/protocol/test/protocol.test.ts (6 tests) 10ms
+ ✓ packages/domain/test/domain.test.ts (9 tests) 16ms
+(node:73853) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ packages/dsh-adapter/test/powershell.test.ts (5 tests) 9ms
+ ✓ packages/adapter-sdk/test/sdk.test.ts (3 tests) 4ms
+(node:73856) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ packages/dsh-adapter/test/process.test.ts (20 tests) 3115ms
+   ✓ DSH ACP owned process control (synthetic peer, no native DSH) > times out a real in-flight request, terminates its owned child, and remains unusable  1549ms
+ ✓ packages/private-storage/test/private-storage.test.ts (5 tests | 3 skipped) 5ms
+ ✓ packages/dsh-adapter/test/adapter.test.ts (12 tests | 1 skipped) 3893ms
+   ✓ turns deadline loss into UNKNOWN, rejects expired/changed retries, and preserves the original execution count  1606ms
+   ✓ validates persisted ownership, event correlation and configured session/task capacity before native effects  514ms
+   ✓ registers actual DSH metadata with Gateway and lets Gateway close the owned adapter  1028ms
+ ✓ packages/mcp-server/test/mcp.test.ts (6 tests) 4801ms
+   ✓ a real stdio MCP client calls all seven tools through the encrypted remote Mock chain  1170ms
+   ✓ credentials cannot administer Gateway, cross another credential resources or choose another task identity  756ms
+   ✓ coalesces concurrent request retries, rejects conflicting IDs and denies approval requests  1516ms
+   ✓ preserves owned resources across MCP process restart, retries a lost ACK once, and invalidates credentials on Gateway restart  451ms
+   ✓ operator CLI writes a private scoped credential without printing secrets or overwriting files  627ms
+ ✓ packages/runtime/test/e2e.test.ts (10 tests) 9931ms
+   ✓ real two-peer TCP/Noise/Yamux Gateway > denies unpaired/private access, pairs on both sides, executes both directions and rejects replay conflicts  1847ms
+   ✓ real two-peer TCP/Noise/Yamux Gateway > preserves UNKNOWN across Gateway restart without replaying and keeps native mapping  1095ms
+   ✓ real two-peer TCP/Noise/Yamux Gateway > serializes native sessions, cancels in-flight work, defaults permissions to deny, and authenticates loopback IPC  384ms
+   ✓ expires remote cards, reports capability changes, and resumes an adapter that outlives Gateway restart  1034ms
+   ✓ automatically reconnects a known fixed endpoint with the same identity and refreshes private cards  5190ms
+
+ Test Files  18 passed (18)
+      Tests  107 passed | 4 skipped (111)
+   Start at  17:39:31
+   Duration  10.89s (transform 630ms, setup 0ms, collect 3.89s, tests 27.33s, environment 3ms, prepare 1.38s)
+

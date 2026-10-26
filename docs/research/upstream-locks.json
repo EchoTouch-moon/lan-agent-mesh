@@ -94,10 +94,10 @@
         "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/LICENSE"
       ],
       "apiEvidence": [
+        "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/packages/server/src/index.ts",
+        "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/packages/client/src/index.ts",
         "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/packages/server/package.json",
-        "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/packages/client/package.json",
-        "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/packages/core/package.json",
-        "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/docs/protocol-versions.md"
+        "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/packages/client/package.json"
       ],
       "platformEvidence": [
         "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/packages/server/package.json"
@@ -113,7 +113,9 @@
         "packages/core/package.json",
         "docs/protocol-versions.md",
         "SECURITY.md",
-        ".github/workflows/main.yml"
+        ".github/workflows/main.yml",
+        "packages/server/src/index.ts",
+        "packages/client/src/index.ts"
       ],
       "platformVerification": {
         "macOS": null,
@@ -134,10 +136,10 @@
         "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/LICENSE.md"
       ],
       "apiEvidence": [
+        "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/crates/proto/proto/data-plane/v1/data_plane.proto",
+        "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/crates/proto/proto/controlplane/v1/controlplane.proto",
         "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/Cargo.toml",
-        "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/config/base/server-config.yaml",
-        "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/config/reference/config.yaml",
-        "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/.github/workflows/reusable-rust-build-and-test.yaml"
+        "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/config/base/server-config.yaml"
       ],
       "platformEvidence": [
         "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/README.md"
@@ -152,7 +154,9 @@
         "Cargo.toml",
         "config/base/server-config.yaml",
         "config/reference/config.yaml",
-        ".github/workflows/reusable-rust-build-and-test.yaml"
+        ".github/workflows/reusable-rust-build-and-test.yaml",
+        "crates/proto/proto/data-plane/v1/data_plane.proto",
+        "crates/proto/proto/controlplane/v1/controlplane.proto"
       ],
       "platformVerification": {
         "macOS": null,
@@ -173,10 +177,11 @@
         "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/LICENSE.md"
       ],
       "apiEvidence": [
+        "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/proto/agntcy/dir/store/v1/store_service.proto",
+        "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/proto/agntcy/dir/routing/v1/routing_service.proto",
+        "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/client/client.go",
         "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/server/go.mod",
-        "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/api/go.mod",
-        "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/server/config/config.go",
-        "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/server/authn/config/config.go"
+        "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/api/go.mod"
       ],
       "platformEvidence": [
         "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/README.md"
@@ -195,7 +200,10 @@
         "server/config/config.go",
         "server/authn/config/config.go",
         "server/authz/config/config.go",
-        "install/docker/server.config.yml"
+        "install/docker/server.config.yml",
+        "proto/agntcy/dir/store/v1/store_service.proto",
+        "proto/agntcy/dir/routing/v1/routing_service.proto",
+        "client/client.go"
       ],
       "platformVerification": {
         "macOS": null,
@@ -216,10 +224,9 @@
         "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/LICENSE.md"
       ],
       "apiEvidence": [
+        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/shadi_sandbox/src/lib.rs",
         "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/Cargo.toml",
-        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/shadi_sandbox/Cargo.toml",
-        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/shadi_sandbox/src/platform/mod.rs",
-        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/shadi_sandbox/src/platform/windows.rs"
+        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/shadi_sandbox/Cargo.toml"
       ],
       "platformEvidence": [
         "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/README.md"
@@ -243,7 +250,9 @@
         "crates/agent_secrets/README.md",
         "crates/agent_secrets/src/platform/mod.rs",
         "crates/agent_secrets/src/platform/noop.rs",
-        "crates/shadi_a2a/Cargo.toml"
+        "crates/shadi_a2a/Cargo.toml",
+        "crates/shadi_sandbox/src/lib.rs",
+        "crates/agentbridge/src/adapter.rs"
       ],
       "platformVerification": {
         "macOS": null,
@@ -344,10 +353,9 @@
         "https://github.com/openagents-org/openagents/blob/5eab18f3592dee227ff479d40c365904dbc53f7c/LICENSE"
       ],
       "apiEvidence": [
+        "https://github.com/openagents-org/openagents/blob/5eab18f3592dee227ff479d40c365904dbc53f7c/src/openagents/core/transports/a2a.py",
         "https://github.com/openagents-org/openagents/blob/5eab18f3592dee227ff479d40c365904dbc53f7c/pyproject.toml",
-        "https://github.com/openagents-org/openagents/blob/5eab18f3592dee227ff479d40c365904dbc53f7c/setup.py",
-        "https://github.com/openagents-org/openagents/blob/5eab18f3592dee227ff479d40c365904dbc53f7c/docker-compose.yml",
-        "https://github.com/openagents-org/openagents/blob/5eab18f3592dee227ff479d40c365904dbc53f7c/.github/workflows/pytest.yml"
+        "https://github.com/openagents-org/openagents/blob/5eab18f3592dee227ff479d40c365904dbc53f7c/setup.py"
       ],
       "platformEvidence": [
         "https://github.com/openagents-org/openagents/blob/5eab18f3592dee227ff479d40c365904dbc53f7c/README.md"
@@ -362,7 +370,8 @@
         "pyproject.toml",
         "setup.py",
         "docker-compose.yml",
-        ".github/workflows/pytest.yml"
+        ".github/workflows/pytest.yml",
+        "src/openagents/core/transports/a2a.py"
       ],
       "platformVerification": {
         "macOS": null,
@@ -423,10 +432,9 @@
         "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/LICENSE.md"
       ],
       "apiEvidence": [
+        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/agentbridge/src/adapter.rs",
         "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/agentbridge/Cargo.toml",
-        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/agentbridge/profiles/codex.json",
-        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/agentbridge/src/subprocess.rs",
-        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/agentbridge/README.md"
+        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/agentbridge/profiles/codex.json"
       ],
       "platformEvidence": [
         "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/README.md"
@@ -450,7 +458,9 @@
         "crates/agent_secrets/README.md",
         "crates/agent_secrets/src/platform/mod.rs",
         "crates/agent_secrets/src/platform/noop.rs",
-        "crates/shadi_a2a/Cargo.toml"
+        "crates/shadi_a2a/Cargo.toml",
+        "crates/shadi_sandbox/src/lib.rs",
+        "crates/agentbridge/src/adapter.rs"
       ],
       "platformVerification": {
         "macOS": null,
