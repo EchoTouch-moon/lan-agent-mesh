@@ -1,3 +1,5 @@
+> **2026-10-26 附加研发工作线（不改变 R0–R4 顺序）**：GLM-5.3 承担 [Local Harness Interoperability LHI #79–#84](local/LHI_WORKSTREAM.md) 与 [ADR0005](adr/0005-local-harness-interop.md)：本机 Codex↔ZCode 被控新会话、真实主动 MCP 证据、将来单 Gateway Local Dispatcher。LHI 不是 #19 物理跨机 E2E，也不取代 GPT A2A 标准面/GLM 安全线。先保留已通过的双 Gateway loopback 基线，直达本机路由只能在独立 caller grant 与 fail-closed 测试验收后按功能开关开启。GLM 既有 #75 已 CLAIM，新 LHI 任务以不抢占现有工作树的方式领取。
+
 # LAN Agent Mesh 2026-10-26 重大路线重规划：标准优先、保留可靠性核心
 
 **状态**：指导性重规划（architecture and execution baseline），不是对生产部署、跨实体新窗口、模型/凭据调用的授权。原 [2026-10-26 双端计划](NEXT_PHASE_2026-10-26.md) 继续作为 **P2 Harness 实验基线**；本文件重新排列研发优先级，建立可以并行的 **Research/Interop R-track**。本文与 ADR0004 不改变任何旧实测 SHA/报告。
