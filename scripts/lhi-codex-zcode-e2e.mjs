@@ -13,6 +13,11 @@
 //                 records BLOCKED instead of guessing. Phase C1 (Codex caller -> ZCode
 //                 receiver) stays BLOCKED until PR #92 passes independent re-review.
 //
+// Exit codes: 0 = baseline gates PASS and (self-test mode, or BOTH native directions PASS);
+//             1 = baseline/assertion failure or unexpected error (always a defect);
+//             2 = --native only: baseline PASS but overall LHI-3 incomplete (PARTIAL or
+//                 BLOCKED) — an expected partial report, never a full native acceptance.
+//
 // Every phase is bounded; the report ends with a hard assertion gate (exit 1 on any miss).
 import { createServer, request as httpRequestRaw } from 'node:http';
 
@@ -62,6 +67,11 @@ const report = {
   phases: {}, negatives: {}, assertions: [], fixtureRequests: 0, externalModelRequests: 0,
 };
 const root = realpathSync(mkdtempSync(join(tmpdir(), 'lam-lhi3-dual-')));
+// Pre-approved installed ZCode entry digest (HARNESS_MATRIX / LHI-1 reviewed evidence) and
+// the exact pinned CLI version. The pin only means something because it is an independent
+// constant: computing the expected digest from the entry under test would be self-approval.
+const APPROVED_ZCODE_ENTRY_SHA256 = '97490d0f06a7a225d54d47817acf4b4859cdb268b59f2490caaeda982bef063a';
+const ZCODE_PINNED_VERSION = '0.17.0';
 const gate = (name, pass, detail) => report.assertions.push({ name, pass: pass === true, detail });
 const waitUntil = async (predicate, label, budgetMs = 30000) => {
   const deadline = Date.now() + budgetMs;
@@ -70,6 +80,101 @@ const waitUntil = async (predicate, label, budgetMs = 30000) => {
     await new Promise(r => setTimeout(r, 100));
   }
 };
+
+/** Independent owned-process liveness scan: after cleanup, no surviving process whose
+ *  command line references this run's unique disposable root may remain. Read-only — it
+ *  never kills anything, and processes not attributable to this root are never touched.
+ *  Scanner failure is UNKNOWN, never a silent PASS. */
+async function ownedProcessScan(label) {
+  const result = { label, status: 'UNKNOWN', survivors: [], scanner: process.platform === 'win32' ? 'powershell' : 'pgrep' };
+  try {
+    let stdout = '';
+    if (process.platform === 'win32') {
+      stdout = (await execFileAsync('powershell', ['-NoProfile', '-NonInteractive', '-Command',
+        `Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*${root}*' -and $_.ProcessId -ne $PID } | Select-Object -ExpandProperty ProcessId`], { timeout: 20000 })).stdout;
+    } else {
+      stdout = (await execFileAsync('pgrep', ['-f', root], { timeout: 10000 })).stdout;
+    }
+    const survivors = stdout.split(/\s+/).map(s => Number(s)).filter(n => Number.isInteger(n) && n > 0 && n !== process.pid);
+    result.survivors = survivors;
+    result.status = survivors.length ? 'FAIL' : 'PASS';
+  } catch (error) {
+    // pgrep exits 1 when NOTHING matched — that is the clean case, not a scanner failure.
+    if (process.platform !== 'win32' && error?.code === 1) { result.status = 'PASS'; result.survivors = []; }
+    else result.reason = String(error?.message ?? error).slice(0, 120);
+  }
+  return result;
+}
+
+/** True when nothing is listening on the loopback port anymore (refused/timeout). */
+async function portReleased(port) {
+  const net = await import('node:net');
+  return await new Promise(resolve => {
+    const socket = new net.Socket();
+    socket.setTimeout(3000);
+    socket.once('error', () => { socket.destroy(); resolve(true); });
+    socket.once('timeout', () => { socket.destroy(); resolve(false); });
+    socket.once('connect', () => { socket.destroy(); resolve(false); });
+    socket.connect(port, '127.0.0.1');
+  });
+}
+
+/** Attribution-guarded termination of scan survivors. Re-reads each survivor's command line
+ *  immediately before acting — PID reuse must never let us kill an innocent process — and
+ *  only signals processes whose command line still references this run's unique root. */
+async function terminateOwnedSurvivors(scan, signal) {
+  const actions = [];
+  for (const pid of scan.survivors.slice(0, 16)) {
+    try {
+      let command = '';
+      if (process.platform === 'win32') {
+        command = (await execFileAsync('powershell', ['-NoProfile', '-NonInteractive', '-Command', `(Get-CimInstance Win32_Process -Filter "ProcessId=${pid}").CommandLine`], { timeout: 10000 })).stdout;
+      } else {
+        command = (await execFileAsync('ps', ['-o', 'command=', '-p', String(pid)], { timeout: 5000 })).stdout;
+      }
+      if (!command.includes(root)) { actions.push({ pid, action: 'skipped', reason: 'command line no longer attributes this pid to the run root' }); continue; }
+      process.kill(pid, signal);
+      actions.push({ pid, action: signal, command: command.trim().slice(0, 160).replaceAll(root, '<disposable-root>') });
+    } catch (error) {
+      actions.push({ pid, action: 'failed', reason: String(error?.message ?? error).slice(0, 80) });
+    }
+  }
+  return actions;
+}
+
+/** Scan until clean: a short grace period absorbs just-killed children still being reaped;
+ *  survivors past the grace period are terminated by us (attribution re-checked per pid,
+ *  SIGTERM then SIGKILL) and verified gone. Anything still alive at the end is a FAIL with
+ *  survivors identified; scanner failure is UNKNOWN, never a silent PASS. */
+async function ownedProcessScanUntilClean(label, graceMs = 3000) {
+  const log = [];
+  const deadline = Date.now() + graceMs;
+  let scan = await ownedProcessScan(label);
+  log.push({ phase: 'initial', status: scan.status, survivors: scan.survivors });
+  while (scan.status === 'FAIL' && Date.now() < deadline) {
+    await new Promise(r => setTimeout(r, 500));
+    scan = await ownedProcessScan(label);
+    log.push({ phase: 'grace', status: scan.status, survivors: scan.survivors });
+  }
+  if (scan.status === 'FAIL') {
+    log.push({ phase: 'sigterm', actions: await terminateOwnedSurvivors(scan, 'SIGTERM') });
+    await new Promise(r => setTimeout(r, 1500));
+    scan = await ownedProcessScan(label);
+    if (scan.status === 'FAIL') {
+      log.push({ phase: 'sigkill', actions: await terminateOwnedSurvivors(scan, 'SIGKILL') });
+      await new Promise(r => setTimeout(r, 1000));
+      scan = await ownedProcessScan(label);
+    }
+  }
+  if (scan.status === 'FAIL') {
+    scan.survivorDetails = process.platform === 'win32' ? [] : await Promise.all(scan.survivors.slice(0, 8).map(pid =>
+      execFileAsync('ps', ['-o', 'pid=,ppid=,command=', '-p', String(pid)], { timeout: 5000 })
+        .then(r => r.stdout.trim().slice(0, 200).replaceAll(root, '<disposable-root>'))
+        .catch(() => `pid ${pid} (details unavailable)`)));
+  }
+  scan.log = log;
+  return scan;
+}
 
 async function startGateway(name, options) {
   const gateway = new Gateway(options);
@@ -173,6 +278,12 @@ try {
   gate('B-first-turn-completed', first.state === 'COMPLETED' && first.text === 'p1-p2', JSON.stringify(first));
   gate('B-second-turn-completed', second.state === 'COMPLETED' && second.text === 'p1-p2' && second.taskId !== first.taskId, JSON.stringify(second));
 
+  // Session listing is grant-scoped: exactly the one session this credential created.
+  const sessionsListed = JSON.parse(JSON.stringify(await callTool(mcp.client, 'mesh_list_sessions', {})));
+  const listedIds = (sessionsListed.sessions ?? []).map(s => s.sessionId);
+  report.phases.listSessions = { count: listedIds.length, onlyOwnSession: listedIds.length === 1 && listedIds[0] === sessionId };
+  gate('B-list-sessions-owned', listedIds.length === 1 && listedIds[0] === sessionId, JSON.stringify(listedIds));
+
   // ---------- Phase D: fail-closed negatives (synthetic) ----------
   const rejects = async (label, run) => {
     try { await run(); report.negatives[label] = { rejected: false }; }
@@ -257,9 +368,18 @@ try {
     report.negatives['stale-grant-after-caller-restart'] = { rejected: false };
   } catch { report.negatives['stale-grant-after-caller-restart'] = { rejected: true }; }
 
+  // Honest coverage markers: what this runner deliberately does NOT exercise (never counted
+  // as PASS). The receiver-loss negative covers gateway loss, not a controlled ACK-drop of
+  // the same envelope; the delegate path is not driven by this baseline at all.
+  report.negatives['ack-drop-injection'] = { status: 'NOT-RUN', reason: 'no controlled ACK-drop of the same envelope is injected; receiver-loss-unknown is a different fault (gateway loss)' };
+  report.tools = {
+    exercised: ['mesh_list_agents', 'mesh_start_session', 'mesh_send_message', 'mesh_get_task', 'mesh_cancel_task', 'mesh_list_sessions'],
+    notRun: [{ name: 'mesh_delegate_task', reason: 'delegation path not driven by this baseline; only the mcp-server smoke covers it' }],
+  };
+
   // ---------- Phase C gates ----------
   report.phases.phaseC = {
-    C1_codex_to_zcode: { status: 'BLOCKED', reason: 'PR #92 (ZcodeAdapter) has fixes pushed but no independent re-review yet; packet gate forbids receiver-native until reviewed' },
+    C1_codex_to_zcode: { status: 'BLOCKED', reason: 'PR #92 re-review fixes pushed (head 7972669) but independent re-review still pending; packet gate forbids receiver-native until reviewed' },
     C2_zcode_to_codex: native ? { status: 'PENDING' } : { status: 'NOT-RUN', reason: 'self-test mode; native requires --native and the C2 preconditions' },
   };
   if (native) {
@@ -272,6 +392,7 @@ try {
   process.exitCode = 1;
 } finally {
   await mcp?.close().catch(() => {});
+  const callerHttpPort = Number(/:(\d+)/.exec(caller?.url ?? '')?.[1] ?? 0);
   await caller?.stop().catch(() => {});
   await receiver?.stop().catch(() => {});
   report.cleanup = {};
@@ -286,6 +407,11 @@ try {
     try { statSync(root); report.cleanup.disposableRootRemoved = false; }
     catch (error) { report.cleanup.disposableRootRemoved = error.code === 'ENOENT'; }
   }
+  // Independent FINAL cleanup evidence, covering every phase including C2's native children:
+  // owned-process scan (scanner failure = UNKNOWN, never a silent PASS) and caller HTTP port
+  // release. Reads only; processes not attributable to this run's root are never touched.
+  report.cleanup.ownedProcessScan = await ownedProcessScanUntilClean('final');
+  if (callerHttpPort) report.cleanup.callerHttpPort = { port: callerHttpPort, released: await portReleased(callerHttpPort) };
   const n = report.negatives;
   gate('N-unpaired-peer-grant', n['unpaired-peer-grant']?.rejected === true);
   gate('N-agent-outside-scope', n['agent-outside-scope']?.rejected === true);
@@ -295,11 +421,29 @@ try {
   gate('N-expired-grant-http', n['expired-grant-http']?.rejected === true, JSON.stringify(n['expired-grant-http']));
   gate('N-request-id-conflict', n['request-id-conflict']?.rejected === true);
   gate('N-stale-grant-after-restart', n['stale-grant-after-caller-restart']?.rejected === true);
-  gate('no-external-models-accounted', report.externalModelRequests === 0, 'accounting invariant: only loopback fixtures, if any');
-  gate('cleanup-verified', report.cleanup.disposableRootRemoved === true, JSON.stringify(report.cleanup));
+  gate('no-external-models-accounted', report.externalModelRequests === 0 && (native ? report.fixtureRequests > 0 : true), 'runner-owned counters only: when fixtures ran, every inference request hit a loopback fixture; this is not an independent network monitor');
+  gate('cleanup-verified',
+    report.cleanup.disposableRootRemoved === true
+      && report.cleanup.ownedProcessScan?.status === 'PASS'
+      && report.cleanup.callerHttpPort?.released === true,
+    JSON.stringify(report.cleanup));
   report.finishedAt = new Date().toISOString();
-  report.verdict = report.assertions.every(g => g.pass) && !report.error ? 'PASS' : 'FAIL';
-  if (report.verdict === 'FAIL') process.exitCode = 1;
+  report.durationMs = Date.now() - Date.parse(report.startedAt);
+  // Machine-readable split: the B/D baseline verdict never speaks for the native directions.
+  report.baselineVerdict = report.assertions.every(g => g.pass) && !report.error ? 'PASS' : 'FAIL';
+  const phaseRank = { PASS: 3, PARTIAL: 2, BLOCKED: 1, 'NOT-RUN': 1 };
+  const c1 = report.phases.phaseC?.C1_codex_to_zcode?.status ?? 'NOT-RUN';
+  const c2 = report.phases.phaseC?.C2_zcode_to_codex?.status ?? 'NOT-RUN';
+  // Workpacket §3.4: full PASS needs BOTH directions; any direction with native evidence
+  // (PASS or PARTIAL) makes the overall PARTIAL; no evidence at all is BLOCKED.
+  const bothPass = (phaseRank[c1] ?? 1) >= 3 && (phaseRank[c2] ?? 1) >= 3;
+  const anyEvidence = Math.max(phaseRank[c1] ?? 1, phaseRank[c2] ?? 1) >= 2;
+  report.overallLhi3Verdict = !native ? 'NOT-RUN' : bothPass ? 'PASS' : anyEvidence ? 'PARTIAL' : 'BLOCKED';
+  report.verdict = report.baselineVerdict === 'FAIL' ? 'FAIL'
+    : report.overallLhi3Verdict === 'PASS' || report.overallLhi3Verdict === 'NOT-RUN' ? 'PASS'
+    : 'INCOMPLETE';
+  if (report.baselineVerdict === 'FAIL') process.exitCode = 1;
+  else if (report.verdict === 'INCOMPLETE') process.exitCode = 2; // expected partial native report
 }
 console.log(JSON.stringify(report, null, 2));
 // All evidence and cleanup verification are captured above; some library handle (libp2p/MCP
@@ -316,12 +460,22 @@ async function runPhaseC2(report, root) {
   const { CodexAdapter } = await import(join(repoRoot, 'packages/codex-adapter/dist/index.js'));
   const entry = process.env.LAM_ZCODE_ENTRY ?? '/Applications/ZCode.app/Contents/Resources/glm/zcode.cjs';
   const builtinConfig = process.env.LAM_ZCODE_BUILTIN_CONFIG ?? resolve(dirname(entry), '../config/provider/zcode-builtin.json');
+  const entrySha = createHash('sha256').update(readFileSync(entry)).digest('hex');
+  // Fail-closed pre-spawn gates for the native caller: the installed entry must match the
+  // pre-approved HARNESS_MATRIX digest byte-for-byte AND its real --version output must equal
+  // the pinned version. A mismatch blocks before ANY app-server or adapter process starts;
+  // the version is never assumed from a string constant.
+  if (entrySha !== APPROVED_ZCODE_ENTRY_SHA256)
+    return { status: 'BLOCKED', reason: `zcode entry sha256 ${entrySha.slice(0, 16)}… != pre-approved HARNESS_MATRIX pin (fail closed; app-server not started)` };
+  const zcodeVersion = (await execFileAsync(process.execPath, [entry, '--version'], { timeout: 15000, maxBuffer: 4096 })).stdout.trim();
+  if (zcodeVersion !== ZCODE_PINNED_VERSION)
+    return { status: 'BLOCKED', reason: `zcode --version '${zcodeVersion}' != pinned '${ZCODE_PINNED_VERSION}' (fail closed; app-server not started)` };
   const codex = process.env.CODEX ?? (await execFileAsync('which', ['codex'])).stdout.trim();
   if (!isAbsolute(codex)) return { status: 'BLOCKED', reason: 'codex executable not resolvable to an absolute path (fail closed)' };
-  const entrySha = createHash('sha256').update(readFileSync(entry)).digest('hex');
   const codexVersion = (await execFileAsync(codex, ['--version'])).stdout.trim();
   if (codexVersion !== 'codex-cli 0.146.0')
     return { status: 'BLOCKED', reason: `codex version ${codexVersion} != pinned codex-cli 0.146.0 (fail closed)` };
+  const entryReport = { cli: zcodeVersion, sha256: entrySha.slice(0, 16) + '…', sha256Pinned: true };
   const observed = [];
   const note = value => observed.push(value);
   // Loopback /v1 inference for the ZCode caller; a tiny agent loop keyed on tool history.
@@ -407,6 +561,9 @@ async function runPhaseC2(report, root) {
   });
   await new Promise(r => codexFixture.listen(0, '127.0.0.1', r));
   let caller, receiver, rpc;
+  // Filled by the finally block AFTER the return value is built; the shared reference makes
+  // the C2 cleanup evidence (owned-process scan + fixture port release) part of the report.
+  const c2Cleanup = {};
   try {
     const codexHome = join(root, 'codex-adapter-home'), codexWorkspace = join(root, 'codex-workspace');
     mkdirSync(codexWorkspace, { mode: 0o700 });
@@ -488,7 +645,7 @@ async function runPhaseC2(report, root) {
       });
     } catch (error) {
       // Keep the evidence (fixture step trace) instead of losing it to the outer catch.
-      return { status: 'PARTIAL', reason: String(error?.message ?? error), entry: { cli: '0.17.0', sha256: entrySha.slice(0, 16) + '…' }, codexVersion, chain: { steps: 'incomplete' }, notes: observed };
+      return { status: 'PARTIAL', reason: String(error?.message ?? error), entry: entryReport, codexVersion, chain: { steps: 'incomplete' }, notes: observed, cleanup: c2Cleanup };
     }
     const finalText = zcodeEvents.filter(m => m.method === 'session/event' && m.params?.type === 'model.streaming' && m.params.payload?.kind === 'text_delta' && m.params.payload).map(m => m.params.payload.delta).join('');
     const receiverDiagnostics = await receiver.command('diagnostics', {});
@@ -510,7 +667,7 @@ async function runPhaseC2(report, root) {
       : { status: 'BLOCKED_NEEDS_USER_AUTH', reason: 'plan mode refuses non-read-only MCP tools ("Plan mode only allows read-only, non-destructive tools"); build mode would require a native permission allow, which the overnight packet does not grant (no #65-style auto-approve for ZCode)' };
     return {
       status: executionChain.status === 'VERIFIED' && readOnlyChainVerified ? 'PASS' : 'PARTIAL',
-      entry: { cli: '0.17.0', sha256: entrySha.slice(0, 16) + '…' }, codexVersion,
+      entry: entryReport, codexVersion,
       chain: {
         readOnlyNativeChain: readOnlyChainVerified ? 'VERIFIED (ZCode native mesh_list_agents -> bridge -> gateway pair -> CodexAdapter registry; agent id + capabilities returned to the ZCode model context)' : 'NOT-VERIFIED',
         executionChain,
@@ -519,12 +676,22 @@ async function runPhaseC2(report, root) {
         grantAudit: grantAudits.filter(k => k.startsWith('mcp.')),
       },
       notes: observed.slice(0, 40),
+      cleanup: c2Cleanup,
     };
   } finally {
     await rpc?.close().catch(() => {});
     await caller?.stop().catch(() => {});
     await receiver?.stop().catch(() => {});
+    const zcodePort = zcodeFixture.address()?.port, codexPort = codexFixture.address()?.port;
     zcodeFixture.closeAllConnections(); await new Promise(r => zcodeFixture.close(r));
     codexFixture.closeAllConnections(); await new Promise(r => codexFixture.close(r));
+    // Independent C2 cleanup evidence: every process whose command line references this run's
+    // disposable root (ZCode app-server, Codex adapter children, MCP bridge) must be gone,
+    // and both fixture ports must be released. Scanner failure is UNKNOWN, never PASS.
+    c2Cleanup.ownedProcessScan = await ownedProcessScanUntilClean('c2');
+    c2Cleanup.ports = {
+      zcodeFixture: zcodePort ? await portReleased(zcodePort) : null,
+      codexFixture: codexPort ? await portReleased(codexPort) : null,
+    };
   }
 }

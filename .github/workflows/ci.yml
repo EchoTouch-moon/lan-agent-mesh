@@ -41,6 +41,8 @@ jobs:
         run: node scripts/p1-process-smoke.mjs
       - name: W3 fault probe same-host self-test (not physical evidence)
         run: node scripts/p1-w3-fault-probe.mjs --self-test
+      - name: LHI-3 dual-gateway synthetic baseline (no native binaries, CI-safe)
+        run: node scripts/lhi-codex-zcode-e2e.mjs --self-test
       - name: P2 actual stdio MCP to remote Mock smoke
         run: node packages/mcp-server/dist/smoke.js
       - name: DSH acceptance runner synthetic self-test (not installed DSH)

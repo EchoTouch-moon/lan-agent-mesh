@@ -49,16 +49,17 @@ native 结果 → 事件 cursor → mesh → MCP tool result → caller 模型�
 | D 负例 | §4 清单（synthetic 先行） | 缺项必须标注 NOT-RUN + 原因 |
 | E 清理/证据 | 仅停自有 ChildProcess/run-UUID 归属后代；stat+ENOENT 删证；脱敏 | 扫描出错 = UNKNOWN ≠ clean |
 
-## 3. 七工具最小映射（本 runner 覆盖）
+## 3. mesh_* 工具覆盖（六项实际驱动 + 一项 NOT-RUN，如实计数）
 
-| 工具 | 用途 | 验证点 |
+| 工具 | 状态 | 验证点 |
 |---|---|---|
-| mesh_list_agents | 发现 receiver agent | 仅 grant 范围内 agent/alias 可见；unavailable peer 列出 |
-| mesh_start_session | 建 receiver 会话 | requestId 幂等；scope 外 agent/workspace 拒绝 |
-| mesh_send_message / mesh_delegate_task | 提交任务 | exactly-once（同 requestId 同参重试不二次执行）；timeout/deadline 生效 |
-| mesh_get_task | 事件游标轮询 | cursor 单调；UNKNOWN 不自动重放 |
-| mesh_cancel_task | 在途取消 | 仅 native 终态判 CANCELLED |
-| mesh_list_sessions | 会话列表 | 仅本 grant 创建的会话 |
+| mesh_list_agents | 已驱动 | 仅 grant 范围内 agent/alias 可见；unavailable peer 列出 |
+| mesh_start_session | 已驱动 | requestId 幂等；scope 外 agent/workspace 拒绝 |
+| mesh_send_message | 已驱动 | exactly-once（同 requestId 同参重试不二次执行）；timeout/deadline 生效 |
+| mesh_get_task | 已驱动 | 事件游标轮询；cursor 单调；UNKNOWN 不自动重放 |
+| mesh_cancel_task | 已驱动 | 在途取消仅 native 终态判 CANCELLED |
+| mesh_list_sessions | 已驱动 | 仅本 grant 创建的会话（恰一条且为本次创建） |
+| mesh_delegate_task | **NOT-RUN** | 本基线不驱动 delegate 语义（仅 mcp-server smoke 覆盖）；报告中以 `tools.notRun` 显式标注，绝不计入 PASS |
 
 ## 4. 负例清单（Phase D）
 
@@ -76,7 +77,8 @@ native 结果 → 事件 cursor → mesh → MCP tool result → caller 模型�
 
 ## 5. 超时/预算/回滚/脱敏
 
-- 所有等待有界（单步 ≤30s，native turn ≤120s）；runner 总时长自检。
+- 所有等待有界，预算为 runner 实际强制值：B/D 单步轮询 ≤45s；mesh 工具调用 timeout 30s（C2 内 receiver 任务 90s）；C2 native turn ≤180s；C2 启动前 `--version` 预检 ≤15s。清理 owned-process 扫描：3s 宽限（吸收 kill 后 reap 延迟）→ 仍存活且命令行可归属本 run root 的后代 SIGTERM→SIGKILL（每 PID 独立复核归属，防 PID 复用误杀）→ 复扫验证；扫描器失败 = UNKNOWN ≠ clean。报告记录 `startedAt/finishedAt/durationMs`。
+- 退出码语义：0 = 基线门 PASS 且（self-test 模式，或两 native 方向均 PASS）；1 = 基线门失败或意外错误（恒为缺陷）；2 = 仅 `--native`：基线 PASS 但 LHI-3 总体 PARTIAL/BLOCKED（预期性部分报告，绝不当作完整 native 验收）。
 - 回滚：runner/文档纯增量；删 3 个路径即回退。不改任何 `packages/**`、`scripts/codex-mcp-*`。
 - 报告脱敏：不落 token/原始配对码/绝对本机路径（证据替换 `<disposable-root>`）；fixture 假 key 固定值。
 - 两方向**独立评级**；任一 native 方向未成立 → LHI-3 总体 PARTIAL（工作包 §3.4）。
@@ -92,3 +94,15 @@ native 结果 → 事件 cursor → mesh → MCP tool result → caller 模型�
 | LHI-3 总体 | **PARTIAL**（两方向 native 全链未同时成立，按工作包 §3.4） |
 
 新增观察（未改生产，详见 evidence README）：busy 拒绝与网络失败在 MCP 层同为 delivery UNKNOWN；adapterFactories 需显式 exportAgents；ZCode plan 模式对非只读 MCP 工具静默拒绝。
+
+## 7. 复审修复重跑（2026-10-26 18:38 UTC，head 见 RESULT）
+
+针对 PR #96 review 三项 P1 的修复与重跑（历史 §6 保留不改）：
+
+| 项 | 修复 | 重跑结果 |
+|---|---|---|
+| 顶层 PASS 假阳性 | `baselineVerdict`（B/D 门）与 `overallLhi3Verdict`（C1/C2，按工作包 §3.4：双 PASS 才 PASS、任一有证据即 PARTIAL、全无证据 BLOCKED）机器可读分离；`--native` 非完整时 exit 2 | self-test exit 0；native exit 2，`baseline:PASS` + `overall:PARTIAL` + `verdict:INCOMPLETE` |
+| ZCode 入口校验 | 启动前 fail-closed 双预检：sha256 与 HARNESS_MATRIX 批准 pin（`97490d0f…`）逐字节比对 + **实际执行** `--version` 与 `0.17.0` 比对；不匹配即 BLOCKED、不启动 app-server；报告写实测值 | 实测 `'0.17.0'`、pin 一致（`sha256Pinned:true`） |
+| 清理证据 | 独立 owned-process 扫描（argv 引用本 run 唯一 root 即归属；pgrep/powershell，失败=UNKNOWN）+ 端口释放核查；3s 宽限后对仍存活可归属后代**逐 PID 复核归属再 SIGTERM/SIGKILL**，全处置链入报告 | self-test 0 存活；native 捕获 1 个 ZCode 派生 MCP bridge 孤儿子进程（>10s 未退）→ SIGTERM 后清空（新观察 4） |
+
+其余修复：`mesh_list_sessions` 补实际驱动断言（20 门）；`mesh_delegate_task` 与 ACK-drop 注入显式 NOT-RUN；时间预算文档对齐 runner 实际强制值；self-test 基线挂入 CI（mac/win × node22/24）。

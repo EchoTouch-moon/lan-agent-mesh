@@ -10,8 +10,10 @@
 | nat1–nat8 | 2026-10-27 ~01:3x–02:0x | native | C2 调试迭代（codex 绝对路径、adapterFactories 需显式 exportAgents、双层转义正则、plan 模式拒非只读工具的发现） | 未归档 | — |
 | **st-final（归档）** | 2026-10-27 ~02:10 | self-test | **PASS 19/19 门**：双 Gateway Noise 测试配对、scoped grant、官方 MCP SDK 客户端经真实 mcp-server 桥的全链基线、两轮任务、幂等重试单一执行、在途取消 CANCELLED、receiver 失联→UNKNOWN 不重放、7 项安全负例 + HTTP 层过期拒绝 + caller 重启旧 token 拒绝、锁释放与目录删除 | [lhi3-selftest-darwin-20261027T0235Z.json](lhi3-selftest-darwin-20261027T0235Z.json) | `021e0f95627524e1d1ac96d60af5f71cb33fe833a7c3223a320da5c8d6f1ece8` |
 | **native-final（归档）** | 2026-10-27 ~02:05 | native（含 self-test 全部 19 门 + C2） | 门 19/19 PASS；**C2 双链评级**：`readOnlyNativeChain: VERIFIED`（ZCode 原生 `mesh_list_agents` → 桥 → 双 Gateway → CodexAdapter 注册表，真实 agent 数据回流 ZCode 模型上下文）+ `executionChain: BLOCKED_NEEDS_USER_AUTH`（plan 模式拒非只读工具；build 需 allow，夜间包不授予） | [lhi3-native-darwin-20261027T0240Z.json](lhi3-native-darwin-20261027T0240Z.json) | `f8d23e87c86d56f521316446569b55449456f870ec5d2812a755b41102bb56b0` |
+| **st-r2（当前归档）** | 2026-10-26 18:38 UTC | self-test | **PASS 20/20 门（exit 0，`baselineVerdict:PASS`，`overallLhi3Verdict:NOT-RUN`）**。复审修复后新增 `B-list-sessions-owned`（mesh_list_sessions 实际驱动、恰只列本 grant 会话）；清理证据升级为独立 owned-process 扫描（pgrep/powershell，0 存活）+ caller HTTP 端口释放核查 | [lhi3-selftest-darwin-20261026T1838Z.json](lhi3-selftest-darwin-20261026T1838Z.json) | `1e28e969db82ce361029f91002e70e305fa8ef7a3aa08924e73b9223b0129a2e` |
+| **native-r2（当前归档）** | 2026-10-26 18:38 UTC | native | **exit 2（预期性部分报告）；`baselineVerdict:PASS`（20/20 门）+ `overallLhi3Verdict:PARTIAL`，顶层 `verdict:INCOMPLETE`——不再以总 PASS 掩盖 C1/C2 未完成**。C2 启动前预检：实际 `--version` 输出 `'0.17.0'` 且 sha256 与 HARNESS_MATRIX 批准 pin 逐字节一致（`sha256Pinned:true`），任一不匹配即 BLOCKED 不启动 app-server。C2 清理证据：bridge 子进程存活被独立扫描捕获 → 3s 宽限 → 每 PID 归属复核后 SIGTERM → 复扫 PASS（观察 4）；fixture 双端口释放。C2 双链评级与 native-final 相同（readOnly VERIFIED / execution BLOCKED_NEEDS_USER_AUTH） | [lhi3-native-darwin-20261026T1838Z.json](lhi3-native-darwin-20261026T1838Z.json) | `62f0f3a9b09ba41e0391f92174429d22b49ed2cd568b21c0887cd0a31dad1848` |
 
-归档时 runner SHA-256（lint 修复后最终代码）：`37434a6083330ff5917b42873b417ac28c13e51db3a45ba8ea1256dfd616bf5a`；self-test 证据 `021e0f95…`、native 证据 `f8d23e87…`（完整哈希见 shasum 输出/RESULT）。
+归档时 runner SHA-256（复审修复后最终代码）：`447a020c6b1ecb12c1d45bbf4200cd1d506cf538e8b59778b05ab514cdd941d6`（st-r2/native-r2 对应）；此前 `37434a60…` 对应 st-final/native-final。
 证据脱敏：临时目录路径 → `<disposable-root>`；grant token → `mcp.<grantId>.<redacted-secret>`。
 
 ## C1（Codex caller → ZCode receiver）
@@ -29,3 +31,4 @@
 1. **busy 拒绝在 MCP 层表现为 delivery UNKNOWN**：接收方 adapter 明确 `busy` 拒绝（会话已有活跃 turn）与网络失败同样落入 `McpAccess` 的 UNKNOWN 分支，调用方无法区分。合成基线中复现（send2 delivery UNKNOWN + 无法 cancel 未接纳任务）。如需语义区分应另开 issue 讨论（本 PR 不改共享代码）。
 2. **adapterFactories 注册的 agent 不自动 export**：仅 mock 自动加入 exported 集合；工厂适配器需显式 `exportAgents`（公开选项）。已在验收文档记录。
 3. ZCode plan 模式对非只读 MCP 工具的拒绝是**静默**的（工具结果错误文本，无原生权限请求）；build 模式才会询问（与 LHI-2 结论一致）。
+4. **（native-r2 新观察）ZCode app-server 派生的 stdio MCP bridge 子进程在父进程被 SIGKILL 后仍存活 >10s**（实测 3s 宽限内未退出，`ps` 明细：`node mcp-server/dist/cli.js --credentials <disposable-root>/…`，孤儿化后靠自身逻辑延迟退出）。runner 现按合同 §2E 处置：3s 宽限 → 每 PID 重新读取命令行确认仍归属本 run root（防 PID 复用误杀）→ SIGTERM → 复扫验证 → 仍存活则 SIGKILL。全处置链记录于 `cleanup.ownedProcessScan.log`。生产含义（不在本 PR 修）：mcp-server CLI 在 stdin EOF 后的退出路径值得单独审计。
