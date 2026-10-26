@@ -1,3 +1,5 @@
+> **2026-10-26 重大路线调整（最新优先级）**：从自研 Agent 互联协议扩张转为 **standards-first local-first Harness interoperability**；新增 A2A v1.0 可选 scoped Bridge（R0→R1→R2，#66–#68）、SHADI/AgentBridge 安全对照（#69）、SLIM/Directory 后置性能 spike（#70）、公平 Benchmark（#71）。已存在的 MCP SDK v2.4.0、libp2p Noise/Yamux、G2 private storage、native permission default deny、UNKNOWN 非重放 **保持不变**。Mac/Win 的 #17/#18/#19 原生 Harness 及实体实验与 R-track 并行。首先阅读 [总计划](INTEROP_REBASELINE_2026-10-26.md)、[ADR0004](adr/0004-standards-first-agent-interop.md)、[LLM 工作包](LLM_WORK_PACKETS.md)、[研究矩阵](research/INTEROP_LANDSCAPE_2026-10-26.md)。本文下方的 2026-10-24 规划为历史快照；#32 A2A 从 P5 提前而非已完成，禁止自动扩大权限、重开跨机窗口或合并。协调 [#42](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/42)。
+
 > **最新执行状态（2026-10-26）**：PR #63 已合入 `main`（`0f2f38af`），[合并后四组 CI 均成功](https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40212173437)。Codex 和 DSH 的相同组合源本机 native+loopback fixture 已分别验收；实体 W3 Mock 两轮记录仍有跨 SHA/部分来源限制，真正 Harness 主动 MCP 出站和跨实体双向尚未验证。旧计划部分“PR 尚未合并”是历史快照，**以 [2026-10-26 双端下一阶段计划](NEXT_PHASE_2026-10-26.md) 为准**。#15/#17/#18/#19 保持开放；#45 仍排除。禁止由代码集成推断真实模型或审批权限放行。
 
 # Implementation Roadmap
