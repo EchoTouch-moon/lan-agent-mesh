@@ -401,7 +401,6 @@ function gateSelfTest() {
     },
   });
   const happyContext = { echoToolName: echoName, runId };
-  const clone = value => structuredClone(value);
   const violations = [
     ['advertised-echo-name', (r, c) => { c.echoToolName = 'builtin_tool'; }],
     ['positive-turn-completed', (r) => { delete r.results.advertisedFirstTurn.eventType; }],
