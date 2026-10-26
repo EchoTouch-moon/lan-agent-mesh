@@ -1,0 +1,211 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "R0 documentary upstream lock (not a package-manager lock or adoption approval)",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "baseSha",
+    "evidenceClass",
+    "runtimeChanges",
+    "upstreams",
+    "a2aContract"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "baseSha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "evidenceClass": {
+      "const": "documented"
+    },
+    "runtimeChanges": {
+      "const": false
+    },
+    "upstreams": {
+      "type": "array",
+      "minItems": 11,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "id",
+          "url",
+          "tagOrCommit",
+          "pinEvidence",
+          "securityNotes",
+          "transitiveLicenseReview",
+          "commit",
+          "license",
+          "licenseEvidence",
+          "apiEvidence",
+          "platformEvidence",
+          "sourcePaths",
+          "status",
+          "decision",
+          "lastChecked",
+          "runtimeDependencyApproved",
+          "platformVerification"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tagOrCommit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pinEvidence": {
+            "type": "string",
+            "minLength": 1
+          },
+          "securityNotes": {
+            "type": "string",
+            "minLength": 1
+          },
+          "transitiveLicenseReview": {
+            "type": "string",
+            "minLength": 1
+          },
+          "commit": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          },
+          "license": {
+            "enum": [
+              "Apache-2.0",
+              "MIT",
+              "Apache-2.0 AND MIT AND CC-BY-4.0"
+            ]
+          },
+          "licenseEvidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "apiEvidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "platformEvidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "sourcePaths": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "status": {
+            "enum": [
+              "documented",
+              "unknown",
+              "experimental",
+              "rejected"
+            ]
+          },
+          "decision": {
+            "enum": [
+              "ADOPT",
+              "ADAPT",
+              "STUDY",
+              "DEFER",
+              "REJECT"
+            ]
+          },
+          "lastChecked": {
+            "type": "string",
+            "pattern": "^2026-10-26$"
+          },
+          "runtimeDependencyApproved": {
+            "const": false
+          },
+          "platformVerification": {
+            "type": "object",
+            "required": [
+              "macOS",
+              "Windows"
+            ],
+            "properties": {
+              "macOS": {
+                "type": "null"
+              },
+              "Windows": {
+                "type": "null"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "a2aContract": {
+      "type": "object",
+      "required": [
+        "protocolVersion",
+        "jsonRpcSendMethod",
+        "terminalStates",
+        "unknownMapping",
+        "cancelRequiresNativeTerminal",
+        "authenticationBeforeSdk",
+        "revocationMustInvalidateCardAndTaskAccess"
+      ],
+      "properties": {
+        "protocolVersion": {
+          "const": "1.0"
+        },
+        "jsonRpcSendMethod": {
+          "const": "SendMessage"
+        },
+        "terminalStates": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "unknownMapping": {
+          "const": "unsupported-until-reviewed-extension"
+        },
+        "cancelRequiresNativeTerminal": {
+          "const": true
+        },
+        "authenticationBeforeSdk": {
+          "const": true
+        },
+        "revocationMustInvalidateCardAndTaskAccess": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

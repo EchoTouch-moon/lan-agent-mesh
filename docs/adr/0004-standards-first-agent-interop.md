@@ -77,3 +77,7 @@
 工程上：标准 A2A 客户端在隔离测试中经合法 scoped auth 发现/调用 Mock；拒绝/撤销不泄漏；跨重启同 key 无副作用重放；pending UNKNOWN/取消语义不撒谎；Mac/Win 四组 CI 不退化。研究上：清楚地比较已有项目，提出可重复测量的异构 Harness 语义一致性与权限实验；若第三方已实现同样能力，承认已有成果并通过插件复用。
 
 **源**：A2A v1.0 https://a2a-protocol.org/v1.0.0/specification/ · JS SDK https://github.com/a2aproject/a2a-js · MCP SDK https://github.com/modelcontextprotocol/typescript-sdk · SLIM https://github.com/agntcy/slim · Directory https://github.com/agntcy/dir · SHADI https://github.com/agntcy/shadi · AgentLink https://github.com/Oryntai/AgentLink
+
+## R0 文档审查补注（2026-10-26，待 PR 复核）
+
+[上游冻结与决策](../research/R0_DECISIONS.md) 固定 A2A spec v1.0.0 与 JS SDK v1.3.0 候选。上文 `message/send` 是历史简称：固定 v1.0 JSON-RPC binding 的 method 为 `SendMessage`，不能照抄旧方法名。SDK 默认 anonymous owner=`unknown` 与卡片公共缓存不能用于私有 scoped 入口；UNKNOWN 不对应 proto UNSPECIFIED。SHADI Windows DACL 修改、Codex profile bypass native approval 均不可直接复用。此补注仅 documented，不表示 R0-G 已签出或任何 runtime/SEC 实验获准；许可、平台、转依赖和未知项见报告及其证据。
