@@ -9,10 +9,10 @@
 ```sh
 pnpm install --frozen-lockfile
 pnpm build
-LAM_CODEX_BIN=/absolute/path/to/verified/codex node scripts/codex-mcp-outbound-smoke.mjs --receiver mock --output /private/new/m1.json
+LAM_CODEX_BIN=/absolute/path/to/verified/codex node scripts/codex-mcp-outbound-smoke.mjs --receiver mock --fixture-tool-approval --output /private/new/m1.json
 ```
 
-输出文件必须不存在。`--allow-dirty` 仅供开发，报告 `sourceClean:false` 不能作为正式证据。全程有界等待，MCP 凭据仅写入本轮 0600 文件；进程环境不继承真实模型/代理/凭据变量。
+输出文件必须不存在。`--fixture-tool-approval` 是用户于本聊天明确授权的测试例外：仅对新建会话/发送/委派/取消这四个本机 Mesh 工具设置 `approval_mode="approve"`；默认不添加此配置。不得推广到真实模型、远端节点、生产入口或接收方原生写入权限。所有原生 approval 回调仍拒绝。首次默认策略触发 elicitation 并被拒绝的失败记录保留。`--allow-dirty` 仅供开发，报告 `sourceClean:false` 不能作为正式证据。全程有界等待，MCP 凭据仅写入本轮 0600 文件；进程环境不继承真实模型/代理/凭据变量。
 
 fixture 根据真实 Codex 广告的工具名返回确定性的 function_call，**Codex 负责执行 MCP stdio 调用**，不是 MCP SDK 测试客户端。验收器要求对应 thread/turn 的原生 `item/completed`、`mcpToolCall` 类型、server/tool、精确参数与工具结果，模型回复文本不能作为证据。fixture 证明原生 MCP 调用能力，不证明模型自主规划能力。
 
@@ -21,7 +21,7 @@ fixture 根据真实 Codex 广告的工具名返回确定性的 function_call，
 ## M2：同机原生接收方组合
 
 ```sh
-LAM_CODEX_BIN=/absolute/path/to/verified/codex node scripts/codex-mcp-outbound-smoke.mjs --receiver codex --output /private/new/m2-mcp.json
+LAM_CODEX_BIN=/absolute/path/to/verified/codex node scripts/codex-mcp-outbound-smoke.mjs --receiver codex --fixture-tool-approval --output /private/new/m2-mcp.json
 LAM_CODEX_BIN=/absolute/path/to/verified/codex node scripts/codex-adapter-smoke.mjs > /private/new/m2-lifecycle.json
 ```
 

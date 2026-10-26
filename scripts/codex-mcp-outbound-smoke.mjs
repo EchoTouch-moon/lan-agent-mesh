@@ -16,7 +16,7 @@ import { MCP_INPUTS } from '../packages/mcp-contract/dist/index.js';
 import { nativeMcpResult, digest } from './codex-mcp-contract.mjs';
 
 const { values } = parseArgs({ options: { receiver: { type: 'string', default: 'mock' },
-  output: { type: 'string' }, 'allow-dirty': { type: 'boolean', default: false } } });
+  output: { type: 'string' }, 'fixture-tool-approval': { type: 'boolean', default: false }, 'allow-dirty': { type: 'boolean', default: false } } });
 assert.equal(process.platform, 'darwin', 'Only the verified Mac Codex entry is supported');
 assert.ok(['mock', 'codex'].includes(values.receiver));
 const command = process.env.LAM_CODEX_BIN;
@@ -32,7 +32,7 @@ const report = { status: 'running', testedSourceSha: execFileSync('git', ['rev-p
   sourceClean: !dirty, startedUtc: new Date().toISOString(), platform: process.platform, node: process.version,
   pnpm: execFileSync('pnpm', ['--version'], { encoding: 'utf8' }).trim(), receiver: values.receiver,
   inference: 'deterministic localhost Responses fixture; no external model configured',
-  physicalCrossHost: 'not-tested', nativeInvocations: [], results: {}, fixtureRequests: 0 };
+  physicalCrossHost: 'not-tested', fixtureToolApproval: values['fixture-tool-approval'] ? 'explicit operator exception for four isolated local mesh tools' : 'default native policy', nativeInvocations: [], results: {}, fixtureRequests: 0 };
 const messages = [], servers = [], gateways = [], ports = [];
 let rpc, active, receiverMode = 'text', receiverRequests = 0, stage = 'setup';
 function fixture(receiver = false) {
@@ -50,7 +50,7 @@ function fixture(receiver = false) {
       if (receiver) { receiverRequests++; if (receiverMode === 'hold') return; }
       let item;
       if (!receiver && active && !active.issued) {
-        report.advertisedToolShapes = body.tools?.map(t => ({ type: t.type, name: t.name, tools: t.tools?.map(x => x.name) }));
+        report.meshToolEncoding = body.tools?.some(t => t.name === 'mcp__mesh' && t.type === 'namespace') ? 'namespace' : 'flat';
         const namespace = body.tools?.find(t => t.type === 'namespace' && t.name === 'mcp__mesh');
         const tools = namespace?.tools ?? body.tools?.filter(t => t.name?.startsWith('mcp__mesh__')) ?? [];
         assert.deepEqual(tools.map(t => t.name.replace('mcp__mesh__', '')).sort(), Object.keys(MCP_INPUTS).sort());
@@ -145,7 +145,9 @@ try {
     'model_providers.lam_fixture.supports_websockets=false',
     'mcp_servers.mesh.command=' + JSON.stringify(process.execPath),
     'mcp_servers.mesh.args=' + JSON.stringify([resolve('packages/mcp-server/dist/cli.js'), '--credentials', credentialFile]),
-    'mcp_servers.mesh.startup_timeout_sec=15', 'mcp_servers.mesh.tool_timeout_sec=15'];
+    'mcp_servers.mesh.startup_timeout_sec=15', 'mcp_servers.mesh.tool_timeout_sec=15',
+    ...(values['fixture-tool-approval'] ? ['mesh_start_session', 'mesh_send_message', 'mesh_delegate_task', 'mesh_cancel_task']
+      .map(tool => `mcp_servers.mesh.tools.${tool}.approval_mode="approve"`) : [])];
   rpc = new CodexRpc(command, ['app-server', '--listen', 'stdio://', ...config.flatMap(c => ['-c', c])], env, home,
     message => { messages.push(message); if (message.id !== undefined && message.method) rpc.deny(message.id, message.method); },
     () => {}, 15000);
@@ -187,7 +189,6 @@ try {
   report.status = 'failed'; report.failureStage = stage;
   // Do not publish native diagnostics, paths, arguments, credentials or raw history.
   report.failureKind = error?.code === 'ERR_ASSERTION' ? 'assertion' : 'runtime';
-  await writeFile('/tmp/lam-mcp-private-debug.json', JSON.stringify(messages), { mode: 0o600 });
   report.observedMethods = [...new Set(messages.map(m => m.method).filter(Boolean))];
   process.exitCode = 1;
 } finally {
