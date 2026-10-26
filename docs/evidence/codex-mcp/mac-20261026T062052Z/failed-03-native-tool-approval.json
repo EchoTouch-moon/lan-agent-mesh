@@ -1,0 +1,135 @@
+{
+  "status": "failed",
+  "testedSourceSha": "83267d7cf0c9d15f38dbf9d8604779fbb5253a20",
+  "sourceClean": true,
+  "startedUtc": "2026-10-26T06:13:36.247Z",
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "pnpm": "10.18.3",
+  "receiver": "mock",
+  "inference": "deterministic localhost Responses fixture; no external model configured",
+  "physicalCrossHost": "not-tested",
+  "nativeInvocations": [
+    {
+      "tool": "mesh_list_agents",
+      "nativeStatus": "completed",
+      "threadDigest": "dd03fdb45725dc2545c81d689ff5ff141f468ff928eb4109ff53bdcbc0fbbc6d",
+      "turnDigest": "447b830a8d862a3882b01418c4a2f168ea2ed0c9702277c9888c44ecfa869ccd",
+      "itemDigest": "035180f26898b985e01406f55d57d8ef1f84b3c3b22f9018a61761ec1ae906c2",
+      "argumentsDigest": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultDigest": "d09cee581b8038137b877574260a2ff107cd1f0eb66d8af70e416c69cd6056b1",
+      "denied": false
+    },
+    {
+      "tool": "mesh_list_agents",
+      "nativeStatus": "failed",
+      "threadDigest": "dd03fdb45725dc2545c81d689ff5ff141f468ff928eb4109ff53bdcbc0fbbc6d",
+      "turnDigest": "5da0350ec26cd755fb152b5c12f27f015d4e35360310cd8b4e26b18534ae1829",
+      "itemDigest": "fafb2e2952deef92bc217dd944d8cd965b1756c05b418d9f905f46a6cab6b7cd",
+      "argumentsDigest": "6f8f013af1f2a3233cda7ee3dcfccd73f67ca2c762425e7c0d9d253e30a0a0a8",
+      "resultDigest": "40973dc1d042f8a6b3975164b12a242d33abb6f155850f684c46eeef505fe953",
+      "denied": true
+    }
+  ],
+  "results": {
+    "advertisedExactSevenTools": "verified"
+  },
+  "fixtureRequests": 6,
+  "codexVersion": "codex-cli 0.146.0",
+  "executableSha256": "134063e133f0b4244fa3b251acf973d4fe4b4aeeacbdc135211bf480f59f1477",
+  "scriptSha256": "bf9f0f5eab49517335559e76b09c4892993f00818f62f9f5a29366259b73bab5",
+  "advertisedToolShapes": [
+    {
+      "type": "function",
+      "name": "exec_command"
+    },
+    {
+      "type": "function",
+      "name": "write_stdin"
+    },
+    {
+      "type": "function",
+      "name": "list_mcp_resources"
+    },
+    {
+      "type": "function",
+      "name": "list_mcp_resource_templates"
+    },
+    {
+      "type": "function",
+      "name": "read_mcp_resource"
+    },
+    {
+      "type": "function",
+      "name": "update_plan"
+    },
+    {
+      "type": "function",
+      "name": "request_user_input"
+    },
+    {
+      "type": "function",
+      "name": "view_image"
+    },
+    {
+      "type": "namespace",
+      "name": "multi_agent_v1",
+      "tools": [
+        "close_agent",
+        "resume_agent",
+        "send_input",
+        "spawn_agent",
+        "wait_agent"
+      ]
+    },
+    {
+      "type": "namespace",
+      "name": "mcp__mesh",
+      "tools": [
+        "mesh_cancel_task",
+        "mesh_delegate_task",
+        "mesh_get_task",
+        "mesh_list_agents",
+        "mesh_list_sessions",
+        "mesh_send_message",
+        "mesh_start_session"
+      ]
+    },
+    {
+      "type": "function",
+      "name": "get_goal"
+    },
+    {
+      "type": "function",
+      "name": "create_goal"
+    },
+    {
+      "type": "function",
+      "name": "update_goal"
+    },
+    {
+      "type": "web_search"
+    }
+  ],
+  "failureStage": "scope-and-session",
+  "failureKind": "assertion",
+  "observedMethods": [
+    "remoteControl/status/changed",
+    "thread/started",
+    "mcpServer/startupStatus/updated",
+    "warning",
+    "thread/status/changed",
+    "turn/started",
+    "item/started",
+    "item/completed",
+    "thread/tokenUsage/updated",
+    "account/rateLimits/updated",
+    "item/agentMessage/delta",
+    "turn/completed",
+    "mcpServer/elicitation/request",
+    "serverRequest/resolved"
+  ],
+  "cleanup": "failed",
+  "endedUtc": "2026-10-26T06:13:37.882Z",
+  "nativeTraceDigest": "e331110a0698037e5c5413b06315bf4574377544d39cd3f675fb72e82b69bc85"
+}

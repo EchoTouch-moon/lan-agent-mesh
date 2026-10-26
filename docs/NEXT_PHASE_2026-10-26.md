@@ -62,3 +62,10 @@
 3. 保留 #15、#17、#18、#19 开放直到各自原验收条件具备证据；无用户授权不启动新的实体联调/真实模型，不自动关闭父 Issue。
 4. **本轮完成定义**：E2 双方向原生接收方路径及 M1/W2 出站能力结论全部可审计；有支持接口才争取 E3/E4。E2 通不过先修网关/Adapter可靠性，不转向 P3 UI、A2A、群聊或新 GUI 接管。
 5. 这轮代码验证后更新 [ROADMAP](ROADMAP.md)、[HARNESS_MATRIX](HARNESS_MATRIX.md)、[#42](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/42) 状态；能力字段 `unknown` 不随希望而变成 `verified`。
+
+## 2026-10-26 Mac候选执行回传
+
+- M1：已用真实Codex0.146.0原生mcpToolCall验证七工具、scope/所有权拒绝、幂等、事件游标、在途取消和撤销；固定localhost provider，不是SDK冒名。
+- M2本机准备：显式Codex接收方组合及既有六阶段生命周期同73364a1源三命令exit0、清理通过；不视为Windows→Mac实体验收。
+- 本聊天用户明确批准测试例外，仅在新隔离本机fixture中为四个Mesh有副作用工具预设可执行；原生接收方write approval仍默认decline。未授权其他自动批准范围。
+- [原件、失败及边界](evidence/codex-mcp/mac-20261026T062052Z/SUMMARY.md)，[执行说明](MAC_CODEX_MCP_ACCEPTANCE.md)。M3需等WindowsW1/W3/S1新脚本提交后审查；实体窗口和父Issue仍按上方门槛。

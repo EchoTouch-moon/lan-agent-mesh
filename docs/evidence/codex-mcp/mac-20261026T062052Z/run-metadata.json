@@ -1,0 +1,86 @@
+{
+  "archivedUtc": "2026-10-26T06:20:53.130508+00:00",
+  "records": [
+    {
+      "file": "m1-mock.json",
+      "sha256": "570818327630b435b4db28775ba3becd74c691dfe8608028476855367ae4f9b4",
+      "testedSourceSha": "73364a13a03c7d6c8b8c7f6e105aaacd59368723",
+      "exitCode": 0,
+      "status": "passed"
+    },
+    {
+      "file": "m2-codex.json",
+      "sha256": "9982f7f41cad875b997d6728131df482aac2aa094d6ef4ec1d62776654f97b41",
+      "testedSourceSha": "73364a13a03c7d6c8b8c7f6e105aaacd59368723",
+      "exitCode": 0,
+      "status": "passed"
+    },
+    {
+      "file": "m2-lifecycle.json",
+      "sha256": "f1347e8de44c81bce9ea0c16a0779202db66c08a66adb2f569ca0ec3b1629e7c",
+      "testedSourceSha": "73364a13a03c7d6c8b8c7f6e105aaacd59368723",
+      "exitCode": 0,
+      "status": "passed"
+    },
+    {
+      "file": "failed-01-tool-encoding.json",
+      "sha256": "e697518fb3f268efb639033f751fe7dcdcbcaeeb54025055cb24891bbaf3bce3",
+      "testedSourceSha": "12a3a7d1c748ea8e8ab5e5118beb00c51c2cb0f0",
+      "exitCode": 1,
+      "status": "failed"
+    },
+    {
+      "file": "failed-02-tool-encoding.json",
+      "sha256": "3d15e27adcd0619e68301bdc6369435d977d1df70dc8f5a5939cc6e95099c9cb",
+      "testedSourceSha": "b548608b9fa41ca86f8d2652345bab6c4511d31a",
+      "exitCode": 1,
+      "status": "failed"
+    },
+    {
+      "file": "failed-03-native-tool-approval.json",
+      "sha256": "a9ab7f05be553612d65ee1d23cf03aaa6a30a341d19a05869626452577e84a73",
+      "testedSourceSha": "83267d7cf0c9d15f38dbf9d8604779fbb5253a20",
+      "exitCode": 1,
+      "status": "failed"
+    },
+    {
+      "file": "failed-04-ownership-expectation.json",
+      "sha256": "31f3333d0efdbab5ad5d236a094f2115bb2977222d338a74fa96790a9b521702",
+      "testedSourceSha": "b723375c3dc13212c0732939259d7699ab530cec",
+      "exitCode": 1,
+      "status": "failed"
+    },
+    {
+      "file": "failed-05-cleanup.json",
+      "sha256": "5a3c26e6b3a8c358000181976f413c11e2e35e04d1fe13045417daae54cbca4c",
+      "testedSourceSha": "589c72a488384242895d1323b141d626c0b54aa7",
+      "exitCode": 1,
+      "status": "failed"
+    },
+    {
+      "file": "failed-06-cleanup.json",
+      "sha256": "09fa69a5e90b8b180695a969db29555cc7d1fb78bac41be09d4759ff3d67eda3",
+      "testedSourceSha": "ddfdcf9a1402da9ffc20ce15121e5bea9bc61495",
+      "exitCode": 1,
+      "status": "failed"
+    },
+    {
+      "file": "failed-07-receiver-cleanup.json",
+      "sha256": "b907770287c122a92af6eab2120de4c3b0db42588b1ebff6bd2c0574ff534d0b",
+      "testedSourceSha": "ddfdcf9a1402da9ffc20ce15121e5bea9bc61495",
+      "exitCode": 1,
+      "status": "failed"
+    }
+  ],
+  "postFailureCleanup": "Three original failed roots and one owned remaining probe process removed first; three later retained roots removed after exact-root process checks. Private debugging history deleted. Final runs independently verify process groups, ports and data removal.",
+  "localCheck": {
+    "command": "pnpm check",
+    "exitCode": 0,
+    "testsPassed": 107,
+    "testsSkipped": 4,
+    "testsDefined": 111,
+    "testedSourceSha": "b723375c3dc13212c0732939259d7699ab530cec",
+    "scope": "Full check completed while subsequent edits were confined to optional probe/contract scripts; final scripts separately linted and contract-checked."
+  },
+  "approvalException": "Human explicitly approved exactly four local fixture MCP tool policies in this chat; native receiver permissions remain decline."
+}
