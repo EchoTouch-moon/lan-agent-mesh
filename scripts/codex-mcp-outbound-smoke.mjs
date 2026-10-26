@@ -202,7 +202,10 @@ try {
   await step('nativeProcessGroup', async () => {
     await rpc?.close();
     if (rpc?.child.pid) {
-      try { process.kill(-rpc.child.pid, 'SIGKILL'); } catch (error) { assert.equal(error.code, 'ESRCH'); }
+      try { process.kill(-rpc.child.pid, 'SIGKILL'); } catch (error) {
+        cleanup.signalObservation = { name: error.name, code: error.code, syscall: error.syscall };
+        assert.equal(error.code, 'ESRCH');
+      }
       await waitUntil(() => {
         try { process.kill(-rpc.child.pid, 0); return false; } catch (error) { return error.code === 'ESRCH'; }
       });
