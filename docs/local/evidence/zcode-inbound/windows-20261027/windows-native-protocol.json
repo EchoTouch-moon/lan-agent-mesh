@@ -1,0 +1,144 @@
+{
+  "platform": "win32",
+  "node": "v24.12.0",
+  "startedUtc": "2026-10-26T17:06:44.096Z",
+  "entry": {
+    "name": "zcode.cjs",
+    "sha256": "97490d0f06a7a225d54d47817acf4b4859cdb268b59f2490caaeda982bef063a",
+    "bytes": 15242397,
+    "builtinConfigPresent": true
+  },
+  "cliVersion": "0.17.0",
+  "phases": {
+    "sendStream": {
+      "deltas": "W4 NATIVE OK",
+      "terminal": "turn.completed"
+    },
+    "cancel": {
+      "heldDelta": true,
+      "terminal": "cancelled"
+    },
+    "permission": {
+      "denials": 1,
+      "markerCreated": false,
+      "toolCallObserved": true,
+      "toolTraceAfter": true,
+      "terminal": "success",
+      "permissionRequest": "real-native-request-observed"
+    },
+    "restart": {
+      "resumeEcho": true,
+      "resumedIdentity": "sess_664c2534-f658-4e88-a284-7b904c20e111",
+      "afterRestart": "W4 NATIVE OK"
+    },
+    "processCheck": {
+      "before": 9,
+      "afterLeftover": [],
+      "note": "owned checker matches only this run entry/root markers"
+    }
+  },
+  "assertions": [
+    {
+      "name": "production-open-fail-closed-on-windows",
+      "pass": true,
+      "detail": "refused=true (darwin-only native entry per #92; Windows native verified at protocol layer below)"
+    },
+    {
+      "name": "app-server-spawn-capabilities",
+      "pass": true,
+      "detail": "cliVersion=0.17.0 pinned=0.17.0 match=true"
+    },
+    {
+      "name": "cli-version-pinned",
+      "pass": true,
+      "detail": "0.17.0"
+    },
+    {
+      "name": "session-create-subscribe",
+      "pass": true,
+      "detail": "echo=undefined"
+    },
+    {
+      "name": "send-stream-ordered-completed",
+      "pass": true,
+      "detail": "W4 NATIVE OK"
+    },
+    {
+      "name": "in-flight-cancel-native-stop",
+      "pass": true,
+      "detail": "heldDelta=true"
+    },
+    {
+      "name": "permission-deny-fail-closed",
+      "pass": true,
+      "detail": "realNativeDenial=true,markerAbsent=true,turnCompleted=true (causal: the fixture-issued tool_call carried the marker command, the native permission request was observed, deny was answered, marker absent)"
+    },
+    {
+      "name": "workspace-observable-control",
+      "pass": true,
+      "detail": "workspace remains observable/writable by this run (control path)"
+    },
+    {
+      "name": "restart-resume-identity-and-live-events",
+      "pass": true,
+      "detail": "resumeEcho=true,afterRestart=W4 NATIVE OK"
+    },
+    {
+      "name": "no-external-models-accounted",
+      "pass": true,
+      "detail": "fixture=5,external=0"
+    },
+    {
+      "name": "owned-processes-all-stopped",
+      "pass": true,
+      "detail": "leftoverPids=none (cleanup-uncertain if any; never kills bystanders)"
+    },
+    {
+      "name": "disposable-root-removed-or-kept",
+      "pass": true,
+      "detail": "removed"
+    }
+  ],
+  "externalModelRequests": 0,
+  "fixtureRequests": 5,
+  "evidenceKind": "windows-native-local (protocol layer; production entry is darwin-only by design)",
+  "fixtureLog": [
+    {
+      "request": 1,
+      "lastUser": "W4 plain turn",
+      "wantsPermission": false,
+      "wantsHold": false,
+      "toolTracePresent": false
+    },
+    {
+      "request": 2,
+      "lastUser": "W4_HOLD",
+      "wantsPermission": false,
+      "wantsHold": true,
+      "toolTracePresent": false
+    },
+    {
+      "request": 3,
+      "lastUser": "W4_PERMISSION",
+      "wantsPermission": true,
+      "wantsHold": false,
+      "toolTracePresent": false
+    },
+    {
+      "request": 4,
+      "lastUser": "W4_PERMISSION",
+      "wantsPermission": true,
+      "wantsHold": false,
+      "toolTracePresent": true
+    },
+    {
+      "request": 5,
+      "lastUser": "W4 after restart",
+      "wantsPermission": false,
+      "wantsHold": false,
+      "toolTracePresent": true
+    }
+  ],
+  "verdict": "PASS",
+  "endedUtc": "2026-10-26T17:07:02.324Z"
+}

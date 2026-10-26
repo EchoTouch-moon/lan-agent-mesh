@@ -1,0 +1,18 @@
+{
+  "taskId": "W4-W5 (W6 documented)",
+  "issue": "https://github.com/EchoTouch-moon/lan-agent-mesh/issues/94",
+  "baseline": "PR #92 head 7209be13f51dd2f193674aa6dde3fce527dd1f82 merged into win/w4-w6-zcode-native-20261027; NOT based on main; #92/#93 remain open",
+  "testedSourceSha": "3d58146f7e594d5056c8078350849ef226f217f9",
+  "host": { "platform": "win32", "osRelease": "10.0.22621", "node": "v24.12.0", "pnpm": "10.18.3" },
+  "binary": { "name": "zcode.cjs", "sha256": "97490d0f06a7a225d54d47817acf4b4859cdb268b59f2490caaeda982bef063a", "bytes": 15242397, "version": "0.17.0", "desktop": "3.16.3" },
+  "commands": [
+    { "command": "pnpm install --frozen-lockfile", "exitCode": 0 },
+    { "command": "pnpm build", "exitCode": 0 },
+    { "command": "node packages/zcode-adapter/test/windows-native-smoke.mjs --output=<outside-repo>", "exitCode": 0 },
+    { "command": "npx vitest run packages/zcode-adapter/test/zcode.test.ts", "exitCode": 0 }
+  ],
+  "evidenceKind": "windows-native-local (protocol layer via production ZcodeRpc; production ZcodeAdapter.open stays darwin-only fail-closed, itself verified as the first negative gate)",
+  "externalModelRequests": 0,
+  "cleanup": { "ownedLeftoverProcesses": [], "disposableRootRemoved": true, "bystandersUntouched": true },
+  "unverified": ["Windows production adapter entry (blocker: darwin-only gate + env() Windows vars + Windows pinned-SHA allowlist)", "DSH non-empty mcpServers native outbound (NOT-RUN)", "physical E0-E5"]
+}
