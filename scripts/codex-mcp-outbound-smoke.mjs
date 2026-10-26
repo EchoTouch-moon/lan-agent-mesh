@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { createConnection } from 'node:net';
 import { mkdtemp, mkdir, writeFile, readFile, realpath, rm, access } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { tmpdir, release, arch } from 'node:os';
 import { join, resolve, isAbsolute } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
@@ -29,7 +29,7 @@ await mkdir(home, { mode: 0o700 }); await mkdir(workspace, { mode: 0o700 });
 const env = { PATH: process.env.PATH ?? '/usr/bin:/bin', HOME: home, CODEX_HOME: home,
   XDG_CONFIG_HOME: join(home, 'xdg'), XDG_DATA_HOME: join(home, 'data'), TMPDIR: home, LANG: 'en_US.UTF-8' };
 const report = { status: 'running', testedSourceSha: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
-  sourceClean: !dirty, startedUtc: new Date().toISOString(), platform: process.platform, node: process.version,
+  sourceClean: !dirty, startedUtc: new Date().toISOString(), platform: process.platform, osRelease: release(), architecture: arch(), node: process.version,
   pnpm: execFileSync('pnpm', ['--version'], { encoding: 'utf8' }).trim(), receiver: values.receiver,
   inference: 'deterministic localhost Responses fixture; no external model configured',
   physicalCrossHost: 'not-tested', fixtureToolApproval: values['fixture-tool-approval'] ? 'explicit operator exception for four isolated local mesh tools' : 'default native policy', nativeInvocations: [], results: {}, fixtureRequests: 0 };
@@ -120,6 +120,12 @@ try {
   assert.equal(report.codexVersion, 'codex-cli 0.146.0');
   report.executableSha256 = createHash('sha256').update(await readFile(command)).digest('hex');
   report.scriptSha256 = createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex');
+  report.artifactHashes = {};
+  for (const file of ['scripts/codex-mcp-contract.mjs', 'packages/codex-adapter/dist/index.js',
+    'packages/codex-adapter/dist/rpc.js', 'packages/mcp-server/dist/cli.js', 'packages/mcp-server/dist/index.js',
+    'packages/mcp-contract/dist/index.js', 'packages/runtime/dist/index.js', 'packages/runtime/dist/mcp-access.js',
+    'packages/mesh/dist/index.js', 'pnpm-lock.yaml'])
+    report.artifactHashes[file] = createHash('sha256').update(await readFile(file)).digest('hex');
   const caller = await new Gateway({ directory: join(root, 'caller'), mdns: false }).start(); gateways.push(caller);
   const receiverUrl = values.receiver === 'codex' ? await listen(fixture(true)) : undefined;
   const receiver = await new Gateway({ directory: join(root, 'receiver'), mdns: false,
