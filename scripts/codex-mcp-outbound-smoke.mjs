@@ -13,7 +13,7 @@ import { Gateway } from '../packages/runtime/dist/index.js';
 import { CodexAdapter } from '../packages/codex-adapter/dist/index.js';
 import { CodexRpc } from '../packages/codex-adapter/dist/rpc.js';
 import { MCP_INPUTS } from '../packages/mcp-contract/dist/index.js';
-import { nativeMcpResult, digest } from './codex-mcp-contract.mjs';
+import { nativeMcpResult, digest, pidsInGroup } from './codex-mcp-contract.mjs';
 
 const { values } = parseArgs({ options: { receiver: { type: 'string', default: 'mock' },
   output: { type: 'string' }, 'fixture-tool-approval': { type: 'boolean', default: false }, 'allow-dirty': { type: 'boolean', default: false } } });
@@ -202,13 +202,14 @@ try {
   await step('nativeProcessGroup', async () => {
     await rpc?.close();
     if (rpc?.child.pid) {
-      try { process.kill(-rpc.child.pid, 'SIGKILL'); } catch (error) {
-        cleanup.signalObservation = { name: error.name, code: error.code, syscall: error.syscall };
-        assert.equal(error.code, 'ESRCH');
-      }
-      await waitUntil(() => {
-        try { process.kill(-rpc.child.pid, 0); return false; } catch (error) { return error.code === 'ESRCH'; }
-      });
+      const members = () => pidsInGroup(execFileSync('/bin/ps', ['-axo', 'pid=,pgid='], {
+        encoding: 'utf8', timeout: 2000, maxBuffer: 1024 * 1024,
+      }), rpc.child.pid);
+      // Darwin may return EPERM when signaling a group whose last member has exited.
+      // Observe actual numeric group membership before signaling, then require it empty.
+      if (members().length) process.kill(-rpc.child.pid, 'SIGKILL');
+      await waitUntil(() => members().length === 0);
+      assert.ok(rpc.child.exitCode !== null || rpc.child.signalCode !== null);
     }
   });
   for (const [index, g] of gateways.reverse().entries()) await step(`gateway${index}`, () => g.stop());
