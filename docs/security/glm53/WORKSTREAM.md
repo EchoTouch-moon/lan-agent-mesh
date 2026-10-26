@@ -1,5 +1,7 @@
 # GLM-5.3 专项工作线：防御性安全审查、故障注入与可靠性加固（2026-10-26）
 
+> **GitHub 任务入口**：[G-S0 #72](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/72) · [G-S1 #73](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/73) · [G-S2 #74](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/74) · [G-R1 #75](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/75) · [G-S3 #76](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/76) · [G-X1 #77](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/77)。尚未领取/执行或通过，Issue 的存在不等于验证完成。
+
 **计划状态：READY FOR CLAIM，尚未执行安全测试，也未自动派发到 GLM 服务。** 此文档用于使用 GLM-5.3 的编码 Agent 主动领取独立任务。仓库基线（编写计划时）`main@1c5697219a7d3281f37d57981b5b548d7c1c9d5b`；每个 Agent 实际执行时必须重新获取最新 main 与已占用文件范围。
 
 **总路线不变**：先读 [AGENTS.md](../../AGENTS.md)、[ADR0004](../adr/0004-standards-first-agent-interop.md)、[INTEROP_REBASELINE](../INTEROP_REBASELINE_2026-10-26.md)、[LLM_WORK_PACKETS](../LLM_WORK_PACKETS.md)。这是**横向防御性验证线**，不替换 #66 R0、#67 R1、#68 R2 等 GPT 正在进行的 A2A 研发，也不假冒 #19 真实双机 Harness 验证。
@@ -24,12 +26,12 @@ Z.ai 于 2026-08-14 发布 GLM-5.3，官方宣称在 CyberGym 漏洞发现任务
 
 | 包 | 对应 Issue | 独占首选文件范围（只新增，不改既有实现） | 启动顺序 | 交付 |
 |---|---|---|---|---|
-| G-S0 威胁建模与白盒审计 | 待创建独立 Issue | `docs/security/glm53/threat-model.md`, `findings.md` | 首先；可和测试包并行 | 按优先级证据化的缺口、可复现计划 |
-| G-S1 协议输入与 RPC 边界测试 | 待创建独立 Issue | `packages/protocol/test/glm53-envelope-invariants.test.ts`, `packages/mesh/test/glm53-peer-boundary.test.ts` | 立即 | 有界解析/恶意输入/身份绑定回归 |
-| G-S2 MCP 授权和秘密信息拒绝负例 | 待创建独立 Issue | `packages/mcp-server/test/glm53-scope-boundary.test.ts`, `docs/security/glm53/mcp-scope-review.md` | 立即 | 七工具跨作用域/失效凭据/控制面隔离 |
-| G-R1 durable 状态机与崩溃恢复 | 待创建独立 Issue | `packages/storage/test/glm53-ledger-invariants.test.ts`, `packages/runtime/test/glm53-recovery-invariants.test.ts` | 立即 | ACK/幂等/UNKNOWN/取消竞态负例 |
-| G-S3 Windows 私有存储与原生子进程清理 | 待创建独立 Issue | `packages/private-storage/test/glm53-private-storage.test.ts`, `packages/dsh-adapter/test/glm53-cleanup.test.ts` | G-S0 可并行、Windows 允许 CI | 私有目录拒绝/lock/进程树清理（仅 fixture） |
-| G-X1 跨任务安全复核（独立 reviewer） | 待创建独立 Issue | `docs/security/glm53/final-review.md` | 以上 PR ready 后 | 分类 finding、覆盖空白、重复测试与下一轮建议 |
+| G-S0 威胁建模与白盒审计 | [#72](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/72) | `docs/security/glm53/threat-model.md`, `findings.md` | 首先；可和测试包并行 | 按优先级证据化的缺口、可复现计划 |
+| G-S1 协议输入与 RPC 边界测试 | [#73](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/73) | `packages/protocol/test/glm53-envelope-invariants.test.ts`, `packages/mesh/test/glm53-peer-boundary.test.ts` | 立即 | 有界解析/恶意输入/身份绑定回归 |
+| G-S2 MCP 授权和秘密信息拒绝负例 | [#74](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/74) | `packages/mcp-server/test/glm53-scope-boundary.test.ts`, `docs/security/glm53/mcp-scope-review.md` | 立即 | 七工具跨作用域/失效凭据/控制面隔离 |
+| G-R1 durable 状态机与崩溃恢复 | [#75](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/75) | `packages/storage/test/glm53-ledger-invariants.test.ts`, `packages/runtime/test/glm53-recovery-invariants.test.ts` | 立即 | ACK/幂等/UNKNOWN/取消竞态负例 |
+| G-S3 Windows 私有存储与原生子进程清理 | [#76](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/76) | `packages/private-storage/test/glm53-private-storage.test.ts`, `packages/dsh-adapter/test/glm53-cleanup.test.ts` | G-S0 可并行、Windows 允许 CI | 私有目录拒绝/lock/进程树清理（仅 fixture） |
+| G-X1 跨任务安全复核（独立 reviewer） | [#77](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/77) | `docs/security/glm53/final-review.md` | 以上 PR ready 后 | 分类 finding、覆盖空白、重复测试与下一轮建议 |
 
 每项都需独立分支 `glm53/<task-id>-...` 和独立 PR，不直接改 main、不互相 cherry-pick 未审查修复。S1/S2/R1/S3 初期只能新增测试，遇到真实问题写 **FAIL + minimal red test + separate fix proposal**；修复 PR 的范围先在 GitHub Issue 明确后再安排。这样与 GPT 主线和不同 GLM 任务不存在共享源文件写冲突。
 
