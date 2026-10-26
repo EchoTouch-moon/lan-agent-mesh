@@ -51,12 +51,13 @@ function fixture(receiver = false) {
       let item;
       if (!receiver && active && !active.issued) {
         report.advertisedToolShapes = body.tools?.map(t => ({ type: t.type, name: t.name, tools: t.tools?.map(x => x.name) }));
-        const tools = body.tools?.filter(t => t.name?.startsWith('mcp__mesh__')) ?? [];
+        const namespace = body.tools?.find(t => t.type === 'namespace' && t.name === 'mcp__mesh');
+        const tools = namespace?.tools ?? body.tools?.filter(t => t.name?.startsWith('mcp__mesh__')) ?? [];
         assert.deepEqual(tools.map(t => t.name.replace('mcp__mesh__', '')).sort(), Object.keys(MCP_INPUTS).sort());
         report.results.advertisedExactSevenTools = 'verified';
         active.issued = true;
         item = { id: `fc_${report.fixtureRequests}`, type: 'function_call', call_id: `call_${report.fixtureRequests}`,
-          name: `mcp__mesh__${active.tool}`, arguments: JSON.stringify(active.args) };
+          ...(namespace ? { namespace: 'mcp__mesh', name: active.tool } : { name: `mcp__mesh__${active.tool}` }), arguments: JSON.stringify(active.args) };
       } else {
         const text = 'LAM native MCP fixture done';
         item = { id: `msg_${report.fixtureRequests}`, type: 'message', role: 'assistant', status: 'completed',
@@ -128,7 +129,7 @@ try {
         fixtureBaseUrl: receiverUrl, expectedVersion: 'codex-cli 0.146.0' })] } :
       { mock: true, scenario: { delayMs: 3000 } }),
   }).start(); gateways.push(receiver);
-  for (const g of gateways) { ports.push(Number(new URL(g.url).port)); ports.push(Number(g.mesh.addresses[0].split('/').at(-1))); }
+  for (const g of gateways) { ports.push(Number(new URL(g.url).port)); ports.push(Number(g.mesh.addresses[0].match(/\/tcp\/(\d+)/)[1])); }
   // Same-host, owned test nodes only. Human pairing remains mandatory for physical peers.
   const pair = await caller.mesh.beginPairing(receiver.mesh.addresses[0]);
   assert.equal(receiver.mesh.pendingPairings()[0].code, pair.code);
@@ -193,7 +194,7 @@ try {
   try {
     await rpc?.close();
     if (rpc?.child.pid) {
-      try { process.kill(-rpc.child.pid, 'SIGKILL'); } catch (error) { if (error.code !== 'ESRCH') throw error; }
+      try { process.kill(-rpc.child.pid, 'SIGKILL'); } catch (error) { assert.equal(error.code, 'ESRCH'); }
     }
     for (const g of gateways.reverse()) await g.stop();
     for (const server of servers) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
