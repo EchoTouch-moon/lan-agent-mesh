@@ -90,7 +90,7 @@ async function invoke(tool, args = {}, denied = false) {
   assert.equal(done.params.turn.status, 'completed'); assert.equal(active.issued, true);
   const { data, evidence } = nativeMcpResult(messages, threadId, turn.id, tool, args);
   report.nativeInvocations.push({ ...evidence, denied });
-  if (denied) assert.equal(data.code, 'permission_denied'); else assert.equal(data.code, undefined);
+  if (denied) assert.equal(data.code, denied === true ? 'permission_denied' : denied); else assert.equal(data.code, undefined);
   return data;
 }
 let threadId;
@@ -164,7 +164,9 @@ try {
   const session = await invoke('mesh_start_session', start);
   assert.deepEqual(await invoke('mesh_start_session', start), session); assert.equal(receiver.store.count('sessions'), 1);
   const listing = await invoke('mesh_list_sessions'); assert.equal(listing.sessions.length, 1);
-  await invoke('mesh_send_message', { sessionId: randomUUID(), text: 'outside ownership', requestId: randomUUID() }, true);
+  const foreign = await caller.spawn(receiver.mesh.id, agentId, 'project-a');
+  await invoke('mesh_send_message', { sessionId: foreign.id, text: 'outside ownership', requestId: randomUUID() }, 'not_found');
+  assert.equal(receiver.store.count('tasks'), 0);
   report.results.scopeAndSessionOwnership = 'verified';
   stage = 'send-stream-exact-retry';
   const input = { sessionId: session.sessionId, text: 'native MCP greeting', requestId: randomUUID() };
