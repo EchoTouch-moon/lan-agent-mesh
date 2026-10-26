@@ -4,7 +4,7 @@
 
 **计划状态：READY FOR CLAIM，尚未执行安全测试，也未自动派发到 GLM 服务。** 此文档用于使用 GLM-5.3 的编码 Agent 主动领取独立任务。仓库基线（编写计划时）`main@1c5697219a7d3281f37d57981b5b548d7c1c9d5b`；每个 Agent 实际执行时必须重新获取最新 main 与已占用文件范围。
 
-**总路线不变**：先读 [AGENTS.md](../../AGENTS.md)、[ADR0004](../adr/0004-standards-first-agent-interop.md)、[INTEROP_REBASELINE](../INTEROP_REBASELINE_2026-10-26.md)、[LLM_WORK_PACKETS](../LLM_WORK_PACKETS.md)。这是**横向防御性验证线**，不替换 #66 R0、#67 R1、#68 R2 等 GPT 正在进行的 A2A 研发，也不假冒 #19 真实双机 Harness 验证。
+**总路线不变**：先读 [AGENTS.md](../../../AGENTS.md)、[ADR0004](../../adr/0004-standards-first-agent-interop.md)、[INTEROP_REBASELINE](../../INTEROP_REBASELINE_2026-10-26.md)、[LLM_WORK_PACKETS](../../LLM_WORK_PACKETS.md)。这是**横向防御性验证线**，不替换 #66 R0、#67 R1、#68 R2 等 GPT 正在进行的 A2A 研发，也不假冒 #19 真实双机 Harness 验证。
 
 ## 1. 为什么选择这些任务
 
@@ -15,7 +15,7 @@ Z.ai 于 2026-08-14 发布 GLM-5.3，官方宣称在 CyberGym 漏洞发现任务
 ## 2. 已占用工作与硬边界
 
 - **GPT 已领取** [#66](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/66) R0，上游 A2A/AGNTCY/SHADI API、License、安全审查。GLM 不重做 `docs/research/upstream-locks.json` 或 `R0_DECISIONS.md`。
-- **GPT 的 A2A 实现方向** [#67](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/67) / [#68](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/68) 分别拥有新 `packages/a2a-bridge/**` 和相关接口映射。GLM **不得修改 A2A 运行代码或重定协议**。可在将来其 PR 就绪后另开独立审查，但不暗自并行更改。
+- **GPT 既有的 A2A 研发计划** [#67](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/67) / [#68](https://github.com/EchoTouch-moon/lan-agent-mesh/issues/68) 分别规划新增 `packages/a2a-bridge/**` 和相关接口映射。GLM **不得修改 A2A 运行代码或重定协议**。可在将来其 PR 就绪后另开独立审查，但不暗自并行更改。
 - **Mac M1/M2** 已有 [PR #65](https://github.com/EchoTouch-moon/lan-agent-mesh/pull/65)，不要重复接入 Codex/修改其 fixture 出站脚本。Windows W1/W2/W3、#19 实体实验不由 GLM 自主触发。
 - **SEC-A #69** 聚焦“SHADI/AgentBridge 对比与沙箱研究”；GLM 本工作线聚焦**LAM 自有代码的安全性和测试**，不在 #69 已有范围内另起外部依赖审查。
 - 测试资产原则上仅增加命名为 `glm53-*.test.ts` 的专用测试文件及 `docs/security/glm53/**` 报告。对真实代码的任何修改只能**单独修复 PR**、凭已通过的最小可复现失败测试、明确受影响文件后再审查；不得擅自重写 core。
@@ -69,7 +69,7 @@ Z.ai 于 2026-08-14 发布 GLM-5.3，官方宣称在 CyberGym 漏洞发现任务
 
 ## 5. 测试证据与阻塞处理
 
-统一 CLAIM/RESULT 采用 [LLM_WORK_PACKETS](../LLM_WORK_PACKETS.md) 格式。补充：
+统一 CLAIM/RESULT 采用 [LLM_WORK_PACKETS](../../LLM_WORK_PACKETS.md) 格式。补充：
 - `modelClaimed: GLM-5.3` 是操作者记录，不等于 GitHub 能验证底层模型身份。
 - 每个测试 seed/hash、被测源 SHA、Node/OS、`pnpm check` 退出码及四组 CI 链接、被测执行等级（docs/synthetic/native-local）、特定拒绝/泄漏/重复操作的观测；报错不掩盖、未运行记 NOT-RUN。
 - 明确修改范围：test-only / docs-only / production-fix-proposed，不能“审计过程中顺手重构”。
