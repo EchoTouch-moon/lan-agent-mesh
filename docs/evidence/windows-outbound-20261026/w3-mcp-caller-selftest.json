@@ -1,0 +1,45 @@
+{
+  "task": "W3 Windows MCP SDK caller",
+  "mode": "self-test-loopback-mock",
+  "platform": "win32",
+  "node": "v24.12.0",
+  "testedSourceSha": null,
+  "sourceState": "uncommitted development run",
+  "startedUtc": "2026-10-26T16:28:59.362Z",
+  "externalModels": 0,
+  "harnessOutboundClaim": "none — SDK client path only, never counted as native outbound",
+  "results": {
+    "selfTestPair": "two fresh loopback identities auto-confirmed; never a physical pairing",
+    "unpairedPeerNegative": {
+      "observed": true,
+      "note": "registry sync stays unavailable for unpaired peers"
+    },
+    "sevenExactTools": true,
+    "grantScopedDiscovery": true,
+    "sessionOwnershipAndExactRetry": true,
+    "cursorPagingAndIdempotency": {
+      "pages": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0
+      ],
+      "events": 4,
+      "state": "COMPLETED"
+    },
+    "inFlightCancelFromTerminal": true,
+    "outOfScopeNegative": true,
+    "revocationClosesTools": true
+  },
+  "cleanup": {
+    "anomalies": [],
+    "rootRemoved": true
+  },
+  "status": "passed-self-test",
+  "endedUtc": "2026-10-26T16:29:02.080Z"
+}
