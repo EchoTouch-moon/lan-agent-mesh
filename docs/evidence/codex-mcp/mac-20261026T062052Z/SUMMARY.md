@@ -22,3 +22,9 @@
 `pnpm check`：build/typecheck/lint成功，107 passed/4平台跳过/111定义。新增脚本最终单独lint成功；合同检查覆盖模型文本伪装、错误线程/turn/server/tool/参数、重复/缺失原生结果、有效拒绝与错误进程快照，已接入四组CI。CI链接待PR回传；CI不运行已安装Codex原生探针，也不能代替本目录的本机证据。
 
 仅M1/M2本机组合通过。Windows W1/W2/W3及S1尚未提交可供M3审查的新runner（本次读取GitHub时）；实体E0–E5/B1–B3、Windows主动MCP、真实模型/已有GUI继续未验收。父Issue不关闭，主干不自动合入，未重开任何LAN窗口。
+
+## 最终清理收紧与定点复验
+
+最后审查将数据删除条件收紧为**所有**原生进程/Gateway/fixture/端口清理均已验证，任何一项不确定都保留私有数据。干净且预先提交/推送的最终探针源 `8dc0184dbb01192242fccde5eac896111b87cd82`：[最终M1](final-m1-mock.json) / [最终M2](final-m2-codex.json) 再次实际exit0、所有清理项verified。既有生命周期脚本及产品实现没有变化，73364a1生命周期原件仍保留原执行源，不重复改标签。
+
+原实现源73364a1的[CI40279176702](https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40279176702)四组成功；最终修正/归档头CI以PR#65检查为准。

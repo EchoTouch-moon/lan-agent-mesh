@@ -70,6 +70,20 @@
       "testedSourceSha": "ddfdcf9a1402da9ffc20ce15121e5bea9bc61495",
       "exitCode": 1,
       "status": "failed"
+    },
+    {
+      "file": "final-m1-mock.json",
+      "sha256": "22aec2dd8082a20702d6593195a18709649e10ba6bf041ad3f521886e4b25979",
+      "testedSourceSha": "8dc0184dbb01192242fccde5eac896111b87cd82",
+      "exitCode": 0,
+      "status": "passed"
+    },
+    {
+      "file": "final-m2-codex.json",
+      "sha256": "9ed9cc968210c316ed526f8b5c4f5385276a4a48af2188a63602c98fa8f2519a",
+      "testedSourceSha": "8dc0184dbb01192242fccde5eac896111b87cd82",
+      "exitCode": 0,
+      "status": "passed"
     }
   ],
   "postFailureCleanup": "Three original failed roots and one owned remaining probe process removed first; three later retained roots removed after exact-root process checks. Private debugging history deleted. Final runs independently verify process groups, ports and data removal.",
@@ -82,5 +96,12 @@
     "testedSourceSha": null,
     "scope": "Invocation source SHA was not independently captured; subsequent edits were confined to optional probe/contract scripts and docs. Product implementation stayed unchanged. Final scripts separately linted and contract-checked; CI records exact tested commit."
   },
-  "approvalException": "Human explicitly approved exactly four local fixture MCP tool policies in this chat; native receiver permissions remain decline."
+  "approvalException": "Human explicitly approved exactly four local fixture MCP tool policies in this chat; native receiver permissions remain decline.",
+  "finalProbeSourceSha": "8dc0184dbb01192242fccde5eac896111b87cd82",
+  "implementationSourceCi": {
+    "source": "73364a13a03c7d6c8b8c7f6e105aaacd59368723",
+    "run": 40279176702,
+    "matrix": "macOS/Windows x Node22/24",
+    "status": "all four success"
+  }
 }
