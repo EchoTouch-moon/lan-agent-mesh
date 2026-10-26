@@ -25,6 +25,8 @@ export interface ZcodeOptions {
   mode?: 'plan' | 'build';
   /** Optional pinned sha256 of the executable; when provided, a mismatch refuses to open (fail closed). */
   expectedExecutableSha256?: string;
+  /** Test-only: the executable is a synthetic protocol peer (e.g. the unit-test fake), not an installed harness. Skips the darwin-only native-entry gate; version and all other checks still apply. */
+  syntheticPeer?: boolean;
 }
 type Run = { input: SendInput; inputId: string; fingerprint: string; events: AdapterEvent[]; terminal: boolean };
 type NativeObject = Record<string, unknown>;
@@ -61,8 +63,10 @@ export class ZcodeAdapter implements HarnessAdapter {
     this.executableSha256 = createHash('sha256').update(readFileSync(options.executable)).digest('hex');
   }
   static async open(options: ZcodeOptions): Promise<ZcodeAdapter> {
-    // Native entries are verified on darwin only for this slice; other platforms stay unknown, not guessed.
-    if (process.platform !== 'darwin') throw new MeshError('unsupported', 'ZCode executable is not verified on this platform');
+    // Installed native entries are verified on darwin only for this slice; other platforms
+    // stay unknown, not guessed. Synthetic test peers declare themselves and run anywhere.
+    if (process.platform !== 'darwin' && options.syntheticPeer !== true)
+      throw new MeshError('unsupported', 'ZCode executable is not verified on this platform');
     const fixture = new URL(options.fixtureBaseUrl);
     if (fixture.protocol !== 'http:' || fixture.hostname !== '127.0.0.1' || fixture.username || fixture.password || fixture.search || fixture.hash || fixture.pathname !== '/v1')
       throw new MeshError('permission_denied', 'Only explicit loopback /v1 fixtures are enabled');

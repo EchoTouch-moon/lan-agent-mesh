@@ -16,6 +16,7 @@
 | fixtureBaseUrl | **仅** `http://127.0.0.1:<port>/v1`（loopback、无凭据、无查询串；否则 `permission_denied`） |
 | builtinConfig | 可选绝对路径（原生必需、synthetic 省略）；复制入 home 后强制 chmod 0600（copyFile 保留源模式的坑已修） |
 | expectedExecutableSha256 | 可选 64 位小写十六进制；提供时与实际入口哈希**强比对，不匹配即拒绝打开**（fail closed），负例进 synthetic 测试 |
+| syntheticPeer | 仅测试：声明可执行文件是合成协议对端而非安装版 harness——跳过 darwin-only 原生入口门（该门只约束安装版入口），版本与其余校验全部照常 |
 | mode | `'plan'`（默认）或 `'build'`；**仅 build 模式会为工具调用弹原生权限请求**（本 CLI 世代实测），需要行使 deny 链的调用方显式选择 |
 
 ## 2. 隔离与凭据边界

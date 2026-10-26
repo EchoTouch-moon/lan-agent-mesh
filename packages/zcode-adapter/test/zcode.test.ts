@@ -26,7 +26,7 @@ describe('ZCode adapter protocol invariants (synthetic app-server)', () => {
     const root = realpathSync(mkdtempSync(join(tmpdir(), 'lam-zcode-adapter-unit-')));
     const workspace = join(root, 'workspace'); mkdirSync(workspace, { mode: 0o700 });
     const executable = fileURLToPath(new URL('./fake-zcode-server.mjs', import.meta.url));
-    const options: ZcodeOptions = { nodeId: 'unit-node', executable, home: join(root, 'home'), workspaces: { fixture: workspace }, fixtureBaseUrl: 'http://127.0.0.1:12345/v1', expectedVersion: '0.17.0' };
+    const options: ZcodeOptions = { nodeId: 'unit-node', executable, home: join(root, 'home'), workspaces: { fixture: workspace }, fixtureBaseUrl: 'http://127.0.0.1:12345/v1', expectedVersion: '0.17.0', syntheticPeer: true };
     return { root, options };
   }
   async function events(adapter: ZcodeAdapter, task: string) {
