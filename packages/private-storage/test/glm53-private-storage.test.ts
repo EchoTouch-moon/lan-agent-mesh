@@ -26,12 +26,20 @@ function widen(path: string, extra: Record<string, unknown> = {}) {
     '-NoProfile', '-NonInteractive', '-File', fileURLToPath(new URL('./windows-fixture.ps1', import.meta.url)),
   ], { input: JSON.stringify({ path, ...extra }) + '\n', encoding: 'utf8', windowsHide: true });
 }
-async function rejectPrivate(promise: Promise<unknown>) {
+// Asserts the documented fail-closed rejection. When `expected` is given, the specific
+// PrivateStorageError.reason must match (observed values, not "any rejection passes"):
+// unsafe_allow_ace = untrusted allow ACE on the target or an ancestor, unsafe_object =
+// reparse point or extra link count, unsupported_path/invalid_file_name = namespace and
+// name checks, verification_failed = client-side bound or helper exception fallback.
+async function rejectPrivate(promise: Promise<unknown>, expected?: readonly string[]) {
   const error = await promise.then(() => { throw new Error('Expected a fail-closed rejection'); }, caught => caught as Error);
   expect(error.message).toBe(PRIVATE_STORAGE_ERROR);
   expect(error.message).not.toMatch(/[0-9a-f]{4,}/i); // No fixture paths, UUIDs or ACE details leak.
-  expect(!(error instanceof PrivateStorageError) || /^[a-z_]+$/.test(error.reason)).toBe(true);
-  return error;
+  expect(error).toBeInstanceOf(PrivateStorageError);
+  const reason = (error as PrivateStorageError).reason;
+  if (expected) expect(expected, `unexpected PrivateStorageError.reason: ${reason}`).toContain(reason);
+  else expect(/^[a-z_]+$/.test(reason)).toBe(true);
+  return error as PrivateStorageError;
 }
 async function until(check: () => boolean, ms: number, what: string) {
   const deadline = Date.now() + ms;
@@ -63,11 +71,11 @@ it.skipIf(process.platform !== 'win32')('Windows: unsafe ancestor DACL fails clo
   const mid = join(root, 'mid');
   leases.push(await privateDirectory(mid, { create: true }));
   widen(root, { write: true }); // An untrusted full-control ancestor two levels above the leaf.
-  await rejectPrivate(privateDirectory(join(mid, 'deep'), { create: true }));
+  await rejectPrivate(privateDirectory(join(mid, 'deep'), { create: true }), ['unsafe_allow_ace']);
   expect(existsSync(join(mid, 'deep'))).toBe(false);
   for (const lease of leases.splice(0)) await lease.close();
   const leaf = join(root, 'leaf'); mkdirSync(leaf); widen(leaf);
-  const error = await rejectPrivate(privateDirectory(leaf));
+  const error = await rejectPrivate(privateDirectory(leaf), ['unsafe_allow_ace']);
   expect(error).toBeInstanceOf(PrivateStorageError);
   renameSync(leaf, `${leaf}-renamed`); // A failed verification retains no handle that blocks rename.
 });
@@ -78,7 +86,7 @@ it.skipIf(process.platform !== 'win32')('Windows: junction path components and f
   leases.push(await privateDirectory(real, { create: true }));
   const junction = join(root, 'junction');
   symlinkSync(real, junction, 'junction');
-  await rejectPrivate(privateDirectory(join(junction, 'child'), { create: true }));
+  await rejectPrivate(privateDirectory(join(junction, 'child'), { create: true }), ['unsafe_object']);
   expect(existsSync(join(real, 'child'))).toBe(false); // No creation through the rejected link chain.
   const secret = join(root, 'secret.json');
   writeFileSync(secret, 'glm53-fixture-only', { mode: 0o600 });
@@ -87,11 +95,11 @@ it.skipIf(process.platform !== 'win32')('Windows: junction path components and f
     if ((error as NodeJS.ErrnoException).code === 'EPERM') return context.skip(); // Symlink privilege unavailable.
     throw error;
   }
-  await rejectPrivate(privateFile(join(root, 'alias.json'))); // A link is never accepted as a private file.
+  await rejectPrivate(privateFile(join(root, 'alias.json')), ['unsafe_object']); // A link is never accepted as a private file.
   symlinkSync(join(root, 'missing-target'), join(root, 'dangling.json'), 'file');
-  await rejectPrivate(privateFile(join(root, 'dangling.json'))); // Dangling links must not pass as absent.
+  await rejectPrivate(privateFile(join(root, 'dangling.json')), ['unsafe_object']); // Dangling links must not pass as absent.
   const hard = join(root, 'hard.json'); linkSync(secret, hard);
-  await rejectPrivate(privateFile(hard)); // Extra names for the same file object are rejected.
+  await rejectPrivate(privateFile(hard), ['unsafe_object']); // Extra names for the same file object are rejected.
 });
 
 it.skipIf(process.platform !== 'win32')('Windows: unsupported namespaces, stream names and oversized file lists fail closed before any effect', async () => {
@@ -99,22 +107,24 @@ it.skipIf(process.platform !== 'win32')('Windows: unsupported namespaces, stream
   // Trailing-dot/space components are normalized away by the .NET Framework path stack before
   // the helper's own checks run; the resulting object is a plain private directory with no
   // alias, so no fail-closed bypass exists. That normalization is recorded in the review doc.
-  await rejectPrivate(privateDirectory(join(root, 'a:b')));
+  // A colon namespace survives to the helper and is rejected there. Observed as
+  // verification_failed when .NET's GetFullPath throws first, unsupported_path when the
+  // helper's own component check catches it; both are fail-closed for this input.
+  await rejectPrivate(privateDirectory(join(root, 'a:b')), ['verification_failed', 'unsupported_path']);
   expect(existsSync(join(root, 'a:b'))).toBe(false);
-  await rejectPrivate(privateDirectory(join(root, 'x'.repeat(240)), { create: true }));
-  await rejectPrivate(privateDirectory(root, { files: ['name:stream'] }));
-  await rejectPrivate(privateDirectory(root, { files: ['sub/name.json'] }));
-  await rejectPrivate(privateDirectory(root, { files: Array.from({ length: 65 }, (_, index) => `f${index}`) }));
+  await rejectPrivate(privateDirectory(join(root, 'x'.repeat(240)), { create: true }), ['unsupported_path']);
+  await rejectPrivate(privateDirectory(root, { files: ['name:stream'] }), ['invalid_file_name']);
+  await rejectPrivate(privateDirectory(root, { files: ['sub/name.json'] }), ['invalid_file_name']);
+  await rejectPrivate(privateDirectory(root, { files: Array.from({ length: 65 }, (_, index) => `f${index}`) }), ['verification_failed']);
 });
 
 it.skipIf(process.platform !== 'win32')('Windows: missing or non-drive SystemRoot helpers fail closed and recover after restore', async () => {
   const root = await privateRoot();
   try {
     vi.stubEnv('SystemRoot', join(root, 'no-system-root'));
-    const missing = await rejectPrivate(privateDirectory(join(root, 'one'), { create: true }));
-    expect(missing).toMatchObject({ reason: 'helper_unavailable' });
+    await rejectPrivate(privateDirectory(join(root, 'one'), { create: true }), ['helper_unavailable']);
     vi.stubEnv('SystemRoot', 'relative-root');
-    await rejectPrivate(privateDirectory(join(root, 'two'), { create: true }));
+    await rejectPrivate(privateDirectory(join(root, 'two'), { create: true }), ['helper_unavailable']);
     expect(existsSync(join(root, 'one'))).toBe(false);
   } finally { vi.unstubAllEnvs(); }
   leases.push(await privateDirectory(join(root, 'three'), { create: true }));
@@ -147,12 +157,13 @@ it.skipIf(process.platform === 'win32')('POSIX: uid, mode and link negatives on 
   const safeLease = await privateDirectory(safe, { create: true });
   leases.push(safeLease);
   safeLease.assertActive();
+  // The POSIX branch throws the same fixed message as a plain Error, without a reason code.
   const broad = join(base, 'broad'); mkdirSync(broad, { mode: 0o700 }); chmodSync(broad, 0o755);
-  await rejectPrivate(privateDirectory(broad));
+  await expect(privateDirectory(broad)).rejects.toThrow(PRIVATE_STORAGE_ERROR);
   const secret = join(safe, 'secret'); writeFileSync(secret, 'glm53-fixture-only', { mode: 0o600 });
   symlinkSync(secret, join(safe, 'alias'));
-  await rejectPrivate(privateFile(join(safe, 'alias')));
+  await expect(privateFile(join(safe, 'alias'))).rejects.toThrow(PRIVATE_STORAGE_ERROR);
   const hard = join(safe, 'hard'); linkSync(secret, hard);
-  await rejectPrivate(privateFile(hard));
+  await expect(privateFile(hard)).rejects.toThrow(PRIVATE_STORAGE_ERROR);
   expect(existsSync(join(safe, 'alias'))).toBe(true); // Rejections never delete fixture state.
 });

@@ -67,6 +67,8 @@ async function terminalEvents(adapter: { watch(taskId: string): AsyncIterable<un
 
 it('cancel and close clean the owned synthetic tree including descendants, and never touch unrelated processes', async () => {
   const bystander = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' });
+  // Pre-registered, bounded exit: never hang waiting for a close that already happened.
+  const bystanderExit = new Promise<void>(resolve => bystander.once('close', () => resolve()));
   try {
     for (let round = 0; round < 2; round++) {
       const cwd = tempRoot();
@@ -84,7 +86,11 @@ it('cancel and close clean the owned synthetic tree including descendants, and n
       expect(auditOf(cwd).filter(message => message.method === 'session/prompt')).toHaveLength(1);
       expect(auditOf(cwd).filter(message => message.method === 'session/cancel')).toHaveLength(1);
     }
-  } finally { bystander.kill(); await new Promise(resolve => bystander.once('close', resolve)); }
+  } finally {
+    bystander.kill();
+    await Promise.race([bystanderExit, new Promise(resolve => setTimeout(resolve, 5000))]);
+    if (bystander.exitCode === null && bystander.signalCode === null) bystander.kill('SIGKILL');
+  }
 });
 
 it.skipIf(process.platform !== 'win32')('Windows: an owned self-exit stays cleanup-uncertain except for allowed version probes', async () => {
