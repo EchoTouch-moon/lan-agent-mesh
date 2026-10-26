@@ -1,0 +1,503 @@
+{
+  "mode": "native",
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "startedAt": "2026-10-26T18:44:31.196Z",
+  "phases": {
+    "pairing": {
+      "peerId": "12D3KooWQxhd…",
+      "grantCreated": true,
+      "controlUrlOrigin": "http://127.0.0.1:53078"
+    },
+    "listAgents": {
+      "visibleAgents": [
+        "12D3KooWQxhdkHbyR3tbEHAdcYcKCqi7mVQKGe2KAPjUPdpMbJTD/mock/default"
+      ]
+    },
+    "startSession": {
+      "sessionId": "dbfffdff-3bb…"
+    },
+    "debugTurns": [
+      {
+        "text": "first",
+        "progression": [
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "COMPLETED",
+            "events": 1
+          }
+        ]
+      },
+      {
+        "text": "second",
+        "progression": [
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "COMPLETED",
+            "events": 1
+          }
+        ]
+      }
+    ],
+    "twoTurns": {
+      "first": {
+        "state": "COMPLETED",
+        "text": "p1-p2"
+      },
+      "second": {
+        "state": "COMPLETED",
+        "text": "p1-p2"
+      }
+    },
+    "listSessions": {
+      "count": 1,
+      "onlyOwnSession": true
+    },
+    "phaseC": {
+      "C1_codex_to_zcode": {
+        "status": "BLOCKED",
+        "reason": "PR #92 re-review fixes pushed (head 7972669) but independent re-review still pending; packet gate forbids receiver-native until reviewed"
+      },
+      "C2_zcode_to_codex": {
+        "status": "PARTIAL",
+        "entry": {
+          "cli": "0.17.0",
+          "sha256": "97490d0f06a7a225…",
+          "sha256Pinned": true
+        },
+        "codexVersion": "codex-cli 0.146.0",
+        "chain": {
+          "readOnlyNativeChain": "VERIFIED (ZCode native mesh_list_agents -> bridge -> gateway pair -> CodexAdapter registry; agent id + capabilities returned to the ZCode model context)",
+          "executionChain": {
+            "status": "BLOCKED_NEEDS_USER_AUTH",
+            "reason": "plan mode refuses non-read-only MCP tools (\"Plan mode only allows read-only, non-destructive tools\"); build mode would require a native permission allow, which the overnight packet does not grant (no #65-style auto-approve for ZCode)"
+          },
+          "turnResult": "turn.completed",
+          "finalText": "LHI3 start_session failed repeatedly; see notes",
+          "receiverTasks": 0,
+          "grantAudit": [
+            "mcp.grant.created"
+          ]
+        },
+        "notes": [
+          {
+            "step": "mcp__lam-mesh__mesh_list_agents",
+            "args": "{}"
+          },
+          {
+            "listEvidence": "ol\",\"tool_call_id\":\"call_mcp__lam-mesh__mesh_list_agents\",\"content\":\"{\\\"agents\\\":[{\\\"id\\\":\\\"12D3KooWJPLRCeuPjrmXqsQ6MfuKALbtfiNc279vsFHpvYg3yV9U/codex/default\\\",\\\"nodeId\\\":\\\"12D3KooWJPLRCeuPjrmXqsQ6MfuKALbtfiNc279vsFHpvYg3yV9U\\\",\\\"harnessId\\\":\\\"12D3KooWJPLRCeuPjrmXqsQ6MfuKALbtfiNc279vsFHpvYg3yV9U/codex\\\",\\\"name\\\":\\\"Codex (isolated fixture)\\\",\\\"workspaceAliases\\\":[\\\"fixture\\\"],\\\"capabilities\\\":{\\\"discover\\\":\\\"supported\\\",\\\"spawn\\\":\\\"supported\\\",\\\"resume\\\":\\"
+          },
+          {
+            "step": "mcp__lam-mesh__mesh_start_session",
+            "args": "{\"peerId\":\"12D3KooWJPLRCeuPjrmXqsQ6MfuKALbtfiNc279vsFHpvYg3yV9U\",\"agentId\":\"12D3KooWJPLRCeuPjrmXqsQ6MfuKALbtfiNc279vsFHpvYg3yV9U/codex/default\",\"workspaceAlias\":\"fixture\",\"requestId\":\"fda5343a-ecbc-4c9a-a20d-27af4878509d\"}"
+          },
+          {
+            "step": "mcp__lam-mesh__mesh_start_session",
+            "args": "{\"peerId\":\"12D3KooWJPLRCeuPjrmXqsQ6MfuKALbtfiNc279vsFHpvYg3yV9U\",\"agentId\":\"12D3KooWJPLRCeuPjrmXqsQ6MfuKALbtfiNc279vsFHpvYg3yV9U/codex/default\",\"workspaceAlias\":\"fixture\",\"requestId\":\"ec21fe8b-b1f3-44f4-9017-176d7cf1a0fc\"}"
+          },
+          {
+            "step": "mcp__lam-mesh__mesh_start_session",
+            "args": "{\"peerId\":\"12D3KooWJPLRCeuPjrmXqsQ6MfuKALbtfiNc279vsFHpvYg3yV9U\",\"agentId\":\"12D3KooWJPLRCeuPjrmXqsQ6MfuKALbtfiNc279vsFHpvYg3yV9U/codex/default\",\"workspaceAlias\":\"fixture\",\"requestId\":\"96040b8a-945b-48d2-aaed-5d5463e34cd3\"}"
+          },
+          {
+            "startFailureSample": "\\\"}\"}}]},{\"role\":\"tool\",\"tool_call_id\":\"call_mcp__lam-mesh__mesh_start_session\",\"content\":\"Plan mode only allows read-only, non-destructive tools\"}]"
+          }
+        ],
+        "cleanup": {
+          "ownedProcessScan": {
+            "label": "c2",
+            "status": "PASS",
+            "survivors": [],
+            "scanner": "pgrep",
+            "log": [
+              {
+                "phase": "initial",
+                "status": "FAIL",
+                "survivors": [
+                  99964
+                ]
+              },
+              {
+                "phase": "grace",
+                "status": "FAIL",
+                "survivors": [
+                  99964
+                ]
+              },
+              {
+                "phase": "grace",
+                "status": "FAIL",
+                "survivors": [
+                  99964
+                ]
+              },
+              {
+                "phase": "grace",
+                "status": "FAIL",
+                "survivors": [
+                  99964
+                ]
+              },
+              {
+                "phase": "grace",
+                "status": "FAIL",
+                "survivors": [
+                  99964
+                ]
+              },
+              {
+                "phase": "grace",
+                "status": "FAIL",
+                "survivors": [
+                  99964
+                ]
+              },
+              {
+                "phase": "grace",
+                "status": "FAIL",
+                "survivors": [
+                  99964
+                ]
+              },
+              {
+                "phase": "sigterm",
+                "actions": [
+                  {
+                    "pid": 99964,
+                    "action": "SIGTERM",
+                    "command": "/usr/local/bin/node /Users/v/new-idea/lhi3-worktree/packages/mcp-server/dist/cli.js --credentials /private/var/folders/qf/8dl_r4f52znbjjpgmdw1wg140000gn/T/lam-l"
+                  }
+                ]
+              }
+            ]
+          },
+          "ports": {
+            "zcodeFixture": true,
+            "codexFixture": true
+          }
+        }
+      }
+    }
+  },
+  "negatives": {
+    "unpaired-peer-grant": {
+      "rejected": true,
+      "code": "permission_denied"
+    },
+    "agent-outside-scope": {
+      "rejected": true,
+      "code": "mesh tool mesh_start_session returned isError: [{\"type\":\"text\",\"text\":\"{\\\"code\\\":\\\"permiss"
+    },
+    "workspace-outside-scope": {
+      "rejected": true,
+      "code": "mesh tool mesh_start_session returned isError: [{\"type\":\"text\",\"text\":\"{\\\"code\\\":\\\"permiss"
+    },
+    "revoked-grant": {
+      "rejected": true
+    },
+    "expired-grant": {
+      "rejected": true,
+      "layer": "bridge-start",
+      "detail": "Connection closed"
+    },
+    "expired-grant-http": {
+      "rejected": true,
+      "status": 403
+    },
+    "request-id-conflict": {
+      "rejected": true,
+      "code": "mesh tool mesh_send_message returned isError: [{\"type\":\"text\",\"text\":\"{\\\"code\\\":\\\"conflict"
+    },
+    "exact-retry-once": {
+      "taskId": "27d35c97-bfdf-41e4-9660-a917a7d5f1bd",
+      "receiverTasks": 3
+    },
+    "receiver-loss-unknown": {
+      "offline": "UNKNOWN",
+      "afterRestart": "UNKNOWN",
+      "retryTaskId": "f12fe18a-0e08-4d7b-a603-34a4edcc55d8",
+      "retryDelivery": "accepted",
+      "receiverTasksAfter": 5
+    },
+    "stale-grant-after-caller-restart": {
+      "rejected": true
+    },
+    "ack-drop-injection": {
+      "status": "NOT-RUN",
+      "reason": "no controlled ACK-drop of the same envelope is injected; receiver-loss-unknown is a different fault (gateway loss)"
+    }
+  },
+  "assertions": [
+    {
+      "name": "B-list-agents-scoped",
+      "pass": true,
+      "detail": "[\"12D3KooWQxhdkHbyR3tbEHAdcYcKCqi7mVQKGe2KAPjUPdpMbJTD/mock/default\"]"
+    },
+    {
+      "name": "B-start-session-owned",
+      "pass": true
+    },
+    {
+      "name": "B-start-session-idempotent",
+      "pass": true
+    },
+    {
+      "name": "B-first-turn-completed",
+      "pass": true,
+      "detail": "{\"taskId\":\"9f70116f-c439-4d9b-b58c-ba12982139ed\",\"delivery\":\"accepted\",\"state\":\"COMPLETED\",\"cursor\":3,\"text\":\"p1-p2\"}"
+    },
+    {
+      "name": "B-second-turn-completed",
+      "pass": true,
+      "detail": "{\"taskId\":\"5d5ed3a9-27d5-4220-9e12-61d3221f1b97\",\"delivery\":\"accepted\",\"state\":\"COMPLETED\",\"cursor\":3,\"text\":\"p1-p2\"}"
+    },
+    {
+      "name": "B-list-sessions-owned",
+      "pass": true,
+      "detail": "[\"dbfffdff-3bb0-4c3f-94d5-9ad7dd633890\"]"
+    },
+    {
+      "name": "D-exact-retry-once",
+      "pass": true,
+      "detail": "{\"taskId\":\"27d35c97-bfdf-41e4-9660-a917a7d5f1bd\",\"delivery\":\"accepted\",\"deadline\":\"2026-10-26T18:45:06.830Z\",\"retry\":\"Reuse the identical tool arguments and requestId only; UNKNOWN is not permission to create a new task.\"}"
+    },
+    {
+      "name": "D-exact-retry-single-execution",
+      "pass": true,
+      "detail": "tasks 3 -> 3 (exact retry must not add a second task)"
+    },
+    {
+      "name": "D-cancel-in-flight-terminal",
+      "pass": true,
+      "detail": "CANCELLED"
+    },
+    {
+      "name": "D-unknown-no-replay",
+      "pass": true,
+      "detail": "{\"offline\":\"UNKNOWN\",\"afterRestart\":\"UNKNOWN\",\"retryTaskId\":\"f12fe18a-0e08-4d7b-a603-34a4edcc55d8\",\"retryDelivery\":\"accepted\",\"receiverTasksAfter\":5}"
+    },
+    {
+      "name": "N-unpaired-peer-grant",
+      "pass": true
+    },
+    {
+      "name": "N-agent-outside-scope",
+      "pass": true
+    },
+    {
+      "name": "N-workspace-outside-scope",
+      "pass": true
+    },
+    {
+      "name": "N-revoked-grant",
+      "pass": true
+    },
+    {
+      "name": "N-expired-grant",
+      "pass": true
+    },
+    {
+      "name": "N-expired-grant-http",
+      "pass": true,
+      "detail": "{\"rejected\":true,\"status\":403}"
+    },
+    {
+      "name": "N-request-id-conflict",
+      "pass": true
+    },
+    {
+      "name": "N-stale-grant-after-restart",
+      "pass": true
+    },
+    {
+      "name": "no-external-models-accounted",
+      "pass": true,
+      "detail": "runner-owned counters only: when fixtures ran, every inference request hit a loopback fixture; this is not an independent network monitor"
+    },
+    {
+      "name": "cleanup-verified",
+      "pass": true,
+      "detail": "{\"caller-home-lock-released\":true,\"receiver-home-lock-released\":true,\"disposableRootRemoved\":true,\"ownedProcessScan\":{\"label\":\"final\",\"status\":\"PASS\",\"survivors\":[],\"scanner\":\"pgrep\",\"log\":[{\"phase\":\"initial\",\"status\":\"PASS\",\"survivors\":[]}]},\"callerHttpPort\":{\"port\":53175,\"released\":true}}"
+    }
+  ],
+  "fixtureRequests": 5,
+  "externalModelRequests": 0,
+  "tools": {
+    "exercised": [
+      "mesh_list_agents",
+      "mesh_start_session",
+      "mesh_send_message",
+      "mesh_get_task",
+      "mesh_cancel_task",
+      "mesh_list_sessions"
+    ],
+    "notRun": [
+      {
+        "name": "mesh_delegate_task",
+        "reason": "delegation path not driven by this baseline; only the mcp-server smoke covers it"
+      }
+    ]
+  },
+  "stage": "complete",
+  "cleanup": {
+    "caller-home-lock-released": true,
+    "receiver-home-lock-released": true,
+    "disposableRootRemoved": true,
+    "ownedProcessScan": {
+      "label": "final",
+      "status": "PASS",
+      "survivors": [],
+      "scanner": "pgrep",
+      "log": [
+        {
+          "phase": "initial",
+          "status": "PASS",
+          "survivors": []
+        }
+      ]
+    },
+    "callerHttpPort": {
+      "port": 53175,
+      "released": true
+    }
+  },
+  "finishedAt": "2026-10-26T18:44:52.234Z",
+  "durationMs": 21038,
+  "baselineVerdict": "PASS",
+  "overallLhi3Verdict": "PARTIAL",
+  "verdict": "INCOMPLETE"
+}

@@ -45,7 +45,7 @@ import { appendFileSync, chmodSync, existsSync, mkdirSync, mkdtempSync, readFile
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
@@ -55,7 +55,9 @@ const repoRoot = resolve(here, '..');
 const requireFromMcpServer = createRequire(join(repoRoot, 'packages/mcp-server/package.json'));
 const { Client } = requireFromMcpServer('@modelcontextprotocol/client');
 const { StdioClientTransport } = requireFromMcpServer('@modelcontextprotocol/client/stdio');
-const { Gateway } = await import(join(repoRoot, 'packages/runtime/dist/index.js'));
+// Dynamic imports must go through file:// URLs: plain absolute paths throw
+// ERR_UNSUPPORTED_ESM_URL_SCHEME on Windows drive-letter paths.
+const { Gateway } = await import(pathToFileURL(join(repoRoot, 'packages/runtime/dist/index.js')).href);
 
 const MODE_SELF_TEST = process.argv.includes('--self-test');
 const MODE_NATIVE = process.argv.includes('--native');
@@ -456,8 +458,8 @@ process.exit(process.exitCode ?? 0);
  *  mesh_list_agents -> mesh_start_session -> mesh_send_message -> mesh_get_task polling. */
 async function runPhaseC2(report, root) {
   const { copyFileSync } = await import('node:fs');
-  const { rpcProcess } = await import(join(repoRoot, 'scripts/rpc-probe.mjs'));
-  const { CodexAdapter } = await import(join(repoRoot, 'packages/codex-adapter/dist/index.js'));
+  const { rpcProcess } = await import(pathToFileURL(join(repoRoot, 'scripts/rpc-probe.mjs')).href);
+  const { CodexAdapter } = await import(pathToFileURL(join(repoRoot, 'packages/codex-adapter/dist/index.js')).href);
   const entry = process.env.LAM_ZCODE_ENTRY ?? '/Applications/ZCode.app/Contents/Resources/glm/zcode.cjs';
   const builtinConfig = process.env.LAM_ZCODE_BUILTIN_CONFIG ?? resolve(dirname(entry), '../config/provider/zcode-builtin.json');
   const entrySha = createHash('sha256').update(readFileSync(entry)).digest('hex');

@@ -95,9 +95,9 @@ native 结果 → 事件 cursor → mesh → MCP tool result → caller 模型�
 
 新增观察（未改生产，详见 evidence README）：busy 拒绝与网络失败在 MCP 层同为 delivery UNKNOWN；adapterFactories 需显式 exportAgents；ZCode plan 模式对非只读 MCP 工具静默拒绝。
 
-## 7. 复审修复重跑（2026-10-26 18:38 UTC，head 见 RESULT）
+## 7. 复审修复重跑（2026-10-26 18:45 UTC，最终 head 见 RESULT）
 
-针对 PR #96 review 三项 P1 的修复与重跑（历史 §6 保留不改）：
+针对 PR #96 review 三项 P1 的修复与重跑（历史 §6 保留不改；中间轮 st-r2/native-r2 因挂入 CI 的 Windows leg 暴露 runner 预存缺陷——动态 `import(绝对路径)` 在 Windows 抛 `ERR_UNSUPPORTED_ESM_URL_SCHEME`，改 `pathToFileURL` 后以最终 head 产出 st-r3/native-r3）：
 
 | 项 | 修复 | 重跑结果 |
 |---|---|---|
@@ -105,4 +105,4 @@ native 结果 → 事件 cursor → mesh → MCP tool result → caller 模型�
 | ZCode 入口校验 | 启动前 fail-closed 双预检：sha256 与 HARNESS_MATRIX 批准 pin（`97490d0f…`）逐字节比对 + **实际执行** `--version` 与 `0.17.0` 比对；不匹配即 BLOCKED、不启动 app-server；报告写实测值 | 实测 `'0.17.0'`、pin 一致（`sha256Pinned:true`） |
 | 清理证据 | 独立 owned-process 扫描（argv 引用本 run 唯一 root 即归属；pgrep/powershell，失败=UNKNOWN）+ 端口释放核查；3s 宽限后对仍存活可归属后代**逐 PID 复核归属再 SIGTERM/SIGKILL**，全处置链入报告 | self-test 0 存活；native 捕获 1 个 ZCode 派生 MCP bridge 孤儿子进程（>10s 未退）→ SIGTERM 后清空（新观察 4） |
 
-其余修复：`mesh_list_sessions` 补实际驱动断言（20 门）；`mesh_delegate_task` 与 ACK-drop 注入显式 NOT-RUN；时间预算文档对齐 runner 实际强制值；self-test 基线挂入 CI（mac/win × node22/24）。
+其余修复：`mesh_list_sessions` 补实际驱动断言（20 门）；`mesh_delegate_task` 与 ACK-drop 注入显式 NOT-RUN；时间预算文档对齐 runner 实际强制值；self-test 基线挂入 CI（mac/win × node22/24）；runner 动态 import 改 `pathToFileURL`（Windows 合规）。
