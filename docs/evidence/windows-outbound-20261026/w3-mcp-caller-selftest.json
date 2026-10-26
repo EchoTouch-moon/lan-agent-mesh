@@ -3,9 +3,9 @@
   "mode": "self-test-loopback-mock",
   "platform": "win32",
   "node": "v24.12.0",
-  "testedSourceSha": null,
-  "sourceState": "uncommitted development run",
-  "startedUtc": "2026-10-26T16:28:59.362Z",
+  "testedSourceSha": "88fa3c8f60b56f37a116c8618efbd6eaba3a6b8f",
+  "sourceState": "clean committed source",
+  "startedUtc": "2026-10-26T16:34:15.430Z",
   "externalModels": 0,
   "harnessOutboundClaim": "none — SDK client path only, never counted as native outbound",
   "results": {
@@ -41,5 +41,5 @@
     "rootRemoved": true
   },
   "status": "passed-self-test",
-  "endedUtc": "2026-10-26T16:29:02.080Z"
+  "endedUtc": "2026-10-26T16:34:18.248Z"
 }

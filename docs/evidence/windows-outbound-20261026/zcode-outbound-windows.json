@@ -114,7 +114,7 @@
       ],
       "toolMentions": []
     },
-    "timeoutDurationMs": 5144,
+    "timeoutDurationMs": 5148,
     "disabledMcp": {
       "advertisedContainsEcho": false,
       "advertisedCount": 17,
@@ -147,11 +147,7 @@
       },
       {
         "phase": "migrating",
-        "elapsedMs": 12
-      },
-      {
-        "phase": "migrating",
-        "elapsedMs": 14
+        "elapsedMs": 13
       },
       {
         "phase": "migrating",
@@ -167,7 +163,7 @@
       },
       {
         "phase": "migrating",
-        "elapsedMs": 19
+        "elapsedMs": 18
       },
       {
         "phase": "migrating",
@@ -179,15 +175,15 @@
       },
       {
         "phase": "migrating",
-        "elapsedMs": 24
+        "elapsedMs": 23
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 25
       },
       {
         "phase": "migrating",
         "elapsedMs": 26
-      },
-      {
-        "phase": "migrating",
-        "elapsedMs": 27
       },
       {
         "phase": "migrating",
@@ -203,7 +199,7 @@
       },
       {
         "phase": "migrating",
-        "elapsedMs": 34
+        "elapsedMs": 33
       },
       {
         "phase": "migrating",
@@ -215,7 +211,7 @@
       },
       {
         "phase": "migrating",
-        "elapsedMs": 38
+        "elapsedMs": 37
       },
       {
         "phase": "migrating",
@@ -227,7 +223,7 @@
       },
       {
         "phase": "migrating",
-        "elapsedMs": 48
+        "elapsedMs": 43
       },
       {
         "phase": "migrating",
@@ -239,15 +235,19 @@
       },
       {
         "phase": "migrating",
-        "elapsedMs": 53
+        "elapsedMs": 54
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 56
       },
       {
         "phase": "committing",
-        "elapsedMs": 55
+        "elapsedMs": 57
       },
       {
         "phase": "ready",
-        "elapsedMs": 61
+        "elapsedMs": 64
       },
       {
         "phase": "checking",
@@ -255,15 +255,15 @@
       },
       {
         "phase": "checking",
-        "elapsedMs": 0
+        "elapsedMs": 1
       },
       {
         "phase": "checking",
-        "elapsedMs": 5
+        "elapsedMs": 6
       },
       {
         "phase": "committing",
-        "elapsedMs": 8
+        "elapsedMs": 9
       },
       {
         "phase": "ready",
@@ -290,14 +290,14 @@
         "event": "mcp.tool.call",
         "level": "warn",
         "status": "failed",
-        "durationMs": 5002,
+        "durationMs": 5001,
         "message": "MCP tool call failed"
       },
       {
         "event": "tool.call.failed",
         "level": "error",
         "status": "failed",
-        "durationMs": 5004,
+        "durationMs": 5005,
         "message": "Tool call failed",
         "error": {
           "name": "Error",
@@ -341,7 +341,7 @@
         "event": "zcode_protocol.startup.completed",
         "level": "info",
         "status": "completed",
-        "durationMs": 132,
+        "durationMs": 129,
         "message": "ZCode Protocol agent startup completed"
       },
       {
@@ -373,21 +373,21 @@
         "event": "bootstrap.app.startup.plugins.completed",
         "level": "info",
         "status": "completed",
-        "durationMs": 503,
+        "durationMs": 499,
         "message": "ZCode plugins resolved"
       },
       {
         "event": "bootstrap.app.startup.runtime_config.completed",
         "level": "info",
         "status": "completed",
-        "durationMs": 4,
+        "durationMs": 6,
         "message": "ZCode runtime configuration resolved"
       },
       {
         "event": "bootstrap.app.startup.storage.completed",
         "level": "info",
         "status": "completed",
-        "durationMs": 1,
+        "durationMs": 2,
         "message": "ZCode storage adapters initialized"
       },
       {
@@ -408,7 +408,7 @@
         "event": "bootstrap.app.startup.completed",
         "level": "info",
         "status": "completed",
-        "durationMs": 519,
+        "durationMs": 518,
         "message": "ZCode app startup completed"
       },
       {
@@ -421,7 +421,7 @@
         "event": "zcode_protocol.session_create.completed",
         "level": "info",
         "status": "completed",
-        "durationMs": 1003,
+        "durationMs": 1014,
         "message": "ZCode Protocol session/create completed"
       },
       {
@@ -464,19 +464,19 @@
   },
   "mcpServerLog": [
     {
-      "ts": "2026-10-26T16:18:05.299Z",
+      "ts": "2026-10-26T16:32:25.718Z",
       "phase": "startup",
-      "pid": 50844,
-      "runId": "7bfa08be-bf0e-4bd7-9b82-8ffa78e48bfe"
+      "pid": 34500,
+      "runId": "1289a5f7-28be-4880-8bb2-df78fc1326a5"
     },
     {
-      "ts": "2026-10-26T16:18:06.101Z",
+      "ts": "2026-10-26T16:32:26.527Z",
       "phase": "startup",
-      "pid": 43544,
-      "runId": "7bfa08be-bf0e-4bd7-9b82-8ffa78e48bfe"
+      "pid": 63652,
+      "runId": "1289a5f7-28be-4880-8bb2-df78fc1326a5"
     },
     {
-      "ts": "2026-10-26T16:18:06.287Z",
+      "ts": "2026-10-26T16:32:26.718Z",
       "tool": "probe_echo",
       "phase": "invoked",
       "args": {
@@ -484,7 +484,7 @@
       }
     },
     {
-      "ts": "2026-10-26T16:18:09.810Z",
+      "ts": "2026-10-26T16:32:30.236Z",
       "tool": "probe_hang",
       "phase": "invoked",
       "args": {}
@@ -530,7 +530,7 @@
     {
       "name": "timeout-fail-closed",
       "pass": true,
-      "detail": "5144ms"
+      "detail": "5148ms"
     },
     {
       "name": "disabled-control",
