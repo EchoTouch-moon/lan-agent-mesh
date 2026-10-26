@@ -31,7 +31,7 @@ function log(entry) {
   appendFileSync(logPath, `${JSON.stringify({ ts: new Date().toISOString(), ...entry })}\n`);
 }
 
-function buildServer() {
+function buildServer(runId) {
   const server = new McpServer({ name: 'lam-lhi', version: '0.0.0' }, { capabilities: { tools: {} } });
   server.registerTool('probe_echo', {
     description: 'LHI-1 positive-control read-only echo tool. Returns "lhi-echo:<phrase>".',
@@ -51,7 +51,12 @@ function buildServer() {
 }
 
 async function stdioMode() {
-  const server = buildServer();
+  const runIdIndex = process.argv.indexOf('--run-id');
+  const runId = runIdIndex >= 0 ? process.argv[runIdIndex + 1] : 'unidentified-run';
+  // First log line: self-reported identity so the runner can clean up exactly this child
+  // (never by shared script name, which could match unrelated concurrent experiments).
+  log({ phase: 'startup', pid: process.pid, runId });
+  const server = buildServer(runId);
   await server.connect(new StdioServerTransport());
 }
 

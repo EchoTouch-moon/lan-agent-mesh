@@ -12,7 +12,7 @@
 // Bounded waits only; disposable HOME is removed in finally; no user config is touched.
 import { createHash, randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
-import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { execFile } from 'node:child_process';
@@ -24,6 +24,20 @@ import { redactProbeText, startupLogSummary } from './probe-diagnostics.mjs';
 const execFileAsync = promisify(execFile);
 const entry = process.env.LAM_ZCODE_ENTRY ?? '/Applications/ZCode.app/Contents/Resources/glm/zcode.cjs';
 const contractScript = resolve(dirname(fileURLToPath(import.meta.url)), 'lhi-zcode-mcp-contract.mjs');
+// Per-run unique marker injected into the MCP child's argv: process discovery for cleanup
+// must match this exact run id, never the shared script name (other concurrent experiments
+// run the same script and must never be killed by this probe).
+const runId = randomUUID();
+const mcpChildMarker = `lhi-zcode-mcp-contract.mjs --stdio --run-id ${runId}`;
+
+if (process.argv.includes('--self-test')) {
+  // Gate self-test: proves each assertion actually catches a synthetic violation, without
+  // involving ZCode at all. A gate that cannot fail is a gate that proves nothing.
+  const summary = gateSelfTest();
+  console.log(JSON.stringify(summary, null, 2));
+  process.exit(summary.verdict === 'PASS' ? 0 : 1);
+}
+
 const root = await mkdtemp(join(tmpdir(), 'lam-lhi-zcode-outbound-'));
 const mcpLog = join(root, 'mcp-invocations.jsonl');
 // Children (app-server, its MCP child) get an explicit allowlist only: inheriting the full
@@ -179,7 +193,7 @@ try {
     features: { mcp: true, subagent: false, memory: false, skill: false },
     plugins: { enabled: false }, hooks: { enabled: false },
     mcp: { servers: { 'lam-lhi': {
-      type: 'stdio', command: process.execPath, args: [contractScript, '--stdio'], enabled: true, timeoutMs: 5000,
+      type: 'stdio', command: process.execPath, args: [contractScript, '--stdio', '--run-id', runId], enabled: true, timeoutMs: 5000,
     } } },
   };
   await mkdir(join(root, '.zcode', 'cli'), { recursive: true });
@@ -269,59 +283,158 @@ try {
   fixture.closeAllConnections(); await new Promise(resolve => fixture.close(resolve));
   report.cleanup.fixtureRequests = report.fixtureRequests;
   report.cleanup.externalModelRequests = report.externalModelRequests;
-  try { report.mcpServerLog = (await readFile(mcpLog, 'utf8')).trim().split('\n').map(line => JSON.parse(line)); }
+  try { report.mcpServerLog = (await readFile(mcpLog, 'utf8')).trim().split('\n').filter(Boolean).map(line => JSON.parse(line)); }
   catch { report.mcpServerLog = null; }
-  // Orphan-process verification: any surviving process whose command references this probe's
-  // fixture script or disposable home is an orphan we own; kill only those, then re-check.
+  // Orphan cleanup targets ONLY processes belonging to this run: the MCP child's argv carries
+  // the per-run marker; the app-server ran with --cwd under the per-run disposable home.
+  // Anything matching the shared script name alone is recorded, never killed.
   if (process.platform !== 'win32') {
     await new Promise(resolve => setTimeout(resolve, 300));
-    const orphans = [];
-    for (const pattern of ['lhi-zcode-mcp-contract.mjs', root]) {
+    const ownedMarkers = [mcpChildMarker, root];
+    const observed = [];
+    for (const marker of ownedMarkers) {
       try {
-        const { stdout } = await execFileAsync('pgrep', ['-f', pattern], { timeout: 5000 });
+        const { stdout } = await execFileAsync('pgrep', ['-f', marker], { timeout: 5000 });
         for (const line of stdout.trim().split('\n').filter(Boolean)) {
           const pid = Number(line);
           if (!Number.isInteger(pid) || pid === process.pid) continue;
-          let command = 'unavailable';
+          let command = '';
           try { ({ stdout: command } = await execFileAsync('ps', ['-p', String(pid), '-o', 'command='], { timeout: 5000 })); }
-          catch { /* process may have exited between pgrep and ps */ }
-          const match = command.includes('lhi-zcode-mcp-contract.mjs') || command.includes(root);
-          const entry = { pid, command: redactProbeText(command.trim(), root).slice(0, 200), owned: match };
-          if (match) { try { process.kill(pid, 'SIGKILL'); entry.killed = true; } catch { entry.killed = false; } }
-          orphans.push(entry);
+          catch { /* exited between pgrep and ps */ }
+          const owned = ownedMarkers.some(m => command.includes(m));
+          const entry = { pid, command: redactProbeText(command.trim(), root).slice(0, 200), owned };
+          if (owned) { try { process.kill(pid, 'SIGKILL'); entry.killed = true; } catch { entry.killed = false; } }
+          observed.push(entry);
         }
       } catch { /* pgrep exit 1 = no match */ }
     }
-    report.cleanup.orphans = orphans.length
-      ? { status: 'orphans-found', note: 'probe-owned processes were SIGKILLed; verify list', found: orphans }
+    report.cleanup.orphans = observed.length
+      ? { status: 'owned-orphans-killed', found: observed }
       : { status: 'clean' };
   } else report.cleanup.orphans = { status: 'unsupported-on-windows' };
   await rm(root, { recursive: true, force: true });
-  try { await readFile(root); report.cleanup.disposableHomeRemoved = false; }
-  catch { report.cleanup.disposableHomeRemoved = true; }
-  // Hard assertion gate: exit 0 only when every load-bearing piece of evidence held.
-  const phraseCount = phrase => (report.mcpServerLog ?? []).filter(entry => entry.args?.phrase === phrase).length;
-  const toolCount = tool => (report.mcpServerLog ?? []).filter(entry => entry.tool === tool).length;
-  const gates = [];
-  const gate = (name, pass, detail) => gates.push({ name, pass: pass === true, detail });
-  gate('advertised-echo-name', typeof echoToolName === 'string' && echoToolName.startsWith('mcp__lam-lhi__'), echoToolName ?? null);
-  gate('positive-turn-completed', report.results?.advertisedFirstTurn?.eventType === 'turn.completed' && report.results?.advertisedFirstTurn?.resultType === 'success');
-  gate('result-correlation', report.results?.resultCorrelation?.observedInFollowupRequest === true);
-  gate('echo-executed-exactly-once', phraseCount('lhi-positive') === 1, `count=${phraseCount('lhi-positive')}`);
-  gate('hang-invoked-exactly-once', toolCount('probe_hang') === 1, `count=${toolCount('probe_hang')}`);
-  gate('disabled-no-execution', phraseCount('should-not-execute') === 0, `count=${phraseCount('should-not-execute')}`);
-  gate('unknown-tool-fail-closed', report.negatives?.unknownTool?.followupMentionsError === true && report.negatives?.unknownToolTurn?.eventType === 'turn.completed');
-  gate('wrong-type-fail-closed', report.negatives?.wrongTypeParam?.followupMentionsValidationError === true && report.negatives?.wrongTypeTurn?.eventType === 'turn.completed');
-  gate('timeout-fail-closed', report.negatives?.timeout?.followupMentionsTimeoutOrError === true && report.negatives?.timeoutDurationMs > 3000 && report.negatives?.timeoutDurationMs < 20000, `${report.negatives?.timeoutDurationMs}ms`);
-  gate('disabled-control', report.negatives?.disabledMcp?.advertisedContainsEcho === false && report.negatives?.disabledMcp?.followupMentionsError === true);
-  const permission = report.results?.permissionProbe ?? {};
-  gate('permission-outcome-recorded', typeof permission.nativeRequestObserved === 'boolean' && (!permission.nativeRequestObserved || phraseCount('lhi-perm') === 0), JSON.stringify({ nativeRequestObserved: permission.nativeRequestObserved ?? null, lhiPermExecutions: phraseCount('lhi-perm') }));
-  gate('no-external-models', report.externalModelRequests === 0);
-  gate('app-server-exits-recorded', Boolean(report.cleanup.appServerExitFirst) && Boolean(report.cleanup.appServerExitSecond), JSON.stringify({ first: report.cleanup.appServerExitFirst, second: report.cleanup.appServerExitSecond }));
-  gate('no-orphan-processes', ['clean', 'unsupported-on-windows'].includes(report.cleanup.orphans?.status), report.cleanup.orphans?.status);
-  gate('disposable-home-removed', report.cleanup.disposableHomeRemoved === true);
-  report.assertions = gates;
-  report.verdict = gates.every(entry => entry.pass) ? 'PASS' : 'FAIL';
+  // Removal proof: pass only on a definitive ENOENT from stat; any other outcome (exists,
+  // permission error, EISDIR ambiguity) fails the gate.
+  try {
+    const stats = await stat(root);
+    report.cleanup.disposableHomeRemoved = false;
+    report.cleanup.disposableHomeRemovalError = `still present (isDirectory=${stats.isDirectory()})`;
+  } catch (error) {
+    report.cleanup.disposableHomeRemoved = error.code === 'ENOENT';
+    if (error.code !== 'ENOENT') report.cleanup.disposableHomeRemovalError = error.code;
+  }
+  const evaluation = evaluateAssertions(report, { echoToolName, runId });
+  report.assertions = evaluation.gates;
+  report.verdict = evaluation.verdict;
   if (report.verdict === 'FAIL') process.exitCode = 1;
 }
 console.log(JSON.stringify(report, null, 2));
+
+/** Pure assertion gate over the final report; no I/O, no ZCode dependency. */
+function evaluateAssertions(reportData, context) {
+  const log = reportData.mcpServerLog ?? [];
+  const invocationEntries = log.filter(entry => entry.phase === 'invoked');
+  const phraseCount = phrase => invocationEntries.filter(entry => entry.args?.phrase === phrase).length;
+  const toolCount = tool => invocationEntries.filter(entry => entry.tool === tool).length;
+  const permission = reportData.results?.permissionProbe ?? {};
+  const permExecutions = phraseCount('lhi-perm');
+  const permissionBranchConsistent =
+    permission.nativeRequestObserved === true ? permExecutions === 0
+    : permission.nativeRequestObserved === false ? permExecutions === 1
+    : false;
+  const allowedPhrases = new Set(['lhi-positive', 'lhi-perm']);
+  const unexpectedExecutions = invocationEntries.filter(entry =>
+    (entry.tool === 'probe_echo' && !allowedPhrases.has(entry.args?.phrase)) ||
+    (entry.tool === 'probe_hang' && Object.keys(entry.args ?? {}).length !== 0) ||
+    !['probe_echo', 'probe_hang'].includes(entry.tool));
+  const startupEntries = log.filter(entry => entry.phase === 'startup');
+  const logBelongsToRun = startupEntries.length >= 1 && startupEntries.every(entry => entry.runId === context.runId);
+  const executionsBookkeeping = invocationEntries.length === 2 + permExecutions
+    && phraseCount('lhi-positive') === 1 && toolCount('probe_hang') === 1;
+  const cleanExit = value => value?.code === 0 && value?.signal === null;
+  const gates = [];
+  const gate = (name, pass, detail) => gates.push({ name, pass: pass === true, detail });
+  gate('advertised-echo-name', typeof context.echoToolName === 'string' && context.echoToolName.startsWith('mcp__lam-lhi__'), context.echoToolName ?? null);
+  gate('positive-turn-completed', reportData.results?.advertisedFirstTurn?.eventType === 'turn.completed' && reportData.results?.advertisedFirstTurn?.resultType === 'success');
+  gate('result-correlation', reportData.results?.resultCorrelation?.observedInFollowupRequest === true);
+  gate('echo-executed-exactly-once', phraseCount('lhi-positive') === 1, `count=${phraseCount('lhi-positive')}`);
+  gate('hang-invoked-exactly-once', toolCount('probe_hang') === 1, `count=${toolCount('probe_hang')}`);
+  gate('disabled-no-execution', phraseCount('should-not-execute') === 0, `count=${phraseCount('should-not-execute')}`);
+  gate('unknown-tool-fail-closed', reportData.negatives?.unknownTool?.followupMentionsError === true && reportData.negatives?.unknownToolTurn?.eventType === 'turn.completed');
+  gate('wrong-type-fail-closed', reportData.negatives?.wrongTypeParam?.followupMentionsValidationError === true && reportData.negatives?.wrongTypeTurn?.eventType === 'turn.completed');
+  gate('timeout-fail-closed', reportData.negatives?.timeout?.followupMentionsTimeoutOrError === true && reportData.negatives?.timeoutDurationMs > 3000 && reportData.negatives?.timeoutDurationMs < 20000, `${reportData.negatives?.timeoutDurationMs}ms`);
+  gate('disabled-control', reportData.negatives?.disabledMcp?.advertisedContainsEcho === false && reportData.negatives?.disabledMcp?.followupMentionsError === true);
+  gate('permission-branch-consistent', permissionBranchConsistent, JSON.stringify({ nativeRequestObserved: permission.nativeRequestObserved ?? null, lhiPermExecutions: permExecutions }));
+  gate('no-unexpected-executions', unexpectedExecutions.length === 0 && executionsBookkeeping && logBelongsToRun, JSON.stringify({ unexpected: unexpectedExecutions.length, total: invocationEntries.length, expected: 2 + permExecutions, logBelongsToRun }));
+  gate('no-external-models', reportData.externalModelRequests === 0);
+  gate('app-server-clean-exits', cleanExit(reportData.cleanup?.appServerExitFirst) && cleanExit(reportData.cleanup?.appServerExitSecond), JSON.stringify({ first: reportData.cleanup?.appServerExitFirst ?? null, second: reportData.cleanup?.appServerExitSecond ?? null }));
+  gate('no-orphan-processes', ['clean', 'unsupported-on-windows'].includes(reportData.cleanup?.orphans?.status), reportData.cleanup?.orphans?.status ?? null);
+  gate('disposable-home-removed', reportData.cleanup?.disposableHomeRemoved === true && !reportData.cleanup?.disposableHomeRemovalError, reportData.cleanup?.disposableHomeRemovalError ?? null);
+  return { gates, verdict: gates.every(entry => entry.pass) ? 'PASS' : 'FAIL' };
+}
+
+/** Synthetic false-positive tests for every gate; runs without ZCode. */
+function gateSelfTest() {
+  const echoName = 'mcp__lam-lhi__probe_echo';
+  const runId = 'self-test-run';
+  const happyReport = () => ({
+    externalModelRequests: 0,
+    results: {
+      advertisedFirstTurn: { eventType: 'turn.completed', resultType: 'success' },
+      resultCorrelation: { observedInFollowupRequest: true },
+      permissionProbe: { nativeRequestObserved: true },
+    },
+    negatives: {
+      unknownTool: { followupMentionsError: true }, unknownToolTurn: { eventType: 'turn.completed' },
+      wrongTypeParam: { followupMentionsValidationError: true }, wrongTypeTurn: { eventType: 'turn.completed' },
+      timeout: { followupMentionsTimeoutOrError: true }, timeoutDurationMs: 5100,
+      disabledMcp: { advertisedContainsEcho: false, followupMentionsError: true },
+    },
+    mcpServerLog: [
+      { phase: 'startup', pid: 1, runId },
+      { tool: 'probe_echo', phase: 'invoked', args: { phrase: 'lhi-positive' } },
+      { tool: 'probe_hang', phase: 'invoked', args: {} },
+    ],
+    cleanup: {
+      appServerExitFirst: { code: 0, signal: null }, appServerExitSecond: { code: 0, signal: null },
+      orphans: { status: 'clean' }, disposableHomeRemoved: true,
+    },
+  });
+  const happyContext = { echoToolName: echoName, runId };
+  const clone = value => structuredClone(value);
+  const violations = [
+    ['advertised-echo-name', (r, c) => { c.echoToolName = 'builtin_tool'; }],
+    ['positive-turn-completed', (r) => { delete r.results.advertisedFirstTurn.eventType; }],
+    ['positive-turn-completed', (r) => { r.results.advertisedFirstTurn.resultType = 'failure'; }],
+    ['result-correlation', (r) => { r.results.resultCorrelation.observedInFollowupRequest = false; }],
+    ['echo-executed-exactly-once', (r) => { r.mcpServerLog.push({ tool: 'probe_echo', phase: 'invoked', args: { phrase: 'lhi-positive' } }); }],
+    ['hang-invoked-exactly-once', (r) => { r.mcpServerLog = r.mcpServerLog.filter(e => e.tool !== 'probe_hang'); }],
+    ['disabled-no-execution', (r) => { r.mcpServerLog.push({ tool: 'probe_echo', phase: 'invoked', args: { phrase: 'should-not-execute' } }); }],
+    ['unknown-tool-fail-closed', (r) => { r.negatives.unknownTool.followupMentionsError = false; }],
+    ['wrong-type-fail-closed', (r) => { r.negatives.wrongTypeTurn.eventType = 'turn.failed'; }],
+    ['timeout-fail-closed', (r) => { r.negatives.timeoutDurationMs = 100; }],
+    ['disabled-control', (r) => { r.negatives.disabledMcp.advertisedContainsEcho = true; }],
+    ['permission-branch-consistent', (r) => { r.mcpServerLog.push({ tool: 'probe_echo', phase: 'invoked', args: { phrase: 'lhi-perm' } }); }],
+    ['no-unexpected-executions', (r) => { r.mcpServerLog.push({ tool: 'rogue_tool', phase: 'invoked', args: {} }); }],
+    ['no-unexpected-executions', (r) => { r.mcpServerLog.push({ tool: 'probe_echo', phase: 'invoked', args: { phrase: 'stray-phrase' } }); }],
+    ['no-unexpected-executions', (r, c) => { r.mcpServerLog[0].runId = 'a-different-run'; c.runId = runId; }],
+    ['no-external-models', (r) => { r.externalModelRequests = 1; }],
+    ['app-server-clean-exits', (r) => { r.cleanup.appServerExitSecond = { code: null, signal: 'SIGKILL' }; }],
+    ['no-orphan-processes', (r) => { r.cleanup.orphans = { status: 'owned-orphans-killed', found: [] }; }],
+    ['disposable-home-removed', (r) => { r.cleanup.disposableHomeRemoved = false; r.cleanup.disposableHomeRemovalError = 'EISDIR'; }],
+  ];
+  const happy = evaluateAssertions(happyReport(), happyContext);
+  const caught = [];
+  for (const [expectedGate, mutate] of violations) {
+    const reportData = happyReport(); const context = { ...happyContext };
+    mutate(reportData, context);
+    const outcome = evaluateAssertions(reportData, context);
+    caught.push({ expectedGate, verdict: outcome.verdict, gateFailed: outcome.gates.some(g => g.name === expectedGate && !g.pass) });
+  }
+  const uncaught = caught.filter(entry => entry.verdict !== 'FAIL' || !entry.gateFailed);
+  return {
+    happyPathVerdict: happy.verdict, gateCount: happy.gates.length,
+    violationCount: caught.length, uncaught,
+    verdict: happy.verdict === 'PASS' && uncaught.length === 0 ? 'PASS' : 'FAIL',
+  };
+}

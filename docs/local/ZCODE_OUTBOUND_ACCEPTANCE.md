@@ -24,9 +24,11 @@ Windows 侧 **NOT-RUN**（按 Issue 要求独立复验，不借用本结论）�
   子进程）仅继承环境白名单**（PATH/TMPDIR/locale/TZ/TERM/SHELL/USER/LOGNAME/SYSTEMROOT），操作者
   环境中的任何真实凭据变量不会进入被测进程；用户全局 `~/.zcode`、真实凭据、GUI 一律未触碰；
   推理经 loopback Chat Completions 定值响应（假 key）
-- 探针自带 **16 项硬断言门**（r4 起）：任一关键证据缺失/为假 → 脚本以非零退出码结束并在报告
-  `assertions` 中逐项列出（advertised 名、正向 turn 完成、结果关联、恰好一次执行计数、各负例
-  fail-closed、零外部模型、双 app-server 退出码、无孤儿进程、HOME 删除验证）
+- 探针自带**硬断言门**（数量以报告 `assertions[]` 实数为准，当前 16 项）：任一关键证据缺失/为假
+  → 脚本以非零退出码结束并逐项列出。断言含双向互斥校验（权限：原生请求⇒零执行 / 无请求⇒恰好
+  一次）、进程退出必须 `code=0,signal=null`（SIGKILL 不算干净退出）、执行日志全量簿记（工具/短语
+  白名单 + 总数 = 预期 + 日志首行 `runId` 归属匹配）。另有**免 ZCode 的门自测**
+  （`--self-test`，19 个合成违规逐门注入，全部必须被判 FAIL），证明每个断言真的会失败
 - MCP 注册（官方 07-mcp.md 合同原文形态）：`{ "mcp": { "servers": { "lam-lhi": { "type": "stdio",
   "command": "<node>", "args": ["<repo>/scripts/lhi-zcode-mcp-contract.mjs", "--stdio"],
   "enabled": true, "timeoutMs": 5000 } } } }`
@@ -52,12 +54,15 @@ Windows 侧 **NOT-RUN**（按 Issue 要求独立复验，不借用本结论）�
 | 配置级禁用（`features.mcp:false`，新 app-server 进程） | advertised 从 19 → 17，**不含** fixture 工具；强制发起调用得到错误回执；server 端零执行（JSONL 仅 echo+hang+权限用例） |
 | **原生权限门（build 模式，r4 新增）** | build 模式下对 `probe_echo` 的 tool-call **触发了原生 `interaction/requestPermission`**；探针回复 deny 后：工具**零执行**（`lhi-perm` 计数 0）、后续请求含 denied/error 回执、turn 正常收束——完整 fail-closed 链 |
 
-## 4a. 清理与进程证据（r4 起）
+## 4a. 清理与进程证据（r5 起）
 
-- 两个 app-server 进程（主会话 / 禁用对照）均**自然退出 exit code 0**（`appServerExitFirst/Second`）
-- 关闭后 `pgrep` 全量检查（fixture 脚本路径 + 一次性 HOME 两个模式）：**无孤儿进程**（MCP 子进程
-  随 app-server 退出；如发现属于本探针的孤儿会先验证命令行归属再 SIGKILL 并记录）
-- 一次性 HOME 删除后读验证失败（`disposableHomeRemoved: true`）；loopback 监听随 runner 关闭
+- 进程归属与安全清理：MCP 子进程 argv 携带**每次运行唯一的 `--run-id <uuid>`**；清理只按
+  `lhi-zcode-mcp-contract.mjs --stdio --run-id <本运行>` 与一次性 HOME 两个唯一标记查找，
+  **绝不按共享脚本名杀进程**（其它并行实验跑同一脚本不受影响）；server 日志首行自报
+  `pid + runId` 提供归属证明；SIGKILL 前逐一 `ps` 验证命令行含唯一标记
+- 两个 app-server 进程（主会话 / 禁用对照）均**自然退出 `code=0, signal=null`**
+- 关闭后唯一标记扫描：**clean**（无孤儿）
+- 一次性 HOME 删除以 `stat` 判定，**仅 `ENOENT` 视为已删除**（EISDIR/EACCES 等一律算失败）
 
 ## 5. 观察与限制（如实记录）
 
