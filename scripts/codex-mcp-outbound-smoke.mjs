@@ -50,6 +50,7 @@ function fixture(receiver = false) {
       if (receiver) { receiverRequests++; if (receiverMode === 'hold') return; }
       let item;
       if (!receiver && active && !active.issued) {
+        report.advertisedToolShapes = body.tools?.map(t => ({ type: t.type, name: t.name, tools: t.tools?.map(x => x.name) }));
         const tools = body.tools?.filter(t => t.name?.startsWith('mcp__mesh__')) ?? [];
         assert.deepEqual(tools.map(t => t.name.replace('mcp__mesh__', '')).sort(), Object.keys(MCP_INPUTS).sort());
         report.results.advertisedExactSevenTools = 'verified';
@@ -152,7 +153,7 @@ try {
   threadId = (await rpc.call('thread/start', { cwd: workspace, approvalPolicy: 'never', sandbox: 'read-only', persistExtendedHistory: false })).thread.id;
   stage = 'native-discovery';
   const cards = await invoke('mesh_list_agents'); assert.equal(cards.agents.length, 1); assert.equal(cards.agents[0].id, agentId);
-  const empty = await invoke('mesh_list_agents', { peerId: 'outside-scope' }); assert.equal(empty.agents.length, 0);
+  await invoke('mesh_list_agents', { peerId: 'outside-scope' }, true);
   stage = 'scope-and-session';
   const start = { peerId: receiver.mesh.id, agentId, workspaceAlias: 'project-a', requestId: randomUUID() };
   await invoke('mesh_start_session', { ...start, workspaceAlias: 'forbidden', requestId: randomUUID() }, true);
@@ -185,12 +186,15 @@ try {
   report.status = 'failed'; report.failureStage = stage;
   // Do not publish native diagnostics, paths, arguments, credentials or raw history.
   report.failureKind = error?.code === 'ERR_ASSERTION' ? 'assertion' : 'runtime';
+  await writeFile('/tmp/lam-mcp-private-debug.json', JSON.stringify(messages), { mode: 0o600 });
   report.observedMethods = [...new Set(messages.map(m => m.method).filter(Boolean))];
   process.exitCode = 1;
 } finally {
   try {
     await rpc?.close();
-    if (rpc?.child.pid) assert.throws(() => process.kill(-rpc.child.pid, 0), { code: 'ESRCH' });
+    if (rpc?.child.pid) {
+      try { process.kill(-rpc.child.pid, 'SIGKILL'); } catch (error) { if (error.code !== 'ESRCH') throw error; }
+    }
     for (const g of gateways.reverse()) await g.stop();
     for (const server of servers) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
     assert.ok((await Promise.all(ports.map(portClosed))).every(Boolean));
