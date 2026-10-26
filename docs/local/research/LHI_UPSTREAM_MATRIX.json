@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LHI-0 upstream capability matrix",
+  "task": { "taskId": "LHI-0", "issue": 79, "researchDate": "2026-10-26", "metadataReadAtUtc": "2026-10-26T13:00-13:10Z (gh api + web)" },
+  "evidenceLevels": {
+    "metadata": "license/stars/pushed_at/commit read from GitHub API at readAtUtc; exact per-field provenance in LOCAL_HARNESS_LANDSCAPE.md",
+    "readme-claimed": "capability asserted by upstream README/docs only; NOT installed, NOT run, NOT verified on this machine",
+    "lam-verified": "verified locally by this project (HARNESS_MATRIX.md, PR #65) under its recorded fixtures"
+  },
+  "capabilities": ["discovery", "durableAskReply", "wakeOnMessage", "activeMcpOutbound", "newNativeSessionControl", "existingGuiSessionInjection", "permissionBoundary"],
+  "sources": [
+    {
+      "id": "agent-intercom-codex",
+      "url": "https://github.com/dataforxyz/agent-intercom-codex",
+      "pinnedCommit": "ff1f0e2258ded8c81ae6fcf33048c78a7f8580fe",
+      "pinnedCommitDate": "2026-09-07",
+      "latestRelease": "v0.10.0 (2026-07-16)",
+      "license": { "spdx": "AGPL-3.0", "evidence": "GitHub API license field" },
+      "activity": { "stars": 3, "pushedAt": "2026-09-07" },
+      "family": ["agent-intercom-pi", "agent-intercom-claude", "agent-intercom-opencode", "agent-intercom-orchestrator"],
+      "capabilities": {
+        "discovery": { "level": "readme-claimed", "note": "broker identity registration across Pi/Codex/Claude/OpenCode adapters, protocol v3" },
+        "durableAskReply": { "level": "readme-claimed", "note": "delivered only after receiver ACK; unfinished sends persisted and replayed with original IDs; receiver deduplication" },
+        "wakeOnMessage": { "level": "readme-claimed", "note": "via coi sidecar app-server bridge; plain MCP sessions CANNOT receive unsolicited turns (intercom_pending polling)" },
+        "activeMcpOutbound": { "level": "readme-claimed", "note": "codex-intercom-mcp exposes intercom tools inside sessions" },
+        "newNativeSessionControl": { "level": "readme-claimed", "note": "coi starts Codex app-server + turns; orchestrator manages fleet with systemd cgroups/leases" },
+        "existingGuiSessionInjection": { "level": "readme-claimed-absent", "note": "only refreshes attached TUI by resuming the same thread after idle; no message injection" },
+        "permissionBoundary": { "level": "readme-claimed", "note": "single-user local; dormant boss-run-v1 fail-closed (PROVIDER_AUTHORITY_UNAVAILABLE); reviewers read-only; danger-full-access rejected" }
+      },
+      "decision": "STUDY"
+    },
+    {
+      "id": "agent-peers-mcp",
+      "url": "https://github.com/Co-Messi/agent-peers-mcp",
+      "pinnedCommit": "dc81db4dbe9b3ddb97d3ba64fd24d5b743ef868b",
+      "pinnedCommitDate": "2026-07-13",
+      "latestRelease": null,
+      "license": { "spdx": "MIT", "evidence": "GitHub API license field" },
+      "activity": { "stars": 8, "pushedAt": "2026-07-13" },
+      "capabilities": {
+        "discovery": { "level": "readme-claimed", "note": "list_peers scoped machine/directory/repo" },
+        "durableAskReply": { "level": "readme-claimed", "note": "SQLite broker localhost:7900; persisted before broker ACK; explicit ack_messages; at-least-once with duplicates; 0o600 inbox; lease+ack; reclaim credential" },
+        "wakeOnMessage": { "level": "readme-claimed", "note": "wakeable mode starts bodyless app-server turn for idle session; explicitly NOT a native MCP notification; Claude-side native channel is best-effort hint only" },
+        "activeMcpOutbound": { "level": "readme-claimed", "note": "standard MCP tools" },
+        "newNativeSessionControl": { "level": "readme-claimed", "note": "bodyless app-server turn for idle sessions" },
+        "existingGuiSessionInjection": { "level": "readme-claimed-absent", "note": "idle-thread nudge only" },
+        "permissionBoundary": { "level": "readme-claimed", "note": "README warning: single-user layer, NOT a multi-user security boundary; peer messages are untrusted input; per-user secret + per-peer tokens; fail-closed 0o600 ownership checks" }
+      },
+      "load BearingEvidence": "README asserts 'Current Codex CLI has no model-visible mid-task push channel for MCP servers' — cross-source corroboration for LHI-2/3 receive-side design",
+      "decision": "ADAPT-semantics"
+    },
+    {
+      "id": "zcode-cli",
+      "url": "https://github.com/zai-org/ZCode",
+      "pinnedCommit": "3c5b227649371507ddc4eb46ac5133afe6db1cab",
+      "pinnedCommitDate": "2026-10-20",
+      "latestRelease": "v3.14.3 (2026-09-24)",
+      "license": { "spdx": "Apache-2.0", "evidence": "GitHub API license field" },
+      "activity": { "stars": 8264, "pushedAt": "2026-10-20" },
+      "role": "harness-integration-target (not a broker)",
+      "capabilities": {
+        "discovery": { "level": "n/a", "note": "harness, not a coordination layer" },
+        "durableAskReply": { "level": "n/a" },
+        "wakeOnMessage": { "level": "unknown", "note": "no public contract for MCP-server-initiated wake; LHI-1 must test" },
+        "activeMcpOutbound": { "level": "readme-claimed", "note": "official config contract: features.mcp + mcp.servers (stdio/http/sse), protocolVersion auto|legacy|2026-07-28, mcp__ tool naming; installed-version invocation NOT verified (LHI-1)" },
+        "newNativeSessionControl": { "level": "lam-verified", "note": "HARNESS_MATRIX: native session create/resume/send/stream/cancel/deny probes passed on localhost with fixed responses (darwin/Windows)" },
+        "existingGuiSessionInjection": { "level": "not-promised", "note": "no official attach/injection contract; ADR0005 section 7 stance unchanged" },
+        "permissionBoundary": { "level": "readme-claimed", "note": "official doc: tool registration != authorization != execution permission; verify actual tool names in requests" }
+      },
+      "decision": "ADOPT-as-target"
+    },
+    {
+      "id": "borg-mcp-client",
+      "url": "https://github.com/Byte-Ventures/borg-mcp-client",
+      "pinnedCommit": "d6e2a8beabbab698086bc3679d12171d08db3c17",
+      "pinnedCommitDate": "2026-10-22",
+      "latestRelease": "unknown",
+      "license": { "spdx": "Apache-2.0", "evidence": "GitHub API license field (client repo; publishes npm borgmcp incl. self-hosted server); separate server repo not found (404) — server openness unknown" },
+      "activity": { "stars": 1, "pushedAt": "2026-10-25" },
+      "capabilities": {
+        "discovery": { "level": "readme-claimed", "note": "cube/drones/roles roster" },
+        "durableAskReply": { "level": "readme-claimed", "note": "activity log with explicit to-audience routing; immutable durable documents with revisions; replayable reads with delivered checkpoint" },
+        "wakeOnMessage": { "level": "readme-claimed", "note": "body-free wake hints (representative listen)" },
+        "activeMcpOutbound": { "level": "readme-claimed", "note": "borg_* tools; representative exposes 5 restricted stdio MCP tools" },
+        "newNativeSessionControl": { "level": "readme-claimed", "note": "launches installed agent CLIs; assimilate adds/resumes drones, reattaches saved worktrees" },
+        "existingGuiSessionInjection": { "level": "readme-claimed-absent" },
+        "permissionBoundary": { "level": "readme-claimed", "note": "cube is the trust boundary; representative can only address one Coordinator, never other drones; server can run on private LAN (wider than LAM loopback-first)" }
+      },
+      "decision": "STUDY"
+    },
+    {
+      "id": "concord-mcp",
+      "url": "https://github.com/Get-Concord-AI/concord-mcp",
+      "pinnedCommit": "e49ec2703e519e8ad2a2761d2967cd52de6f059a",
+      "pinnedCommitDate": "2026-10-25",
+      "latestRelease": "npm @concord-ai/concord-mcp (version badge; exact version unknown)",
+      "license": { "spdx": "MIT", "evidence": "GitHub API license field + README badge" },
+      "activity": { "stars": 695, "pushedAt": "2026-10-25" },
+      "capabilities": {
+        "discovery": { "level": "readme-claimed", "note": "reachable sessions in shared .concord/ workspace" },
+        "durableAskReply": { "level": "readme-claimed", "note": "live messages + file-level claims with overlap detection + decisions + evidence-backed handoffs + review state" },
+        "wakeOnMessage": { "level": "unknown", "note": "'live' claimed but mechanism not documented in README; do not assume push channel" },
+        "activeMcpOutbound": { "level": "readme-claimed", "note": "standard MCP server via npm/standalone" },
+        "newNativeSessionControl": { "level": "readme-claimed-absent", "note": "no spawn; connects already-running sessions" },
+        "existingGuiSessionInjection": { "level": "readme-claimed-absent" },
+        "permissionBoundary": { "level": "readme-claimed", "note": "local-first; setup WRITES many client configs (.mcp.json, ~/.codex/config.toml, CLAUDE.md, AGENTS.md, .cursor/rules, ...) — broader host footprint than LAM scoped grants" }
+      },
+      "decision": "ADAPT-semantics"
+    },
+    {
+      "id": "brainstorm-mcp",
+      "url": "https://github.com/TheodorStorm/brainstorm-mcp",
+      "pinnedCommit": "088463645cbe147aa8ded2e93dd4224ef91ee0e8",
+      "pinnedCommitDate": "2026-08-09",
+      "license": { "spdx": "NOASSERTION", "evidence": "GitHub API; archived repo superseded by Borg MCP" },
+      "activity": { "stars": 8, "archived": true },
+      "decision": "DEFER",
+      "decisionNote": "archived + no asserted license; historical interest only"
+    },
+    {
+      "id": "softsensor-concord",
+      "url": "https://github.com/Softsensor-org/concord",
+      "pinnedCommit": "9d7cf0ec0dc9c31695cf46b2e585b40d411e79cd",
+      "license": { "spdx": "Apache-2.0" },
+      "activity": { "stars": 3 },
+      "decision": "DEFER",
+      "decisionNote": "governed multi-repo team coordination, out of LHI same-harness-machine scope"
+    }
+  ],
+  "papers": [
+    { "id": "MPAC", "kind": "paper", "ref": "arxiv.org/abs/2604.09744", "relevance": "first-class conflict objects, Lamport clocks, optimistic concurrency — input for LHI-5 claim semantics", "deployable": false },
+    { "id": "STORM", "kind": "paper", "ref": "arxiv.org/abs/2605.20563", "relevance": "write-time conflict detection in shared workspace", "deployable": false },
+    { "id": "tap", "kind": "ambiguous", "ref": "candidates: Google TAP (ICSE-SEIP 2017 testing infra) / Visa TAP (RFC 9421 identity signing)", "relevance": "neither is a local-machine agent collaboration scheme; ADR original intent unverifiable from public sources", "deployable": false },
+    { "id": "grite", "kind": "paper", "ref": "arxiv.org/abs/2606.19616", "relevance": "coordination log inside git, no server", "deployable": false },
+    { "id": "AgentRoom", "kind": "paper", "ref": "arxiv.org/abs/2608.23740", "relevance": "file-level claim/status/broadcast over MCP on CRDT fs", "deployable": false }
+  ],
+  "lamGapMatrix": {
+    "lamHasUpstreamLacks": [
+      "paired peer trust (Noise/Yamux) vs single-user local brokers",
+      "(peer,key) idempotency + fingerprint conflict detection + bounded conflict semantics",
+      "UNKNOWN non-replay crash semantics (upstream inboxes are at-least-once without terminal-state modeling)",
+      "event/retention budgets and capacity admission",
+      "scoped per-caller MCP grants, default deny (vs shared-workspace or whole-cube trust)"
+    ],
+    "upstreamHasLamLacks": [
+      "wake-on-message engineering shapes: bodyless app-server turn (agent-peers, intercom coi) and body-free wake hints (Borg) — both NOT MCP notifications",
+      "file-level claim / overlap pre-edit detection (Concord) — candidate for LHI-5",
+      "replayable read + delivered checkpoint (Borg representative) — candidate for LHI-5",
+      "same-machine discovery scopes machine/directory/repo without pairing (agent-peers)",
+      "restricted human-representative MCP surface, 5 read-tools, single-Coordinator addressing (Borg) — reference for LHI-4 caller plane"
+    ]
+  }
+}
