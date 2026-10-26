@@ -1,0 +1,58 @@
+{
+  "capturedAtUtc": "2026-10-26T16:22:50.3935203Z",
+  "platform": "win32",
+  "operatingSystem": "Microsoft Windows NT 10.0.22621.0",
+  "architecture": "AMD64",
+  "scope": "Read-only version and installation inventory. No inference, login, native session control, or GUI launch. Local drive paths redacted.",
+  "cli": [
+    {
+      "name": "codex",
+      "foundOnPath": false,
+      "path": null,
+      "version": null,
+      "status": "unknown"
+    },
+    {
+      "name": "dsh",
+      "foundOnPath": true,
+      "path": "[LOCAL_PATH]\\dsh.cmd",
+      "version": "0.1.1-rc.2",
+      "status": "version_observed"
+    },
+    {
+      "name": "zcode",
+      "foundOnPath": false,
+      "path": null,
+      "version": null,
+      "status": "unknown"
+    },
+    {
+      "name": "workbuddy",
+      "foundOnPath": false,
+      "path": null,
+      "version": null,
+      "status": "unknown"
+    }
+  ],
+  "applications": [
+    {
+      "name": "DeepSeek Harness 0.2.1-rc.2",
+      "version": "0.2.1-rc.2",
+      "publisher": null,
+      "installLocation": "[LOCAL_PATH]"
+    },
+    {
+      "name": "ZCode 3.16.3",
+      "version": "3.16.3",
+      "publisher": "ZCode",
+      "installLocation": null
+    },
+    {
+      "name": "WorkBuddy 5.7.7",
+      "version": "5.7.7",
+      "publisher": "Tencent Technology (Shenzhen) Company Limited",
+      "installLocation": null
+    }
+  ],
+  "note": "Not found on PATH or in these uninstall registry entries does not prove absence or lack of support. Portable installs may not be listed. This inventory does not enumerate MSIX packages; the previously recorded OpenAI.Codex MSIX presence is tracked separately in docs/HARNESS_MATRIX.md. All control capabilities remain unknown until separately tested."
+}
