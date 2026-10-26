@@ -1,0 +1,109 @@
+{
+  "status": "failed",
+  "testedSourceSha": "b548608b9fa41ca86f8d2652345bab6c4511d31a",
+  "sourceClean": true,
+  "startedUtc": "2026-10-26T06:12:06.891Z",
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "pnpm": "10.18.3",
+  "receiver": "mock",
+  "inference": "deterministic localhost Responses fixture; no external model configured",
+  "physicalCrossHost": "not-tested",
+  "nativeInvocations": [],
+  "results": {},
+  "fixtureRequests": 30,
+  "codexVersion": "codex-cli 0.146.0",
+  "executableSha256": "134063e133f0b4244fa3b251acf973d4fe4b4aeeacbdc135211bf480f59f1477",
+  "scriptSha256": "abd88ae4258477d9a4ce7b255ec391949f2898f138ebc5629d37d03d0b852a08",
+  "advertisedToolShapes": [
+    {
+      "type": "function",
+      "name": "exec_command"
+    },
+    {
+      "type": "function",
+      "name": "write_stdin"
+    },
+    {
+      "type": "function",
+      "name": "list_mcp_resources"
+    },
+    {
+      "type": "function",
+      "name": "list_mcp_resource_templates"
+    },
+    {
+      "type": "function",
+      "name": "read_mcp_resource"
+    },
+    {
+      "type": "function",
+      "name": "update_plan"
+    },
+    {
+      "type": "function",
+      "name": "request_user_input"
+    },
+    {
+      "type": "function",
+      "name": "view_image"
+    },
+    {
+      "type": "namespace",
+      "name": "multi_agent_v1",
+      "tools": [
+        "close_agent",
+        "resume_agent",
+        "send_input",
+        "spawn_agent",
+        "wait_agent"
+      ]
+    },
+    {
+      "type": "namespace",
+      "name": "mcp__mesh",
+      "tools": [
+        "mesh_cancel_task",
+        "mesh_delegate_task",
+        "mesh_get_task",
+        "mesh_list_agents",
+        "mesh_list_sessions",
+        "mesh_send_message",
+        "mesh_start_session"
+      ]
+    },
+    {
+      "type": "function",
+      "name": "get_goal"
+    },
+    {
+      "type": "function",
+      "name": "create_goal"
+    },
+    {
+      "type": "function",
+      "name": "update_goal"
+    },
+    {
+      "type": "web_search"
+    }
+  ],
+  "fixtureError": true,
+  "failureStage": "native-discovery",
+  "failureKind": "assertion",
+  "observedMethods": [
+    "remoteControl/status/changed",
+    "thread/started",
+    "mcpServer/startupStatus/updated",
+    "warning",
+    "thread/status/changed",
+    "turn/started",
+    "item/started",
+    "item/completed",
+    "error",
+    "turn/completed"
+  ],
+  "cleanup": "failed",
+  "endedUtc": "2026-10-26T06:12:32.266Z",
+  "nativeTraceDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+}

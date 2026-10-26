@@ -52,6 +52,7 @@ jobs:
           name: dsh-acceptance-synthetic-${{ matrix.os }}-node-${{ matrix.node }}
           path: ${{ runner.temp }}/dsh-acceptance-synthetic.json
           if-no-files-found: ignore
+      - run: node scripts/check-codex-mcp-contract.mjs
       - run: node scripts/check-rpc-probe.mjs
       - run: node scripts/check-windows-evidence-probes.mjs
       - name: Validate Windows helper scripts

@@ -1,0 +1,242 @@
+{
+  "status": "passed",
+  "testedSourceSha": "73364a13a03c7d6c8b8c7f6e105aaacd59368723",
+  "sourceClean": true,
+  "startedUtc": "2026-10-26T06:19:56.936Z",
+  "platform": "darwin",
+  "osRelease": "27.0.0",
+  "architecture": "arm64",
+  "node": "v22.23.2",
+  "pnpm": "10.18.3",
+  "receiver": "codex",
+  "inference": "deterministic localhost Responses fixture; no external model configured",
+  "physicalCrossHost": "not-tested",
+  "fixtureToolApproval": "explicit operator exception for four isolated local mesh tools",
+  "nativeInvocations": [
+    {
+      "tool": "mesh_list_agents",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "34ae58959bfc379debc991f9f657350de584353d0569aa492d2309f585de28a6",
+      "itemDigest": "035180f26898b985e01406f55d57d8ef1f84b3c3b22f9018a61761ec1ae906c2",
+      "argumentsDigest": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultDigest": "b6a45cbf8ae7e4bb4e1e63b0f42f9266a089b4bc875001ba5de41c08eb1be76b",
+      "denied": false
+    },
+    {
+      "tool": "mesh_list_agents",
+      "nativeStatus": "failed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "f260bd4f740ca282085820e87d5e839bbccf287d6915e3edc40473dfae4e05bd",
+      "itemDigest": "fafb2e2952deef92bc217dd944d8cd965b1756c05b418d9f905f46a6cab6b7cd",
+      "argumentsDigest": "6f8f013af1f2a3233cda7ee3dcfccd73f67ca2c762425e7c0d9d253e30a0a0a8",
+      "resultDigest": "40973dc1d042f8a6b3975164b12a242d33abb6f155850f684c46eeef505fe953",
+      "denied": true
+    },
+    {
+      "tool": "mesh_start_session",
+      "nativeStatus": "failed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "a87cd53988036bfcac2694026ac3db65e686a03298a55209840fbd65adfc9a73",
+      "itemDigest": "454524a8721405d691895c853ac8d5ed5c07324ba025932f31a361141b90c353",
+      "argumentsDigest": "26435883a2f751bfc159b960e451630ed198ab390d2715f06e1d5295182cc737",
+      "resultDigest": "40973dc1d042f8a6b3975164b12a242d33abb6f155850f684c46eeef505fe953",
+      "denied": true
+    },
+    {
+      "tool": "mesh_start_session",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "375a9defc035f433c11f04563ecf24ea43663b1a6b61848f4f37e1b04c834036",
+      "itemDigest": "1adf89ee1283531ed511b8e411064d394ba3be3f147bc3426fad34637b862c30",
+      "argumentsDigest": "d0add6737d0958e4eb644439190de9d1515b67b8a1fdb0b2b892018d7edcda9d",
+      "resultDigest": "533356857e755588144035bce9353fb8a89263716e46b720d9e941f5a35b770e",
+      "denied": false
+    },
+    {
+      "tool": "mesh_start_session",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "90ae4e024b0cbd46560435b0eac3503c8c17c85bb61893beb5294ae1a4f0d2d9",
+      "itemDigest": "e381d7aa38727e742423cff2cb5865e4175c044379f7aee37dea12263cae48a6",
+      "argumentsDigest": "d0add6737d0958e4eb644439190de9d1515b67b8a1fdb0b2b892018d7edcda9d",
+      "resultDigest": "533356857e755588144035bce9353fb8a89263716e46b720d9e941f5a35b770e",
+      "denied": false
+    },
+    {
+      "tool": "mesh_list_sessions",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "4a5b2fa4a4cf9360e679ef1a9b7fff0db80001f72d63019c739bc143452dd1a8",
+      "itemDigest": "981b31414bfd7c0729b1baa64e3b03df0dc0814a42a1b6b6a3ad66ce8b76af5e",
+      "argumentsDigest": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultDigest": "761807b6d2a73e7d617a028d0f434f730de112414f988e978a6426abc26e67b4",
+      "denied": false
+    },
+    {
+      "tool": "mesh_send_message",
+      "nativeStatus": "failed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "68e2645a604c910df9577c31db0777a1f54125c0271895ddca8247df84bff857",
+      "itemDigest": "a32729d9f83cd5952eec040acc863436c7792e2c7ba64d18af6e19f31c776645",
+      "argumentsDigest": "b0e27b5f3ea480b3c90d17b9e0a5fed4caf33af7e3e2109974ceb874e63e2d6b",
+      "resultDigest": "9b61c9a034009565694693eec82bf375a8d9eca7eb1618ab13e6917c51ecf48f",
+      "denied": "not_found"
+    },
+    {
+      "tool": "mesh_send_message",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "9f79d6b7a069287e5da7ae7cf6f6799140d4ed97bf6497cf952ae5ea29d89d47",
+      "itemDigest": "f54901a2baf26e277653ef7e3179697fe3e9bd5e7027e8ad9509fefb45824b2a",
+      "argumentsDigest": "e6c657fa7244c98934a041a3715cf6de7e2f53279396e71218765d7e3647cc3c",
+      "resultDigest": "8de8efc8cbbd3919a73a09013b8bc43923829711dd3b37e8701e379d8cce2284",
+      "denied": false
+    },
+    {
+      "tool": "mesh_get_task",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "b6501474a9aa06d194c8e70f24851acd6349e0b770d7eb97e63507d571fd257c",
+      "itemDigest": "5f824375cf9b8ccaf7a722a4a2fe785c27d09a6fe9bf0b312a3a58a5bcde7429",
+      "argumentsDigest": "37d352cb82114245462bf2001bbf3ac402a5d150f035411752bbcbfdcca0dadc",
+      "resultDigest": "57404ca37520518fe4293d86dd06a8108922c05d00fb4a455ac367134f67caef",
+      "denied": false
+    },
+    {
+      "tool": "mesh_get_task",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "0ecc5b7eecb2cf6bb9df3639f5d5e8722a89a8ce9b26c5d74cf57ca4c4699699",
+      "itemDigest": "a688b280b792896e60cba6cf2d0a70d951f56ee859cb3930ba6dad24dcb1b052",
+      "argumentsDigest": "4ee65683eb9be19d5c0f3863ad4faa4a98e93669ededa8ed98a8ca0c7447a531",
+      "resultDigest": "af429a36f427d39e17ee503e950369f494fd3d55200f178be824a3b6441201bc",
+      "denied": false
+    },
+    {
+      "tool": "mesh_get_task",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "61a33ec86bc21438581dbd37f82f5895d8aa4ec378eca45bfa2bceed8c8ecff7",
+      "itemDigest": "1f6c9b27c3657c309b03ed6556eb27154642bfcd1475c1db721ce5358657bad4",
+      "argumentsDigest": "beb9a5b2163797d81138efabc8624b625d485105cb57c77cdb2c97b5bc086408",
+      "resultDigest": "921b38cbe49d3c448db056021abddeb313f3d8322d802d63e6073bb15b168e88",
+      "denied": false
+    },
+    {
+      "tool": "mesh_get_task",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "12045539d30fc5872e37f1fed4e520f618753ae8e22e964cb841104bede58f9c",
+      "itemDigest": "a64f8ded1659b3352c92cda6db1a76e273ff4974ecccfb4bd845e47793ecf74c",
+      "argumentsDigest": "1bb81a3fc98aba523af702ad945586c7a99b101d147d08a34d42ccc2cd20ac96",
+      "resultDigest": "4261e7d93cd0a07d1b635e0cf1cf5b835de9a426ba235827e589167929e56c06",
+      "denied": false
+    },
+    {
+      "tool": "mesh_send_message",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "ab38d26bb18c8499cefd0a84d8b74e0eeb21032bb3fac7f0a6c3fe6702d21a6d",
+      "itemDigest": "1c1822f3b0a9a9b893d5ea0b26a89ba697c4a49c9cbfcf5c90b5a3a5d186b6c5",
+      "argumentsDigest": "e6c657fa7244c98934a041a3715cf6de7e2f53279396e71218765d7e3647cc3c",
+      "resultDigest": "8de8efc8cbbd3919a73a09013b8bc43923829711dd3b37e8701e379d8cce2284",
+      "denied": false
+    },
+    {
+      "tool": "mesh_delegate_task",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "a0795871e49d7abc860b27bd31038cb12de67cf408ef00e0b3037fe2f52356f8",
+      "itemDigest": "223e858f704abd750461c4a74b334d92c619623d8aeb8f4c2e559ddbbb030698",
+      "argumentsDigest": "27b8fabf8c1ba9b1a9d83cb0336099016834c1f548ca9aa5b626e2062ac17e23",
+      "resultDigest": "7d6d8d708b82cc354d9ac9a6bf71e6b72c7dfe4483fe32ed067e3c4cb89d05db",
+      "denied": false
+    },
+    {
+      "tool": "mesh_cancel_task",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "c7740880632f22f2cfb929f262031b82ba8260850f642f809586258be78ef07a",
+      "itemDigest": "311507030ae162455d41d8546c5c282a82ec2a29646e19d3e26a57a38e048c50",
+      "argumentsDigest": "fb1ca7fb2d99cf77d37008f948321c9e946496d51d5b2495ed57cda8bae94e84",
+      "resultDigest": "160fc513b3209293e30abf53f05a9a82f8a20639b0de91624b28b360f179e8bb",
+      "denied": false
+    },
+    {
+      "tool": "mesh_get_task",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "94a20fbec2f3bde956e34cc45c4d46ead2dc928854d7474d5652540a40172c6c",
+      "itemDigest": "0d6af4119f01e009b2d10447b1b8de1b5d8c78745e103ea77663cf5dcbabdfa6",
+      "argumentsDigest": "8483250dd90585c4303d950d0cbc43595339d04762af3e15371249e784752e12",
+      "resultDigest": "1a81c1c4752adec35d88261eb3705e15c82cdf7b8336fddf4e31cf7988e5d840",
+      "denied": false
+    },
+    {
+      "tool": "mesh_get_task",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "3fb512712949f05f1fc87051201ccca65f200a8d74a7588f5b4eb1ba47ac6f6e",
+      "itemDigest": "70e32b7c8c6ff93bb4778b1ab98aaa7b43a635c7ee31be496009213fda94b168",
+      "argumentsDigest": "276ef9b9c63c5dbab9baaf1dca32b0eae7be26589d52f382d057bba8fd47074f",
+      "resultDigest": "31ba5875855d6e88b6bb4fd28d258742dfac1b8a0340da2ed4d0a545169d4904",
+      "denied": false
+    },
+    {
+      "tool": "mesh_get_task",
+      "nativeStatus": "completed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "d50488e6eed24e3e2ab3c969b02bbc0c5f3b96666183684cfe0301ce6b42154a",
+      "itemDigest": "fa24241249abd42125234f311538bba4bfd65d3652ed8a72d26d6fad20c2e08f",
+      "argumentsDigest": "69715a682297da7918423137bbf22d7fb77e9604f08b538e66457405a13f8e2a",
+      "resultDigest": "8e03ef5342a0c30dd8deae9de0fc4b269c516ec29f24237d088d439e28ad558e",
+      "denied": false
+    },
+    {
+      "tool": "mesh_list_sessions",
+      "nativeStatus": "failed",
+      "threadDigest": "a1306d338be986e572128162b2107ab56169b2d417f2aed80c14fe3e1be4befe",
+      "turnDigest": "bc6a2c7cbea0d908239358372a57311c38b352f74e79842d114059f3f87581d7",
+      "itemDigest": "381789cb5bae5ca56cb9523b9ba046be9079adf8daf19f97aaf8f50640288901",
+      "argumentsDigest": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "resultDigest": "40973dc1d042f8a6b3975164b12a242d33abb6f155850f684c46eeef505fe953",
+      "denied": true
+    }
+  ],
+  "results": {
+    "advertisedExactSevenTools": "verified",
+    "scopeAndSessionOwnership": "verified",
+    "streamAndExactRetry": "verified",
+    "inflightCancel": "verified",
+    "revocation": "verified"
+  },
+  "fixtureRequests": 40,
+  "codexVersion": "codex-cli 0.146.0",
+  "executableSha256": "ae1d3ffe6d48aec6a4dc3f50e7eb8e0d11962485a6a9406c5a7012139383da02",
+  "scriptSha256": "36c4eea6827aa46a0d63e3131e84030e19486f3f95d6a320954bfcb35d4a757c",
+  "artifactHashes": {
+    "scripts/codex-mcp-contract.mjs": "77e16b81822b0572443ae04280142dca56f1026e979ce3c0125180846115686e",
+    "packages/codex-adapter/dist/index.js": "e0400c1c554b05d64ffce33256ac14b875e3f8e803b5be80f833712566fb716b",
+    "packages/codex-adapter/dist/rpc.js": "248e38f992a475d099744156e2c89c04283d914c3d38f15d2c7be0c8c5ba2aab",
+    "packages/mcp-server/dist/cli.js": "78d26774739fd3ea3135c5c16aabbe9e37c1418c90aa22606945cf33d7c77b28",
+    "packages/mcp-server/dist/index.js": "33ce3bb0d1c0445e48543cb3935fbee1aa92ba507429df8e3ef103117ed9f295",
+    "packages/mcp-contract/dist/index.js": "1b5315515486d2c442cc3a3073b5167bbf35e3131d3eeca43c28e60c5c95d994",
+    "packages/runtime/dist/index.js": "383b1ec877db2af27832a391125da7fd127f055eeb50806925713215d069a341",
+    "packages/runtime/dist/mcp-access.js": "0c197768c11f067b9535257b8ed5840f3e6932432054552e422d058bcd8c0ea9",
+    "packages/mesh/dist/index.js": "639f88da6f2d0edc1027b3699e21b0d2559391e6fc09f8c51497000f8006f548",
+    "pnpm-lock.yaml": "f3b48488655b4c25645a5fcfb8a2dd5a8b66307df0ae6893c9c281b12e971bbc"
+  },
+  "meshToolEncoding": "namespace",
+  "cleanup": {
+    "nativeProcessGroup": "verified",
+    "gateway0": "verified",
+    "gateway1": "verified",
+    "fixture0": "verified",
+    "fixture1": "verified",
+    "portsClosed": "verified",
+    "privateDataRemoved": "verified"
+  },
+  "endedUtc": "2026-10-26T06:20:02.495Z",
+  "nativeTraceDigest": "8b6c98aca6df943b3630289284d3eb50dbda2827491866e8351820c5754f6ee4"
+}

@@ -15,7 +15,7 @@ Evidence date: 2026-10-23. `verified` means the specific local probe succeeded. 
 | WorkBuddy desktop 5.7.7 / Windows AMD64 | unknown (guest SDK inventory recorded; renderer transport internals only) | unknown | unknown | unknown | unknown | unknown |
 | Codex / Windows (MSIX OpenAI.Codex 26.825.6671.0; app/Codex.exe present but not a manifest-registered application or execution alias; not executed) | unknown | unknown | unknown | unknown | unknown | unknown |
 
-Desktop apps were found at /Applications/ZCode.app and /Applications/WorkBuddy.app after the user supplied their location. Their launchers are not on PATH. See [desktop metadata](evidence/desktop-apps-darwin.json). No GUI conversations were read, modified or attached by these probes. MCP outbound is separate from controlled inbound; no outbound MCP call was exercised for any harness.
+Desktop apps were found at /Applications/ZCode.app and /Applications/WorkBuddy.app after the user supplied their location. Their launchers are not on PATH. See [desktop metadata](evidence/desktop-apps-darwin.json). No GUI conversations were read, modified or attached by these probes. MCP outbound is separate from controlled inbound; the original 2026-10-23 probes did not exercise it. The 2026-10-26 Mac-only candidate result is recorded below.
 
 ## Reproduction and saved evidence
 
@@ -106,3 +106,9 @@ The Windows LM run `win-20261023T190428Z` (claim: [#1 (comment)](https://github.
 The fourth-run [Mac review](evidence/windows/win-20261023T190428Z/REVIEW.md) accepts both targeted retests. The version-specific matrix and explicit unknowns satisfy the feasibility evidence criteria; unknown never grants a capability. Windows DSH desktop and ZCode have fixed-response control-chain evidence. Windows Codex, WorkBuddy inbound and existing-GUI attachment remain unknown; no further native experiment is scheduled. The earlier ZCode timeout cause remains unresolved. Real account access and production authorization are outside these probes.
 
 PRs #34–#37 share ancestry and overlap; they are not independent changes that can be merged in arbitrary order. The reviewed evidence and follow-up probes were integrated into main through PR #37 (merge 58a1f8d88c96b93a54cdd7af536875039f286992) after explicit user authorization.
+
+## 2026-10-26 Mac outbound MCP candidate (M1/M2)
+
+Codex CLI0.146.0/darwin arm64: **verified native outbound calls for all seven mesh tools**, using a new isolated HOME/CODEX_HOME and deterministic localhost provider. The provider emits namespaced function calls; native item/completed mcpToolCall events, arguments and real Gateway results are checked. This verifies invocation capability, not autonomous model planning or physical cross-host execution. Four mutating local fixture tool policies were explicitly authorized by the operator; native receiver writes remain declined.
+
+Same-host Codex caller→MCP→Gateway→Gateway→Codex receiver and the existing six-stage native lifecycle probe both pass on clean source73364a1. Windows Harness outbound, physical B1/B2/B3 and existing GUI remain unknown/unverified. See [raw reports, failed attempts and limits](evidence/codex-mcp/mac-20261026T062052Z/SUMMARY.md) and [reproduction](MAC_CODEX_MCP_ACCEPTANCE.md). This candidate does not close #17/#19 or change production capabilities.

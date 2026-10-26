@@ -1,3 +1,5 @@
+> **Mac 候选增量（2026-10-26）**：M1真实Codex原生调用七个Mesh MCP工具、M2同机Codex接收方及生命周期均已在干净73364a1源通过。[原样证据](evidence/codex-mcp/mac-20261026T062052Z/SUMMARY.md)保留默认审批拒绝及失败记录；仅四个本机fixture工具获本聊天明确测试例外，接收方native写入仍decline。跨实体E0–E5/B1–B3及Windows主动出站未验证；M3等待Windows新runner提交，#15/#17/#18/#19保持开放。
+
 > **最新执行状态（2026-10-26）**：PR #63 已合入 `main`（`0f2f38af`），[合并后四组 CI 均成功](https://github.com/EchoTouch-moon/lan-agent-mesh/actions/runs/40212173437)。Codex 和 DSH 的相同组合源本机 native+loopback fixture 已分别验收；实体 W3 Mock 两轮记录仍有跨 SHA/部分来源限制，真正 Harness 主动 MCP 出站和跨实体双向尚未验证。旧计划部分“PR 尚未合并”是历史快照，**以 [2026-10-26 双端下一阶段计划](NEXT_PHASE_2026-10-26.md) 为准**。#15/#17/#18/#19 保持开放；#45 仍排除。禁止由代码集成推断真实模型或审批权限放行。
 
 # Implementation Roadmap
