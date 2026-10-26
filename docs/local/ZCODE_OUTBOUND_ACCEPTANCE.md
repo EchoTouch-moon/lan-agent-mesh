@@ -25,10 +25,13 @@ Windows 侧 **NOT-RUN**（按 Issue 要求独立复验，不借用本结论）�
   环境中的任何真实凭据变量不会进入被测进程；用户全局 `~/.zcode`、真实凭据、GUI 一律未触碰；
   推理经 loopback Chat Completions 定值响应（假 key）
 - 探针自带**硬断言门**（数量以报告 `assertions[]` 实数为准，当前 16 项）：任一关键证据缺失/为假
-  → 脚本以非零退出码结束并逐项列出。断言含双向互斥校验（权限：原生请求⇒零执行 / 无请求⇒恰好
-  一次）、进程退出必须 `code=0,signal=null`（SIGKILL 不算干净退出）、执行日志全量簿记（工具/短语
-  白名单 + 总数 = 预期 + 日志首行 `runId` 归属匹配）。另有**免 ZCode 的门自测**
-  （`--self-test`，19 个合成违规逐门注入，全部必须被判 FAIL），证明每个断言真的会失败
+  → 脚本以非零退出码结束并逐项列出。断言含**完整拒绝链**校验（权限：原生请求 + `deny` 决策 +
+  后续请求拒绝回执 + 零执行，四者同时成立；无请求分支则必须恰好一次执行）、进程退出必须
+  `code=0,signal=null`（SIGKILL 不算干净退出）、执行日志全量簿记（工具/短语白名单 + 总数 = 预期 +
+  日志首行 `runId` 归属匹配）。`externalModelRequests` 定性为**记账不变量**（唯一推理端点是 loopback
+  fixture），不声称独立外呼检测。两个免 ZCode 自测已进入 CI
+  （`packages/runtime/test/lhi-probe-selftests.test.ts`）：contract server 对官方 SDK 客户端的
+  standalone 自测 + 门自测（23 个合成违规逐门注入，全部必须被判 FAIL）
 - MCP 注册（官方 07-mcp.md 合同原文形态）：`{ "mcp": { "servers": { "lam-lhi": { "type": "stdio",
   "command": "<node>", "args": ["<repo>/scripts/lhi-zcode-mcp-contract.mjs", "--stdio"],
   "enabled": true, "timeoutMs": 5000 } } } }`
@@ -61,7 +64,10 @@ Windows 侧 **NOT-RUN**（按 Issue 要求独立复验，不借用本结论）�
   **绝不按共享脚本名杀进程**（其它并行实验跑同一脚本不受影响）；server 日志首行自报
   `pid + runId` 提供归属证明；SIGKILL 前逐一 `ps` 验证命令行含唯一标记
 - 两个 app-server 进程（主会话 / 禁用对照）均**自然退出 `code=0, signal=null`**
-- 关闭后唯一标记扫描：**clean**（无孤儿）
+- 关闭后唯一标记扫描结果分四种：**clean**（pgrep 明确无匹配）/ `owned-orphans-killed`（本运行
+  孤儿已处置）/ `unresolved-findings`（存在未能确认归属/处置的发现）/ `check-failed`（pgrep 缺失、
+  超时或异常退出码——**无法完成检查**）。仅 `clean`（及 Windows 的 `unsupported`）通过断言门，
+  扫描失败绝不被当作清理成功
 - 一次性 HOME 删除以 `stat` 判定，**仅 `ENOENT` 视为已删除**（EISDIR/EACCES 等一律算失败）
 
 ## 5. 观察与限制（如实记录）

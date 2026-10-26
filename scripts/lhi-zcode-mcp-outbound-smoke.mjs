@@ -287,30 +287,42 @@ try {
   catch { report.mcpServerLog = null; }
   // Orphan cleanup targets ONLY processes belonging to this run: the MCP child's argv carries
   // the per-run marker; the app-server ran with --cwd under the per-run disposable home.
-  // Anything matching the shared script name alone is recorded, never killed.
+  // Scan outcomes are distinguished: pgrep exit 1 is a definitive no-match; any other scan
+  // failure (missing binary, timeout) is 'check-failed' and NEVER counts as clean. Anything
+  // matching the shared script name alone is recorded, never killed.
   if (process.platform !== 'win32') {
     await new Promise(resolve => setTimeout(resolve, 300));
     const ownedMarkers = [mcpChildMarker, root];
-    const observed = [];
+    const findings = [];
+    const scanErrors = [];
     for (const marker of ownedMarkers) {
-      try {
-        const { stdout } = await execFileAsync('pgrep', ['-f', marker], { timeout: 5000 });
-        for (const line of stdout.trim().split('\n').filter(Boolean)) {
-          const pid = Number(line);
-          if (!Number.isInteger(pid) || pid === process.pid) continue;
-          let command = '';
-          try { ({ stdout: command } = await execFileAsync('ps', ['-p', String(pid), '-o', 'command='], { timeout: 5000 })); }
-          catch { /* exited between pgrep and ps */ }
-          const owned = ownedMarkers.some(m => command.includes(m));
-          const entry = { pid, command: redactProbeText(command.trim(), root).slice(0, 200), owned };
-          if (owned) { try { process.kill(pid, 'SIGKILL'); entry.killed = true; } catch { entry.killed = false; } }
-          observed.push(entry);
-        }
-      } catch { /* pgrep exit 1 = no match */ }
+      let stdout = '';
+      try { ({ stdout } = await execFileAsync('pgrep', ['-f', marker], { timeout: 5000 })); }
+      catch (error) {
+        if (error.code === 1) continue; // pgrep: definitively no match for this marker
+        scanErrors.push(String(error.message ?? error).slice(0, 120));
+        continue;
+      }
+      for (const line of stdout.trim().split('\n').filter(Boolean)) {
+        const pid = Number(line);
+        if (!Number.isInteger(pid) || pid === process.pid) continue;
+        let command = '';
+        let psVerified = true;
+        try { ({ stdout: command } = await execFileAsync('ps', ['-p', String(pid), '-o', 'command='], { timeout: 5000 })); }
+        catch { psVerified = false; }
+        const owned = psVerified && ownedMarkers.some(m => command.includes(m));
+        const entry = { pid, command: psVerified ? redactProbeText(command.trim(), root).slice(0, 200) : null, owned, psVerified };
+        if (owned) { try { process.kill(pid, 'SIGKILL'); entry.killed = true; } catch { entry.killed = false; } }
+        findings.push(entry);
+      }
     }
-    report.cleanup.orphans = observed.length
-      ? { status: 'owned-orphans-killed', found: observed }
-      : { status: 'clean' };
+    report.cleanup.orphans = scanErrors.length
+      ? { status: 'check-failed', scanErrors, findings }
+      : findings.length === 0
+        ? { status: 'clean' }
+        : findings.every(entry => entry.owned && entry.killed)
+          ? { status: 'owned-orphans-killed', findings }
+          : { status: 'unresolved-findings', findings };
   } else report.cleanup.orphans = { status: 'unsupported-on-windows' };
   await rm(root, { recursive: true, force: true });
   // Removal proof: pass only on a definitive ENOENT from stat; any other outcome (exists,
@@ -338,10 +350,16 @@ function evaluateAssertions(reportData, context) {
   const toolCount = tool => invocationEntries.filter(entry => entry.tool === tool).length;
   const permission = reportData.results?.permissionProbe ?? {};
   const permExecutions = phraseCount('lhi-perm');
+  // Two-sided, full-chain permission check. If a native request was observed, the denial
+  // chain must be complete: our deny decision, a denied/error receipt back to the model,
+  // and zero executions. If no request was observed, the tool must have executed exactly
+  // once (the deterministic tool_call cannot vanish). Anything else fails.
   const permissionBranchConsistent =
-    permission.nativeRequestObserved === true ? permExecutions === 0
-    : permission.nativeRequestObserved === false ? permExecutions === 1
-    : false;
+    permission.nativeRequestObserved === true
+      ? permission.nativeDecision === 'deny' && permission.followupMentionsDeniedOrError === true && permExecutions === 0
+      : permission.nativeRequestObserved === false
+        ? permExecutions === 1
+        : false;
   const allowedPhrases = new Set(['lhi-positive', 'lhi-perm']);
   const unexpectedExecutions = invocationEntries.filter(entry =>
     (entry.tool === 'probe_echo' && !allowedPhrases.has(entry.args?.phrase)) ||
@@ -364,9 +382,9 @@ function evaluateAssertions(reportData, context) {
   gate('wrong-type-fail-closed', reportData.negatives?.wrongTypeParam?.followupMentionsValidationError === true && reportData.negatives?.wrongTypeTurn?.eventType === 'turn.completed');
   gate('timeout-fail-closed', reportData.negatives?.timeout?.followupMentionsTimeoutOrError === true && reportData.negatives?.timeoutDurationMs > 3000 && reportData.negatives?.timeoutDurationMs < 20000, `${reportData.negatives?.timeoutDurationMs}ms`);
   gate('disabled-control', reportData.negatives?.disabledMcp?.advertisedContainsEcho === false && reportData.negatives?.disabledMcp?.followupMentionsError === true);
-  gate('permission-branch-consistent', permissionBranchConsistent, JSON.stringify({ nativeRequestObserved: permission.nativeRequestObserved ?? null, lhiPermExecutions: permExecutions }));
+  gate('permission-branch-consistent', permissionBranchConsistent, JSON.stringify({ nativeRequestObserved: permission.nativeRequestObserved ?? null, nativeDecision: permission.nativeDecision ?? null, followupMentionsDeniedOrError: permission.followupMentionsDeniedOrError ?? null, lhiPermExecutions: permExecutions }));
   gate('no-unexpected-executions', unexpectedExecutions.length === 0 && executionsBookkeeping && logBelongsToRun, JSON.stringify({ unexpected: unexpectedExecutions.length, total: invocationEntries.length, expected: 2 + permExecutions, logBelongsToRun }));
-  gate('no-external-models', reportData.externalModelRequests === 0);
+  gate('no-external-model-requests-accounted', reportData.externalModelRequests === 0, 'accounting invariant: the loopback fixture is the only configured inference endpoint (provider baseUrl); this is bookkeeping, not independent network-egress detection');
   gate('app-server-clean-exits', cleanExit(reportData.cleanup?.appServerExitFirst) && cleanExit(reportData.cleanup?.appServerExitSecond), JSON.stringify({ first: reportData.cleanup?.appServerExitFirst ?? null, second: reportData.cleanup?.appServerExitSecond ?? null }));
   gate('no-orphan-processes', ['clean', 'unsupported-on-windows'].includes(reportData.cleanup?.orphans?.status), reportData.cleanup?.orphans?.status ?? null);
   gate('disposable-home-removed', reportData.cleanup?.disposableHomeRemoved === true && !reportData.cleanup?.disposableHomeRemovalError, reportData.cleanup?.disposableHomeRemovalError ?? null);
@@ -382,7 +400,7 @@ function gateSelfTest() {
     results: {
       advertisedFirstTurn: { eventType: 'turn.completed', resultType: 'success' },
       resultCorrelation: { observedInFollowupRequest: true },
-      permissionProbe: { nativeRequestObserved: true },
+      permissionProbe: { nativeRequestObserved: true, nativeDecision: 'deny', followupMentionsDeniedOrError: true },
     },
     negatives: {
       unknownTool: { followupMentionsError: true }, unknownToolTurn: { eventType: 'turn.completed' },
@@ -414,12 +432,16 @@ function gateSelfTest() {
     ['timeout-fail-closed', (r) => { r.negatives.timeoutDurationMs = 100; }],
     ['disabled-control', (r) => { r.negatives.disabledMcp.advertisedContainsEcho = true; }],
     ['permission-branch-consistent', (r) => { r.mcpServerLog.push({ tool: 'probe_echo', phase: 'invoked', args: { phrase: 'lhi-perm' } }); }],
+    ['permission-branch-consistent', (r) => { r.results.permissionProbe.nativeDecision = undefined; }],
+    ['permission-branch-consistent', (r) => { r.results.permissionProbe.followupMentionsDeniedOrError = false; }],
+    ['permission-branch-consistent', (r) => { delete r.results.permissionProbe; }],
     ['no-unexpected-executions', (r) => { r.mcpServerLog.push({ tool: 'rogue_tool', phase: 'invoked', args: {} }); }],
     ['no-unexpected-executions', (r) => { r.mcpServerLog.push({ tool: 'probe_echo', phase: 'invoked', args: { phrase: 'stray-phrase' } }); }],
-    ['no-unexpected-executions', (r, c) => { r.mcpServerLog[0].runId = 'a-different-run'; c.runId = runId; }],
-    ['no-external-models', (r) => { r.externalModelRequests = 1; }],
+    ['no-unexpected-executions', (r) => { r.mcpServerLog[0].runId = 'a-different-run'; }],
+    ['no-external-model-requests-accounted', (r) => { r.externalModelRequests = 1; }],
     ['app-server-clean-exits', (r) => { r.cleanup.appServerExitSecond = { code: null, signal: 'SIGKILL' }; }],
-    ['no-orphan-processes', (r) => { r.cleanup.orphans = { status: 'owned-orphans-killed', found: [] }; }],
+    ['no-orphan-processes', (r) => { r.cleanup.orphans = { status: 'check-failed', scanErrors: ['pgrep: command not found'], findings: [] }; }],
+    ['no-orphan-processes', (r) => { r.cleanup.orphans = { status: 'unresolved-findings', findings: [{ pid: 1, owned: false }] }; }],
     ['disposable-home-removed', (r) => { r.cleanup.disposableHomeRemoved = false; r.cleanup.disposableHomeRemovalError = 'EISDIR'; }],
   ];
   const happy = evaluateAssertions(happyReport(), happyContext);
