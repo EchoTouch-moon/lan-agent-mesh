@@ -55,7 +55,7 @@ Windows 侧 **NOT-RUN**（按 Issue 要求独立复验，不借用本结论）�
 | 类型违规 `phrase: 12345` | 后续请求含 schema 校验错误（"expected string"类）；无执行 |
 | 服务端挂起 `probe_hang` | server 记录 1 次调用后不返回；harness 约 **5075ms**（≈配置 5000ms `timeoutMs`）后放弃并回错误；turn 完成 |
 | 配置级禁用（`features.mcp:false`，新 app-server 进程） | advertised 从 19 → 17，**不含** fixture 工具；强制发起调用得到错误回执；server 端零执行（JSONL 仅 echo+hang+权限用例） |
-| **原生权限门（build 模式，r4 新增）** | build 模式下对 `probe_echo` 的 tool-call **触发了原生 `interaction/requestPermission`**；探针回复 deny 后：工具**零执行**（`lhi-perm` 计数 0）、后续请求含 denied/error 回执、turn 正常收束——完整 fail-closed 链 |
+| **原生权限门（build 模式，r4 起测，r8 起为硬性要求）** | build 模式下对 `probe_echo` 的 tool-call **触发了原生 `interaction/requestPermission`**；探针回复 deny 后：工具**零执行**（`lhi-perm` 计数 0）、后续请求含 denied/error 回执、turn 正常收束。**断言门要求完整 deny 链四要素同时成立**；若整轮未发生原生权限请求（工具直接执行），不构成 Native Deny 证明，该门 FAIL（"无权限门"本身按 finding 处理，不再是可过的观察分支） |
 
 ## 4a. 清理与进程证据（r5 起）
 
@@ -66,8 +66,9 @@ Windows 侧 **NOT-RUN**（按 Issue 要求独立复验，不借用本结论）�
 - 两个 app-server 进程（主会话 / 禁用对照）均**自然退出 `code=0, signal=null`**
 - 关闭后唯一标记扫描结果分四种：**clean**（pgrep 明确无匹配）/ `owned-orphans-killed`（本运行
   孤儿已处置）/ `unresolved-findings`（存在未能确认归属/处置的发现）/ `check-failed`（pgrep 缺失、
-  超时或异常退出码——**无法完成检查**）。仅 `clean`（及 Windows 的 `unsupported`）通过断言门，
-  扫描失败绝不被当作清理成功
+  超时或异常退出码——**无法完成检查**）。**仅 `clean` 通过断言门**：清理验证没有实际执行
+  （如 Windows 暂无等价扫描）即 `unsupported`，同样算 FAIL——未来 Windows 原生运行必须先实现
+  本平台扫描才能通过本门
 - 一次性 HOME 删除以 `stat` 判定，**仅 `ENOENT` 视为已删除**（EISDIR/EACCES 等一律算失败）
 
 ## 5. 观察与限制（如实记录）
