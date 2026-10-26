@@ -2,7 +2,7 @@
   "taskId": "W4-W5 (W6 documented)",
   "issue": "https://github.com/EchoTouch-moon/lan-agent-mesh/issues/94",
   "baseline": "PR #92 head 7209be13f51dd2f193674aa6dde3fce527dd1f82 merged into win/w4-w6-zcode-native-20261027; NOT based on main; #92/#93 remain open",
-  "testedSourceSha": "d13cb2d25d671c33ddb6feb69b35324dec020913",
+  "testedSourceSha": "3d58146f7e594d5056c8078350849ef226f217f9",
   "host": { "platform": "win32", "osRelease": "10.0.22621", "node": "v24.12.0", "pnpm": "10.18.3" },
   "binary": { "name": "zcode.cjs", "sha256": "97490d0f06a7a225d54d47817acf4b4859cdb268b59f2490caaeda982bef063a", "bytes": 15242397, "version": "0.17.0", "desktop": "3.16.3" },
   "commands": [

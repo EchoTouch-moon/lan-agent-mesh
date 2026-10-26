@@ -3,7 +3,7 @@
   "platform": "win32",
   "node": "v24.12.0",
   "executedUtc": "2026-10-26T17:04Z",
-  "testedSourceSha": "d13cb2d25d671c33ddb6feb69b35324dec020913",
+  "testedSourceSha": "3d58146f7e594d5056c8078350849ef226f217f9",
   "result": "9 passed (9)",
   "note": "After PR #92 head 7209be1 syntheticPeer option; at 15a3535 the same suite fails 8/9 on Windows (platform gate), matching the failed CI runs 40362928617/40362921919."
 }

@@ -1,7 +1,7 @@
 {
   "platform": "win32",
   "node": "v24.12.0",
-  "startedUtc": "2026-10-26T17:03:37.994Z",
+  "startedUtc": "2026-10-26T17:06:44.096Z",
   "entry": {
     "name": "zcode.cjs",
     "sha256": "97490d0f06a7a225d54d47817acf4b4859cdb268b59f2490caaeda982bef063a",
@@ -28,7 +28,7 @@
     },
     "restart": {
       "resumeEcho": true,
-      "resumedIdentity": "sess_533643a3-3a25-4585-ac0e-f0f9c120c15f",
+      "resumedIdentity": "sess_664c2534-f658-4e88-a284-7b904c20e111",
       "afterRestart": "W4 NATIVE OK"
     },
     "processCheck": {
@@ -140,5 +140,5 @@
     }
   ],
   "verdict": "PASS",
-  "endedUtc": "2026-10-26T17:03:55.815Z"
+  "endedUtc": "2026-10-26T17:07:02.324Z"
 }
