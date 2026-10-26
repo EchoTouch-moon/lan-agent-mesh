@@ -223,8 +223,8 @@ try {
     server.closeAllConnections(); await new Promise(resolve => server.close(resolve));
   });
   await step('portsClosed', async () => assert.ok((await Promise.all(ports.map(portClosed))).every(Boolean)));
-  // Keep private data when native process termination is unknown.
-  if (cleanup.nativeProcessGroup === 'verified') await step('privateDataRemoved', async () => {
+  // Retain private data if any process, Gateway, fixture or port cleanup is uncertain.
+  if (Object.values(cleanup).every(value => value === 'verified')) await step('privateDataRemoved', async () => {
     await rm(root, { recursive: true, force: true }); await assert.rejects(access(root), { code: 'ENOENT' });
   });
   report.cleanup = cleanup;
