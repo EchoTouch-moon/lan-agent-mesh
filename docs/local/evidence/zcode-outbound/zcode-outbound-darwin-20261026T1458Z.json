@@ -1,0 +1,570 @@
+{
+  "harness": "zcode",
+  "probe": "lhi-zcode-mcp-outbound-smoke",
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "inference": "localhost deterministic fixture; no external model",
+  "externalModelRequests": 0,
+  "fixtureRequests": 12,
+  "results": {
+    "runtimeCapabilities": {
+      "status": "verified"
+    },
+    "create": {
+      "status": "verified"
+    },
+    "advertisedNames": {
+      "echoToolName": "mcp__lam-lhi__probe_echo",
+      "hangToolName": "mcp__lam-lhi__probe_hang",
+      "advertisedCount": 19,
+      "advertisedSample": [
+        "AskUserQuestion",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "CronUpdate",
+        "Edit",
+        "EnterPlanMode",
+        "ExitPlanMode",
+        "Read",
+        "TaskOutput",
+        "TaskStop",
+        "TodoRead",
+        "TodoWrite",
+        "WebFetch",
+        "Write",
+        "ReadSessionContext",
+        "mcp__lam-lhi__probe_echo",
+        "mcp__lam-lhi__probe_hang"
+      ]
+    },
+    "resultCorrelation": {
+      "observedInFollowupRequest": true,
+      "followupMentionsToolResult": true
+    },
+    "advertisedFirstTurn": {
+      "accepted": true,
+      "eventType": "turn.completed",
+      "resultType": "success",
+      "eventTypes": [
+        "turn.started",
+        "turn.completed"
+      ],
+      "toolMentions": []
+    },
+    "toolCall": {
+      "advertisedName": "mcp__lam-lhi__probe_echo",
+      "hangAdvertisedName": "mcp__lam-lhi__probe_hang",
+      "issued": true
+    },
+    "permissionProbe": {
+      "nativeRequestObserved": true,
+      "nativeDecision": "deny",
+      "followupMentionsDeniedOrError": true
+    },
+    "permissionTurn": {
+      "accepted": true,
+      "eventType": "turn.completed",
+      "resultType": "success",
+      "eventTypes": [
+        "turn.started",
+        "turn.completed"
+      ],
+      "toolMentions": []
+    }
+  },
+  "negatives": {
+    "unknownTool": {
+      "followupMentionsError": true
+    },
+    "unknownToolTurn": {
+      "accepted": true,
+      "eventType": "turn.completed",
+      "resultType": "success",
+      "eventTypes": [
+        "turn.started",
+        "turn.completed"
+      ],
+      "toolMentions": []
+    },
+    "wrongTypeParam": {
+      "followupMentionsValidationError": true
+    },
+    "wrongTypeTurn": {
+      "accepted": true,
+      "eventType": "turn.completed",
+      "resultType": "success",
+      "eventTypes": [
+        "turn.started",
+        "turn.completed"
+      ],
+      "toolMentions": []
+    },
+    "timeout": {
+      "followupMentionsTimeoutOrError": true
+    },
+    "timeoutTurn": {
+      "accepted": true,
+      "eventType": "turn.completed",
+      "resultType": "success",
+      "eventTypes": [
+        "turn.started",
+        "turn.completed"
+      ],
+      "toolMentions": []
+    },
+    "timeoutDurationMs": 5075,
+    "disabledMcp": {
+      "advertisedContainsEcho": false,
+      "advertisedCount": 17,
+      "followupMentionsError": true
+    },
+    "disabledMcpTurn": {
+      "accepted": true,
+      "eventType": "turn.completed",
+      "resultType": "success",
+      "eventTypes": [
+        "turn.started",
+        "turn.completed"
+      ],
+      "toolMentions": []
+    }
+  },
+  "startup": {
+    "storageStates": [
+      {
+        "phase": "checking",
+        "elapsedMs": 0
+      },
+      {
+        "phase": "checking",
+        "elapsedMs": 0
+      },
+      {
+        "phase": "checking",
+        "elapsedMs": 1
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 3
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 3
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 4
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 4
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 4
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 5
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 6
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 7
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 8
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 9
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 10
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 10
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 10
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 11
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 12
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 12
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 12
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 13
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 14
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 14
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 17
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 18
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 18
+      },
+      {
+        "phase": "migrating",
+        "elapsedMs": 19
+      },
+      {
+        "phase": "committing",
+        "elapsedMs": 19
+      },
+      {
+        "phase": "ready",
+        "elapsedMs": 20
+      },
+      {
+        "phase": "checking",
+        "elapsedMs": 0
+      },
+      {
+        "phase": "checking",
+        "elapsedMs": 0
+      },
+      {
+        "phase": "checking",
+        "elapsedMs": 2
+      },
+      {
+        "phase": "committing",
+        "elapsedMs": 3
+      },
+      {
+        "phase": "ready",
+        "elapsedMs": 3
+      }
+    ],
+    "preferenceRequests": [
+      {
+        "scope": "runtime-materialization"
+      },
+      {
+        "scope": "user-execution"
+      },
+      {
+        "scope": "runtime-materialization"
+      },
+      {
+        "scope": "user-execution"
+      }
+    ],
+    "preferenceReplies": 4,
+    "logs": [
+      {
+        "event": "mcp.tool.call",
+        "level": "warn",
+        "status": "failed",
+        "durationMs": 5003,
+        "message": "MCP tool call failed"
+      },
+      {
+        "event": "tool.call.failed",
+        "level": "error",
+        "status": "failed",
+        "durationMs": 5004,
+        "message": "Tool call failed",
+        "error": {
+          "name": "Error",
+          "code": "TOOL_TIMEOUT",
+          "message": "Tool execution timed out after 5000ms"
+        }
+      },
+      {
+        "event": "zcode_protocol.startup.started",
+        "level": "info",
+        "status": "started",
+        "durationMs": 0,
+        "message": "ZCode Protocol agent startup started"
+      },
+      {
+        "event": "zcode_protocol.startup.storage_state",
+        "level": "info",
+        "message": "SQLite startup state"
+      },
+      {
+        "event": "zcode_protocol.startup.storage_state",
+        "level": "info",
+        "message": "SQLite startup state"
+      },
+      {
+        "event": "zcode_protocol.startup.storage_state",
+        "level": "info",
+        "message": "SQLite startup state"
+      },
+      {
+        "event": "zcode_protocol.startup.storage_state",
+        "level": "info",
+        "message": "SQLite startup state"
+      },
+      {
+        "event": "zcode_protocol.startup.storage_state",
+        "level": "info",
+        "message": "SQLite startup state"
+      },
+      {
+        "event": "zcode_protocol.startup.completed",
+        "level": "info",
+        "status": "completed",
+        "durationMs": 66,
+        "message": "ZCode Protocol agent startup completed"
+      },
+      {
+        "event": "zcode_protocol.session_create.started",
+        "level": "info",
+        "status": "started",
+        "message": "ZCode Protocol session/create started"
+      },
+      {
+        "event": "zcode_protocol.create_record.mcp_config",
+        "level": "info",
+        "message": "ZCode Protocol createRecord MCP config"
+      },
+      {
+        "event": "bootstrap.app.startup.started",
+        "level": "info",
+        "status": "started",
+        "durationMs": 0,
+        "message": "ZCode app startup started"
+      },
+      {
+        "event": "bootstrap.app.startup.config.completed",
+        "level": "info",
+        "status": "completed",
+        "durationMs": 1,
+        "message": "ZCode app configuration loaded"
+      },
+      {
+        "event": "bootstrap.app.startup.plugins.completed",
+        "level": "info",
+        "status": "completed",
+        "durationMs": 88,
+        "message": "ZCode plugins resolved"
+      },
+      {
+        "event": "bootstrap.app.startup.runtime_config.completed",
+        "level": "info",
+        "status": "completed",
+        "durationMs": 1,
+        "message": "ZCode runtime configuration resolved"
+      },
+      {
+        "event": "bootstrap.app.startup.storage.completed",
+        "level": "info",
+        "status": "completed",
+        "durationMs": 0,
+        "message": "ZCode storage adapters initialized"
+      },
+      {
+        "event": "bootstrap.app.startup.mcp.completed",
+        "level": "info",
+        "status": "completed",
+        "durationMs": 0,
+        "message": "ZCode MCP adapter initialized"
+      },
+      {
+        "event": "bootstrap.app.startup.runtime.completed",
+        "level": "info",
+        "status": "completed",
+        "durationMs": 3,
+        "message": "ZCode runtime constructed"
+      },
+      {
+        "event": "bootstrap.app.startup.completed",
+        "level": "info",
+        "status": "completed",
+        "durationMs": 93,
+        "message": "ZCode app startup completed"
+      },
+      {
+        "event": "session.model_selection.persist_failed",
+        "level": "warn",
+        "status": "failed",
+        "message": "Session model selection persistence failed"
+      },
+      {
+        "event": "zcode_protocol.session_create.completed",
+        "level": "info",
+        "status": "completed",
+        "durationMs": 191,
+        "message": "ZCode Protocol session/create completed"
+      },
+      {
+        "event": "tool.call.not_found",
+        "level": "warn",
+        "status": "failed",
+        "message": "Tool call rejected because the tool is not registered"
+      }
+    ]
+  },
+  "entry": {
+    "path": "/Applications/ZCode.app/Contents/Resources/glm/zcode.cjs",
+    "sha256": "97490d0f06a7a225d54d47817acf4b4859cdb268b59f2490caaeda982bef063a",
+    "cliVersion": "0.17.0"
+  },
+  "cleanup": {
+    "appServerExitFirst": {
+      "code": 0,
+      "signal": null
+    },
+    "appServerExitSecond": {
+      "code": 0,
+      "signal": null
+    },
+    "fixtureRequests": 12,
+    "externalModelRequests": 0,
+    "orphans": {
+      "status": "clean"
+    },
+    "disposableHomeRemoved": true
+  },
+  "stage": "complete",
+  "diagnostics": {
+    "exit": {
+      "code": 0,
+      "signal": null
+    },
+    "stderrTail": "",
+    "stdoutTextTail": ""
+  },
+  "mcpServerLog": [
+    {
+      "ts": "2026-10-26T14:53:58.432Z",
+      "phase": "startup",
+      "pid": 33656,
+      "runId": "9974f59a-9f03-4c21-b745-909dbfe63240"
+    },
+    {
+      "ts": "2026-10-26T14:53:58.640Z",
+      "phase": "startup",
+      "pid": 33702,
+      "runId": "9974f59a-9f03-4c21-b745-909dbfe63240"
+    },
+    {
+      "ts": "2026-10-26T14:53:58.771Z",
+      "tool": "probe_echo",
+      "phase": "invoked",
+      "args": {
+        "phrase": "lhi-positive"
+      }
+    },
+    {
+      "ts": "2026-10-26T14:53:59.477Z",
+      "tool": "probe_hang",
+      "phase": "invoked",
+      "args": {}
+    }
+  ],
+  "assertions": [
+    {
+      "name": "advertised-echo-name",
+      "pass": true,
+      "detail": "mcp__lam-lhi__probe_echo"
+    },
+    {
+      "name": "positive-turn-completed",
+      "pass": true
+    },
+    {
+      "name": "result-correlation",
+      "pass": true
+    },
+    {
+      "name": "echo-executed-exactly-once",
+      "pass": true,
+      "detail": "count=1"
+    },
+    {
+      "name": "hang-invoked-exactly-once",
+      "pass": true,
+      "detail": "count=1"
+    },
+    {
+      "name": "disabled-no-execution",
+      "pass": true,
+      "detail": "count=0"
+    },
+    {
+      "name": "unknown-tool-fail-closed",
+      "pass": true
+    },
+    {
+      "name": "wrong-type-fail-closed",
+      "pass": true
+    },
+    {
+      "name": "timeout-fail-closed",
+      "pass": true,
+      "detail": "5075ms"
+    },
+    {
+      "name": "disabled-control",
+      "pass": true
+    },
+    {
+      "name": "permission-branch-consistent",
+      "pass": true,
+      "detail": "{\"nativeRequestObserved\":true,\"lhiPermExecutions\":0}"
+    },
+    {
+      "name": "no-unexpected-executions",
+      "pass": true,
+      "detail": "{\"unexpected\":0,\"total\":2,\"expected\":2,\"logBelongsToRun\":true}"
+    },
+    {
+      "name": "no-external-models",
+      "pass": true
+    },
+    {
+      "name": "app-server-clean-exits",
+      "pass": true,
+      "detail": "{\"first\":{\"code\":0,\"signal\":null},\"second\":{\"code\":0,\"signal\":null}}"
+    },
+    {
+      "name": "no-orphan-processes",
+      "pass": true,
+      "detail": "clean"
+    },
+    {
+      "name": "disposable-home-removed",
+      "pass": true,
+      "detail": null
+    }
+  ],
+  "verdict": "PASS"
+}
