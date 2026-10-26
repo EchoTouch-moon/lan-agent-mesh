@@ -8,6 +8,7 @@ import { execFileSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import { parseArgs } from 'node:util';
+import { URL } from 'node:url';
 import { Gateway } from '../packages/runtime/dist/index.js';
 import { CodexAdapter } from '../packages/codex-adapter/dist/index.js';
 import { CodexRpc } from '../packages/codex-adapter/dist/rpc.js';
