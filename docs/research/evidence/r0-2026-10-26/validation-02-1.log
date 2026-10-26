@@ -1,0 +1,14 @@
+PASS lock schema, pinned evidence URLs and license sanity (11 entries)
+PASS rejected: floating source commit
+PASS rejected: unknown license promoted
+PASS rejected: missing license source
+PASS rejected: mutable API URL
+PASS rejected: documentary evidence called verified
+PASS rejected: UNKNOWN forged terminal
+PASS rejected: UNKNOWN mapped to failed
+PASS rejected: cancel accepted equals terminal
+PASS rejected: unauthenticated SDK entry
+PASS rejected: revoked scope continues access
+PASS rejected: research authorizes runtime
+Evidence class: docs contract validation; no auth server, sandbox, Harness or A2A conformance executed.
+Validator: Ajv 6.15.0

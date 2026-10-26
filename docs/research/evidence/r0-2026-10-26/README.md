@@ -18,3 +18,5 @@
 `source-02/sources.json` 与 `validation-02*` 补录实际 API 定义，并将最终 lock 与两份来源快照离线交叉核验；source-01 和 validation-01 保持原样。validation-01 的 `cleanup.newServiceListeners=0` 仅指本轮上游研究未启动 listener，不能解释为 pnpm check 没有启动既有 loopback Mock。既有测试确实启动 synthetic Gateway/MCP，107 通过、4 跳过；未另做端口/进程残留审计，独立清理证据为 unknown。后续报告使用更明确字段，不改原件。
 
 MCP registry 元数据没有 gitHead，发行物与所选 source tag 的字节对应仍 unknown；A2A SDK registry gitHead 与选定 commit 一致。所有 integrity 是 registry 声明值，本轮未下载 tarball 比对或核验签名。
+
+本地正式验证：validation-01 在干净 `1bc3477922079a1e9ecd9f10dd8bdf08f9c41864`，validation-02 在干净 `d73157cb9fffd6c44d02e7dd2dfef0c2b25e8bc4` 的完整 SHA 见 JSON。增量仅为文档 API 来源和 Python 审查工具，无运行代码/依赖变化，未重复 pnpm check；最终 PR 的既有四组 CI 独立覆盖最终分支。

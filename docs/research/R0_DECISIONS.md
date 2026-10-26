@@ -66,7 +66,7 @@ SDK 特别边界：
 | AgentBridge | crate 0.5.0，Unix signal / Windows TerminateProcess 分支只是源码，不是完整树回收证据 | `a2a-lf@0.4.2` / `a2a-server-lf@0.5.3` 与 SLIM/DID/目录集成；不是 JS SDK 或 v1.0 conformance 证据 | STUDY；Codex profile 带 bypass approvals/sandbox，禁止直接复用；保留现有 Adapter/native default-deny |
 | ANP | 协议文档，非跨平台 SDK/安装包；Mac/Win native 支持 N/A | DID-WBA 的 Web/DNS/HTTPS 解析；身份/描述/元协议子规范成熟度不同，vnext 不等于 release；吊销缓存和人类 pairing 映射 unknown | STUDY；不强制 DID、不替换 local trust；未来禁用联邦解析即可回退 |
 | AgentLink | Node>=20；有 Windows 脚本/平台分支，完整双端行为 unknown | relay 默认 loopback 127.0.0.1:8787，可自托管；ngrok、legacy MCP、ws/zod，Electron 在 devDependencies；真实 Harness 可需账户 | STUDY；不跑 install-mcp/host/desktop，不继承配置；审批 Inbox 不等于 native 工具权限；无集成即无需运行回退 |
-| OpenAgents | tag v0.8.5 的 manifest 其实 0.8.5.post4；Python>=3.8 与 README Python3.10+ 不一致；无本机验证 | workspace/server/Studio；grpcio/crypto/openai/mcp 等宽范围依赖，模型 provider 视配置；默认安全监听完整审查 unknown | DEFER；不整包迁移；不启动默认 server，保留 Gateway 独立部署 |
+| OpenAgents | tag v0.8.5 的 manifest 其实 0.8.5.post4；Python>=3.8 与 README Python3.10+ 不一致；无本机验证 | workspace/server/Studio；grpcio/crypto/openai/mcp 等宽范围依赖，模型 provider 视配置；默认安全监听完整审查 unknown；固定 A2A transport 源文件明确以 v0.3 为依据，不能当 v1.0 | DEFER；不整包迁移；不启动默认 server，保留 Gateway 独立部署 |
 | AgentTorrent | Python>=3.11，PyNaCl；CI 仅 Linux+真实本地模型，未运行；OS sandbox 等效性 unknown | TCP bind 空 host（所有接口），UDP discovery 47474；上游自述无 auth/传输加密/结果验证，环境/cwd 隔离不能推断 OS 沙箱 | STUDY；只作不同威胁模型对照，不能替换安全 transport；不启动 peer/模型 |
 
 关键源码导航：
@@ -89,6 +89,12 @@ SDK 特别边界：
 - [pyproject.toml](https://github.com/openagents-org/openagents/blob/5eab18f3592dee227ff479d40c365904dbc53f7c/pyproject.toml)
 - [agenttorrent/peer.py](https://github.com/raghavan/agent-torrent/blob/257d33386df4fc10b5464077565268a23d5a6e79/agenttorrent/peer.py)
 - [SECURITY.md](https://github.com/raghavan/agent-torrent/blob/257d33386df4fc10b5464077565268a23d5a6e79/SECURITY.md)
+
+## 版本变动评估与升级门
+
+本轮不追逐所有上游最新标签：A2A tags 另有 v1.0.1，但本 ADR 的规范来源明确固定 v1.0.0；未审查 patch diff，不能称其等价。SDK 1.3.0 的 v1.0 导出与 wire method 已读，完整字段/行为兼容仍须 R1/R2 官方客户端证明。Directory/SLIM/SHADI 的 proto/API、auth 默认值、Rust/Go 依赖与平台实现升级可能改变监听和权限；AgentBridge/ANP/AgentLink/OpenAgents/AgentTorrent 的版本号不能替代协议兼容证据。OpenAgents 固定 A2A transport 的文档头明确基于协议 v0.3，不能直接复用为 v1.0 Bridge。
+
+升级任一 pin 都需要独立 PR：比较已归档文件 hash 与 API/schema diff，重新审查许可/NOTICE、选用依赖图、监听/认证/缓存默认值、OS 支持与权限回退，再跑相应的拒绝/撤销/UNKNOWN/cancel 契约。历史 source-01/02 与失败原件不可被新版本覆盖；未审查字段标 unknown，不静默漂移。
 
 ## 4. 威胁模型与后续 Gate（不宣称本轮实测）
 

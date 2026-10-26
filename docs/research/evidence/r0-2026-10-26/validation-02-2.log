@@ -1,0 +1,3 @@
+PASS 11 lock entries and 89 source files have captured pin/API/license evidence
+PASS A2A npm gitHead matches source pin; MCP npm gitHead absent: artifact-to-source binding remains unknown
+No tarball contents, signature, transitive-license or vulnerability audit claimed.

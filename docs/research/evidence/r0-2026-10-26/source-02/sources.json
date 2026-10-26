@@ -1,0 +1,1580 @@
+{
+  "collectedAt": "2026-10-26T09:42:25.342119+00:00",
+  "evidenceClass": "documented",
+  "executedUpstreamCode": false,
+  "sources": [
+    {
+      "id": "mcp",
+      "repository": "modelcontextprotocol/typescript-sdk",
+      "commit": "951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5",
+      "pin": {
+        "url": "https://api.github.com/repos/modelcontextprotocol/typescript-sdk/commits/v2.4.0",
+        "startedAt": "2026-10-26T09:42:19.974850+00:00",
+        "finishedAt": "2026-10-26T09:42:21.656156+00:00",
+        "httpStatus": 200,
+        "sha256": "f15251b1738b27cb2b5817c43932dceaf102cc61b69f3e36705f86d3de376c15",
+        "resolvedCommit": "951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5",
+        "matchesLock": true
+      },
+      "files": [
+        {
+          "url": "https://raw.githubusercontent.com/modelcontextprotocol/typescript-sdk/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/packages/server/src/index.ts",
+          "startedAt": "2026-10-26T09:42:21.656525+00:00",
+          "finishedAt": "2026-10-26T09:42:22.967502+00:00",
+          "httpStatus": 200,
+          "sha256": "56019c46ba453ca783d08daf40b723d52f3c9c54a6e1afeeea4b20f73b127572",
+          "path": "packages/server/src/index.ts",
+          "gitBlobSha": "32605dd7e717deebe57303725385587325d37c3e",
+          "lineCount": 117,
+          "excerpts": [
+            {
+              "line": 1,
+              "text": "// Public API for @modelcontextprotocol/server."
+            },
+            {
+              "line": 2,
+              "text": "//"
+            },
+            {
+              "line": 3,
+              "text": "// This file defines the complete public surface. It consists of:"
+            },
+            {
+              "line": 4,
+              "text": "//   - Package-specific exports: listed explicitly below (named imports)"
+            },
+            {
+              "line": 5,
+              "text": "//   - Protocol-level types: re-exported from @modelcontextprotocol/core-internal/public"
+            },
+            {
+              "line": 6,
+              "text": "//"
+            },
+            {
+              "line": 7,
+              "text": "// Any new export added here becomes public API. Use named exports, not wildcards."
+            },
+            {
+              "line": 8,
+              "text": ""
+            },
+            {
+              "line": 38,
+              "text": "export { McpServer, ResourceTemplate } from './server/mcp';"
+            },
+            {
+              "line": 39,
+              "text": "// Runtime-neutral Bearer authentication for web-standard hosts; the Express"
+            },
+            {
+              "line": 40,
+              "text": "// middleware in @modelcontextprotocol/express adapts the same core."
+            },
+            {
+              "line": 41,
+              "text": "export type { BearerAuthOptions, OAuthTokenVerifier, VerifyBearerTokenOptions } from './server/middleware/bearerAuth';"
+            },
+            {
+              "line": 42,
+              "text": "export { bearerAuthChallengeResponse, requireBearerAuth, verifyBearerToken } from './server/middleware/bearerAuth';"
+            },
+            {
+              "line": 43,
+              "text": "export type { HostHeaderValidationResult } from './server/middleware/hostHeaderValidation';"
+            },
+            {
+              "line": 44,
+              "text": "export { hostHeaderValidationResponse, localhostAllowedHostnames, validateHostHeader } from './server/middleware/hostHeaderValidation';"
+            },
+            {
+              "line": 45,
+              "text": "// OAuth discovery documents (RFC 9728 / RFC 8414) for web-standard hosts; the"
+            },
+            {
+              "line": 46,
+              "text": "// Express metadata router in @modelcontextprotocol/express adapts the same core."
+            },
+            {
+              "line": 47,
+              "text": "export type { AuthMetadataOptions } from './server/middleware/oauthMetadata';"
+            },
+            {
+              "line": 48,
+              "text": "export {"
+            },
+            {
+              "line": 49,
+              "text": "    buildOAuthProtectedResourceMetadata,"
+            },
+            {
+              "line": 50,
+              "text": "    getOAuthProtectedResourceMetadataUrl,"
+            },
+            {
+              "line": 51,
+              "text": "    oauthMetadataResponse"
+            },
+            {
+              "line": 52,
+              "text": "} from './server/middleware/oauthMetadata';"
+            },
+            {
+              "line": 53,
+              "text": "export type { OriginValidationResult } from './server/middleware/originValidation';"
+            },
+            {
+              "line": 62,
+              "text": "export { Server } from './server/server';"
+            },
+            {
+              "line": 63,
+              "text": "// subscriptions/listen change-event sourcing seam (protocol revision 2026-07-28)."
+            },
+            {
+              "line": 64,
+              "text": "export type { ServerEvent, ServerEventBus, ServerNotifier } from './server/serverEventBus';"
+            },
+            {
+              "line": 79,
+              "text": "// Request-body bound shared by the HTTP entry points; the reader is exported for"
+            },
+            {
+              "line": 80,
+              "text": "// adapter authors that pre-parse bodies (the way isJsonContentType is)."
+            },
+            {
+              "line": 81,
+              "text": "export { DEFAULT_MAX_REQUEST_BODY_SIZE, readRequestBody } from './server/requestBody';"
+            },
+            {
+              "line": 98,
+              "text": ""
+            },
+            {
+              "line": 99,
+              "text": "// Cache hints for cacheable 2026-07-28 results (ServerOptions.cacheHints and"
+            },
+            {
+              "line": 100,
+              "text": "// the registerResource cacheHint option)."
+            },
+            {
+              "line": 101,
+              "text": "export type { CacheHint, CacheScope } from '@modelcontextprotocol/core-internal';"
+            },
+            {
+              "line": 102,
+              "text": ""
+            },
+            {
+              "line": 103,
+              "text": "// Multi round-trip requests (protocol revision 2026-07-28): the authoring"
+            },
+            {
+              "line": 104,
+              "text": "// helpers a handler uses to request additional client input by returning an"
+            }
+          ]
+        },
+        {
+          "url": "https://raw.githubusercontent.com/modelcontextprotocol/typescript-sdk/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/packages/client/src/index.ts",
+          "startedAt": "2026-10-26T09:42:22.970812+00:00",
+          "finishedAt": "2026-10-26T09:42:24.310819+00:00",
+          "httpStatus": 200,
+          "sha256": "4e1d65bb25a729168e5c5b6363740432e7c3e0267f803d49e178999d10141ff5",
+          "path": "packages/client/src/index.ts",
+          "gitBlobSha": "0b5b6e86eaf9acaeff7c540140de82890b76633f",
+          "lineCount": 122,
+          "excerpts": [
+            {
+              "line": 1,
+              "text": "// Public API for @modelcontextprotocol/client."
+            },
+            {
+              "line": 2,
+              "text": "//"
+            },
+            {
+              "line": 3,
+              "text": "// This file defines the complete public surface. It consists of:"
+            },
+            {
+              "line": 4,
+              "text": "//   - Package-specific exports: listed explicitly below (named imports)"
+            },
+            {
+              "line": 5,
+              "text": "//   - Protocol-level types: re-exported from @modelcontextprotocol/core-internal/public"
+            },
+            {
+              "line": 6,
+              "text": "//"
+            },
+            {
+              "line": 7,
+              "text": "// Any new export added here becomes public API. Use named exports, not wildcards."
+            },
+            {
+              "line": 8,
+              "text": ""
+            },
+            {
+              "line": 9,
+              "text": "export type {"
+            },
+            {
+              "line": 10,
+              "text": "    AddClientAuthentication,"
+            },
+            {
+              "line": 11,
+              "text": "    AuthOptions,"
+            },
+            {
+              "line": 12,
+              "text": "    AuthProvider,"
+            },
+            {
+              "line": 13,
+              "text": "    AuthResult,"
+            },
+            {
+              "line": 14,
+              "text": "    ClientAuthMethod,"
+            },
+            {
+              "line": 15,
+              "text": "    OAuthClientInformationContext,"
+            },
+            {
+              "line": 16,
+              "text": "    OAuthClientProvider,"
+            },
+            {
+              "line": 17,
+              "text": "    OAuthDiscoveryState,"
+            },
+            {
+              "line": 18,
+              "text": "    OAuthServerInfo"
+            },
+            {
+              "line": 19,
+              "text": "} from './client/auth';"
+            },
+            {
+              "line": 20,
+              "text": "export {"
+            },
+            {
+              "line": 21,
+              "text": "    assertSecureTokenEndpoint,"
+            },
+            {
+              "line": 22,
+              "text": "    auth,"
+            },
+            {
+              "line": 23,
+              "text": "    buildDiscoveryUrls,"
+            },
+            {
+              "line": 24,
+              "text": "    computeScopeUnion,"
+            },
+            {
+              "line": 25,
+              "text": "    discoverAuthorizationServerMetadata,"
+            },
+            {
+              "line": 26,
+              "text": "    discoverOAuthMetadata,"
+            },
+            {
+              "line": 27,
+              "text": "    discoverOAuthProtectedResourceMetadata,"
+            },
+            {
+              "line": 28,
+              "text": "    discoverOAuthServerInfo,"
+            },
+            {
+              "line": 29,
+              "text": "    exchangeAuthorization,"
+            },
+            {
+              "line": 30,
+              "text": "    extractResourceMetadataUrl,"
+            },
+            {
+              "line": 31,
+              "text": "    extractWWWAuthenticateParams,"
+            },
+            {
+              "line": 32,
+              "text": "    fetchToken,"
+            },
+            {
+              "line": 35,
+              "text": "    parseErrorResponse,"
+            },
+            {
+              "line": 36,
+              "text": "    prepareAuthorizationCodeRequest,"
+            },
+            {
+              "line": 37,
+              "text": "    refreshAuthorization,"
+            },
+            {
+              "line": 38,
+              "text": "    registerClient,"
+            },
+            {
+              "line": 39,
+              "text": "    resolveClientMetadata,"
+            },
+            {
+              "line": 40,
+              "text": "    selectClientAuthMethod,"
+            },
+            {
+              "line": 41,
+              "text": "    selectResourceURL,"
+            },
+            {
+              "line": 42,
+              "text": "    startAuthorization,"
+            },
+            {
+              "line": 43,
+              "text": "    UnauthorizedError,"
+            },
+            {
+              "line": 44,
+              "text": "    validateAuthorizationResponseIssuer,"
+            },
+            {
+              "line": 45,
+              "text": "    validateClientMetadataUrl"
+            },
+            {
+              "line": 46,
+              "text": "} from './client/auth';"
+            },
+            {
+              "line": 47,
+              "text": "export {"
+            },
+            {
+              "line": 48,
+              "text": "    AuthorizationServerMismatchError,"
+            },
+            {
+              "line": 49,
+              "text": "    InsecureTokenEndpointError,"
+            },
+            {
+              "line": 50,
+              "text": "    InsufficientScopeError,"
+            },
+            {
+              "line": 51,
+              "text": "    IssuerMismatchError,"
+            },
+            {
+              "line": 52,
+              "text": "    OAuthClientFlowError,"
+            },
+            {
+              "line": 53,
+              "text": "    RegistrationRejectedError"
+            },
+            {
+              "line": 54,
+              "text": "} from './client/authErrors';"
+            },
+            {
+              "line": 55,
+              "text": "export type {"
+            },
+            {
+              "line": 61,
+              "text": "    StaticPrivateKeyJwtProviderOptions"
+            },
+            {
+              "line": 62,
+              "text": "} from './client/authExtensions';"
+            },
+            {
+              "line": 63,
+              "text": "export {"
+            },
+            {
+              "line": 64,
+              "text": "    ClientCredentialsProvider,"
+            },
+            {
+              "line": 65,
+              "text": "    createPrivateKeyJwtAuth,"
+            },
+            {
+              "line": 66,
+              "text": "    CrossAppAccessProvider,"
+            },
+            {
+              "line": 68,
+              "text": "    StaticPrivateKeyJwtProvider"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "slim",
+      "repository": "agntcy/slim",
+      "commit": "cd505c2cf241481e44604b71a3d2d6d5d43c7839",
+      "pin": {
+        "url": "https://api.github.com/repos/agntcy/slim/commits/cd505c2cf241481e44604b71a3d2d6d5d43c7839",
+        "startedAt": "2026-10-26T09:42:19.975432+00:00",
+        "finishedAt": "2026-10-26T09:42:21.440665+00:00",
+        "httpStatus": 200,
+        "sha256": "3c6eca8ac5232a4de156de8a89faec7d8e67b82752d62bff63b6281df6bf7531",
+        "resolvedCommit": "cd505c2cf241481e44604b71a3d2d6d5d43c7839",
+        "matchesLock": true
+      },
+      "files": [
+        {
+          "url": "https://raw.githubusercontent.com/agntcy/slim/cd505c2cf241481e44604b71a3d2d6d5d43c7839/crates/proto/proto/data-plane/v1/data_plane.proto",
+          "startedAt": "2026-10-26T09:42:21.441352+00:00",
+          "finishedAt": "2026-10-26T09:42:22.877127+00:00",
+          "httpStatus": 200,
+          "sha256": "53500e1f6920e4430e7bd6a3d1cdd617d66e3ef787baaeee6bdb2181d8d36210",
+          "path": "crates/proto/proto/data-plane/v1/data_plane.proto",
+          "gitBlobSha": "25d49cad43254be6ee84405a7732c3238703bfc1",
+          "lineCount": 392,
+          "excerpts": [
+            {
+              "line": 1,
+              "text": "// Copyright AGNTCY Contributors (https://github.com/agntcy)"
+            },
+            {
+              "line": 2,
+              "text": "// SPDX-License-Identifier: Apache-2.0"
+            },
+            {
+              "line": 3,
+              "text": ""
+            },
+            {
+              "line": 4,
+              "text": "syntax = \"proto3\";"
+            },
+            {
+              "line": 5,
+              "text": "package dataplane.proto.v1;"
+            },
+            {
+              "line": 6,
+              "text": ""
+            },
+            {
+              "line": 7,
+              "text": "service DataPlaneService {"
+            },
+            {
+              "line": 8,
+              "text": "  rpc OpenChannel(stream Message) returns (stream Message) {}"
+            },
+            {
+              "line": 61,
+              "text": "  uint32 fanout = 4;"
+            },
+            {
+              "line": 62,
+              "text": "  string version = 5;"
+            },
+            {
+              "line": 63,
+              "text": "  uint32 ttl = 6;"
+            },
+            {
+              "line": 104,
+              "text": "enum SessionType {"
+            },
+            {
+              "line": 105,
+              "text": "  SESSION_TYPE_UNSPECIFIED = 0;"
+            },
+            {
+              "line": 106,
+              "text": "  SESSION_TYPE_POINT_TO_POINT = 1;"
+            },
+            {
+              "line": 110,
+              "text": "enum SessionMessageType {"
+            },
+            {
+              "line": 111,
+              "text": "  SESSION_MESSAGE_TYPE_UNSPECIFIED = 0;"
+            },
+            {
+              "line": 112,
+              "text": "  SESSION_MESSAGE_TYPE_MSG = 1;"
+            },
+            {
+              "line": 243,
+              "text": "message HeaderIntegrityAad {"
+            },
+            {
+              "line": 244,
+              "text": "  uint32 version = 1;"
+            },
+            {
+              "line": 245,
+              "text": "  Name source = 2;"
+            },
+            {
+              "line": 355,
+              "text": "// Sent upon connection establishment to negotiate a common link identifier"
+            },
+            {
+              "line": 356,
+              "text": "// and exchange SLIM version information. Not routed; handled locally by"
+            },
+            {
+              "line": 357,
+              "text": "// the receiving SLIM instance."
+            },
+            {
+              "line": 361,
+              "text": "  string link_id = 1;"
+            },
+            {
+              "line": 362,
+              "text": "  // SLIM version of the sender (semver string, e.g. \"0.11.4\")."
+            },
+            {
+              "line": 363,
+              "text": "  string slim_version = 2;"
+            },
+            {
+              "line": 364,
+              "text": "  // True if this message is a reply to a negotiation request."
+            }
+          ]
+        },
+        {
+          "url": "https://raw.githubusercontent.com/agntcy/slim/cd505c2cf241481e44604b71a3d2d6d5d43c7839/crates/proto/proto/controlplane/v1/controlplane.proto",
+          "startedAt": "2026-10-26T09:42:22.881712+00:00",
+          "finishedAt": "2026-10-26T09:42:24.217293+00:00",
+          "httpStatus": 200,
+          "sha256": "7953ea85cb3b672517a9bf14290dbf6965378dc7fb4b11484cd308a45b99bb67",
+          "path": "crates/proto/proto/controlplane/v1/controlplane.proto",
+          "gitBlobSha": "73a830103d2a492c1ae77cb0882daffb5af71d15",
+          "lineCount": 242,
+          "excerpts": [
+            {
+              "line": 1,
+              "text": "// Copyright AGNTCY Contributors (https://github.com/agntcy)"
+            },
+            {
+              "line": 2,
+              "text": "// SPDX-License-Identifier: Apache-2.0"
+            },
+            {
+              "line": 3,
+              "text": ""
+            },
+            {
+              "line": 4,
+              "text": "syntax = \"proto3\";"
+            },
+            {
+              "line": 5,
+              "text": "package controlplane.proto.v1;"
+            },
+            {
+              "line": 6,
+              "text": ""
+            },
+            {
+              "line": 7,
+              "text": "import \"controller/v1/controller.proto\";"
+            },
+            {
+              "line": 8,
+              "text": "import \"data-plane/v1/data_plane.proto\";"
+            },
+            {
+              "line": 30,
+              "text": "  // Add a bidirectional link between two domains within a segment."
+            },
+            {
+              "line": 31,
+              "text": "  // The segment must already exist. Idempotent \u2014 succeeds if the link already exists."
+            },
+            {
+              "line": 32,
+              "text": "  rpc AddTopologyLink(AddTopologyLinkRequest) returns (AddTopologyLinkResponse) {}"
+            },
+            {
+              "line": 36,
+              "text": ""
+            },
+            {
+              "line": 37,
+              "text": "  // --- Registration auth domain management APIs ---"
+            },
+            {
+              "line": 38,
+              "text": ""
+            },
+            {
+              "line": 39,
+              "text": "  // List registered auth domains. Works in both config and API mode."
+            },
+            {
+              "line": 40,
+              "text": "  // In shared_secret mode: returns domains with configured/stored secrets."
+            },
+            {
+              "line": 41,
+              "text": "  // In SPIRE mode: returns domains of currently connected nodes."
+            },
+            {
+              "line": 42,
+              "text": "  // When auth is disabled: returns empty list."
+            },
+            {
+              "line": 43,
+              "text": "  rpc ListDomains(ListDomainsRequest) returns (ListDomainsResponse) {}"
+            },
+            {
+              "line": 45,
+              "text": "  // Returns FAILED_PRECONDITION if in config mode."
+            },
+            {
+              "line": 46,
+              "text": "  // Returns UNIMPLEMENTED if auth mode is SPIRE or disabled."
+            },
+            {
+              "line": 47,
+              "text": "  rpc AddDomain(AddDomainRequest) returns (AddDomainResponse) {}"
+            },
+            {
+              "line": 64,
+              "text": "enum NodeStatus {"
+            },
+            {
+              "line": 65,
+              "text": "  NODE_STATUS_UNSPECIFIED = 0;"
+            },
+            {
+              "line": 66,
+              "text": "  CONNECTED = 1;"
+            },
+            {
+              "line": 90,
+              "text": "enum RouteStatus {"
+            },
+            {
+              "line": 91,
+              "text": "  ROUTE_STATUS_UNSPECIFIED = 0;"
+            },
+            {
+              "line": 92,
+              "text": "  ROUTE_STATUS_APPLIED = 1;"
+            },
+            {
+              "line": 131,
+              "text": "enum LinkStatus {"
+            },
+            {
+              "line": 132,
+              "text": "  LINK_STATUS_UNSPECIFIED = 0;"
+            },
+            {
+              "line": 133,
+              "text": "  LINK_STATUS_PENDING = 1;"
+            },
+            {
+              "line": 216,
+              "text": ""
+            },
+            {
+              "line": 217,
+              "text": "// --- Registration auth domain management messages ---"
+            },
+            {
+              "line": 218,
+              "text": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dir",
+      "repository": "agntcy/dir",
+      "commit": "337ddd89721bd66595c701c9675d6bfbb5a65997",
+      "pin": {
+        "url": "https://api.github.com/repos/agntcy/dir/commits/v1.8.0",
+        "startedAt": "2026-10-26T09:42:19.975709+00:00",
+        "finishedAt": "2026-10-26T09:42:21.439823+00:00",
+        "httpStatus": 200,
+        "sha256": "5863e1ad09596c6eb78ae3cc8bf39dff279601f0677ef52f6da4e2795d5c1ec3",
+        "resolvedCommit": "337ddd89721bd66595c701c9675d6bfbb5a65997",
+        "matchesLock": true
+      },
+      "files": [
+        {
+          "url": "https://raw.githubusercontent.com/agntcy/dir/337ddd89721bd66595c701c9675d6bfbb5a65997/proto/agntcy/dir/store/v1/store_service.proto",
+          "startedAt": "2026-10-26T09:42:21.440953+00:00",
+          "finishedAt": "2026-10-26T09:42:22.760199+00:00",
+          "httpStatus": 200,
+          "sha256": "789740d40b31155401581956ca5d6769683347d4bc78234a732567e57280224e",
+          "path": "proto/agntcy/dir/store/v1/store_service.proto",
+          "gitBlobSha": "3e9a2dd32f0bf6eef1c27a9d3e45de1aef6d3a5a",
+          "lineCount": 133,
+          "excerpts": [
+            {
+              "line": 1,
+              "text": "// Copyright AGNTCY Contributors (https://github.com/agntcy)"
+            },
+            {
+              "line": 2,
+              "text": "// SPDX-License-Identifier: Apache-2.0"
+            },
+            {
+              "line": 3,
+              "text": ""
+            },
+            {
+              "line": 4,
+              "text": "syntax = \"proto3\";"
+            },
+            {
+              "line": 5,
+              "text": ""
+            },
+            {
+              "line": 6,
+              "text": "package agntcy.dir.store.v1;"
+            },
+            {
+              "line": 7,
+              "text": ""
+            },
+            {
+              "line": 8,
+              "text": "import \"agntcy/dir/core/v1/record.proto\";"
+            },
+            {
+              "line": 28,
+              "text": "// for the N-th request, N-th response will be returned."
+            },
+            {
+              "line": 29,
+              "text": "// If an error occurs, the stream will be cancelled."
+            },
+            {
+              "line": 30,
+              "text": "service StoreService {"
+            }
+          ]
+        },
+        {
+          "url": "https://raw.githubusercontent.com/agntcy/dir/337ddd89721bd66595c701c9675d6bfbb5a65997/proto/agntcy/dir/routing/v1/routing_service.proto",
+          "startedAt": "2026-10-26T09:42:22.764342+00:00",
+          "finishedAt": "2026-10-26T09:42:24.051875+00:00",
+          "httpStatus": 200,
+          "sha256": "dd51e936e5d6d3a9ee6623c79c6f70f4e346d2c3e978518835aa417ebea02d0c",
+          "path": "proto/agntcy/dir/routing/v1/routing_service.proto",
+          "gitBlobSha": "ce4d37948b0f51ad19ba9bd1f009e0f99b4dd938",
+          "lineCount": 151,
+          "excerpts": [
+            {
+              "line": 1,
+              "text": "// Copyright AGNTCY Contributors (https://github.com/agntcy)"
+            },
+            {
+              "line": 2,
+              "text": "// SPDX-License-Identifier: Apache-2.0"
+            },
+            {
+              "line": 3,
+              "text": ""
+            },
+            {
+              "line": 4,
+              "text": "syntax = \"proto3\";"
+            },
+            {
+              "line": 5,
+              "text": ""
+            },
+            {
+              "line": 6,
+              "text": "package agntcy.dir.routing.v1;"
+            },
+            {
+              "line": 7,
+              "text": ""
+            },
+            {
+              "line": 8,
+              "text": "import \"agntcy/dir/core/v1/record.proto\";"
+            },
+            {
+              "line": 21,
+              "text": "  // This enables other peers to discover this record and retrieve it"
+            },
+            {
+              "line": 22,
+              "text": "  // from this peer. Listeners can use this event to perform custom operations,"
+            },
+            {
+              "line": 23,
+              "text": "  // for example by cloning the record."
+            }
+          ]
+        },
+        {
+          "url": "https://raw.githubusercontent.com/agntcy/dir/337ddd89721bd66595c701c9675d6bfbb5a65997/client/client.go",
+          "startedAt": "2026-10-26T09:42:24.054752+00:00",
+          "finishedAt": "2026-10-26T09:42:25.338917+00:00",
+          "httpStatus": 200,
+          "sha256": "859b7b96984eaf8533ea8f6fc7119640d689952ad4dfcd31e35f7d356509771d",
+          "path": "client/client.go",
+          "gitBlobSha": "49b918d97203b332058e97215d3fcaa5e170bc7b",
+          "lineCount": 123,
+          "excerpts": [
+            {
+              "line": 1,
+              "text": "// Copyright AGNTCY Contributors (https://github.com/agntcy)"
+            },
+            {
+              "line": 2,
+              "text": "// SPDX-License-Identifier: Apache-2.0"
+            },
+            {
+              "line": 3,
+              "text": ""
+            },
+            {
+              "line": 4,
+              "text": "package client"
+            },
+            {
+              "line": 5,
+              "text": ""
+            },
+            {
+              "line": 6,
+              "text": "import ("
+            },
+            {
+              "line": 7,
+              "text": "\t\"context\""
+            },
+            {
+              "line": 8,
+              "text": "\t\"fmt\""
+            },
+            {
+              "line": 32,
+              "text": "\tconfig     *Config"
+            },
+            {
+              "line": 33,
+              "text": "\tauthClient *workloadapi.Client"
+            },
+            {
+              "line": 34,
+              "text": "\tconn       *grpc.ClientConn"
+            },
+            {
+              "line": 42,
+              "text": "func New(ctx context.Context, opts ...Option) (*Client, error) {"
+            },
+            {
+              "line": 43,
+              "text": "\t// Add auth options with provided context"
+            },
+            {
+              "line": 44,
+              "text": "\topts = append(opts, withAuth(ctx))"
+            },
+            {
+              "line": 45,
+              "text": ""
+            },
+            {
+              "line": 54,
+              "text": "\t// Create gRPC client connection"
+            },
+            {
+              "line": 55,
+              "text": "\tdialOpts := make([]grpc.DialOption, 0, len(options.authOpts)+1)"
+            },
+            {
+              "line": 56,
+              "text": "\tdialOpts = append(dialOpts, options.authOpts...)"
+            },
+            {
+              "line": 57,
+              "text": "\tdialOpts = append(dialOpts, grpc.WithDisableServiceConfig())"
+            },
+            {
+              "line": 73,
+              "text": "\t\tconfig:                 options.config,"
+            },
+            {
+              "line": 74,
+              "text": "\t\tauthClient:             options.authClient,"
+            },
+            {
+              "line": 75,
+              "text": "\t\tconn:                   conn,"
+            },
+            {
+              "line": 84,
+              "text": ""
+            },
+            {
+              "line": 85,
+              "text": "\t// Close SPIFFE sources first (they may be using authClient)"
+            },
+            {
+              "line": 86,
+              "text": "\tif c.jwtSource != nil {"
+            },
+            {
+              "line": 103,
+              "text": ""
+            },
+            {
+              "line": 104,
+              "text": "\t// Close auth client"
+            },
+            {
+              "line": 105,
+              "text": "\tif c.authClient != nil {"
+            },
+            {
+              "line": 106,
+              "text": "\t\tif err := c.authClient.Close(); err != nil {"
+            },
+            {
+              "line": 107,
+              "text": "\t\t\terrs = append(errs, fmt.Errorf(\"failed to close auth client: %w\", err))"
+            },
+            {
+              "line": 108,
+              "text": "\t\t}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shadi",
+      "repository": "agntcy/shadi",
+      "commit": "4b56555e892517050f3c9a7a16d48afa6fb1baa9",
+      "pin": {
+        "url": "https://api.github.com/repos/agntcy/shadi/commits/4b56555e892517050f3c9a7a16d48afa6fb1baa9",
+        "startedAt": "2026-10-26T09:42:19.975912+00:00",
+        "finishedAt": "2026-10-26T09:42:21.710458+00:00",
+        "httpStatus": 200,
+        "sha256": "9ad4e8b2af64c4afad51fc05e3d63bc316c5ac74a669ae42bd823982fee0638c",
+        "resolvedCommit": "4b56555e892517050f3c9a7a16d48afa6fb1baa9",
+        "matchesLock": true
+      },
+      "files": [
+        {
+          "url": "https://raw.githubusercontent.com/agntcy/shadi/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/shadi_sandbox/src/lib.rs",
+          "startedAt": "2026-10-26T09:42:21.710998+00:00",
+          "finishedAt": "2026-10-26T09:42:23.810875+00:00",
+          "httpStatus": 200,
+          "sha256": "c5f38ac2562e8e11c1e27934f9d2c9a6d8bcdc83bada0b5996979e5acc887d86",
+          "path": "crates/shadi_sandbox/src/lib.rs",
+          "gitBlobSha": "cac434603e69f3ba87176e05030d0eef4ad1b1b9",
+          "lineCount": 1389,
+          "excerpts": [
+            {
+              "line": 1,
+              "text": "// Copyright AGNTCY Contributors (https://github.com/agntcy)"
+            },
+            {
+              "line": 2,
+              "text": "// SPDX-License-Identifier: Apache-2.0"
+            },
+            {
+              "line": 3,
+              "text": ""
+            },
+            {
+              "line": 4,
+              "text": "pub mod control;"
+            },
+            {
+              "line": 5,
+              "text": "pub mod net_proxy;"
+            },
+            {
+              "line": 6,
+              "text": "pub mod policy;"
+            },
+            {
+              "line": 7,
+              "text": "pub mod policy_patch;"
+            },
+            {
+              "line": 8,
+              "text": "pub mod resolve;"
+            },
+            {
+              "line": 19,
+              "text": "/// Used by the `seatbelt-profile` fuzz target."
+            },
+            {
+              "line": 20,
+              "text": "#[cfg(target_os = \"macos\")]"
+            },
+            {
+              "line": 21,
+              "text": "pub fn seatbelt_profile_text(policy: &SandboxPolicy) -> Result<String, SandboxError> {"
+            },
+            {
+              "line": 22,
+              "text": "    platform::macos::build_profile(policy)"
+            },
+            {
+              "line": 23,
+              "text": "}"
+            },
+            {
+              "line": 56,
+              "text": "///"
+            },
+            {
+              "line": 57,
+              "text": "/// Seatbelt (macOS), Landlock (Linux), and AppContainer + Job Objects"
+            },
+            {
+              "line": 58,
+              "text": "/// (Windows) sandboxes are all kernel-enforced and inherited by descendant"
+            },
+            {
+              "line": 59,
+              "text": "/// processes, so any subprocess spawned by a sandboxed process \u2014 including a"
+            },
+            {
+              "line": 60,
+              "text": "/// coding-tool subprocess an agentbridge adapter launches \u2014 is bound by the"
+            },
+            {
+              "line": 61,
+              "text": "/// same policy automatically. A remote-reachable listener (or any other"
+            },
+            {
+              "line": 62,
+              "text": "/// operation that executes attacker-influenceable input) should call this"
+            },
+            {
+              "line": 140,
+              "text": "    Std(std::process::Child),"
+            },
+            {
+              "line": 141,
+              "text": "    #[cfg(target_os = \"windows\")]"
+            },
+            {
+              "line": 142,
+              "text": "    Windows(WindowsChild),"
+            },
+            {
+              "line": 143,
+              "text": "}"
+            },
+            {
+              "line": 151,
+              "text": ""
+            },
+            {
+              "line": 152,
+              "text": "    #[cfg(target_os = \"windows\")]"
+            },
+            {
+              "line": 153,
+              "text": "    pub fn from_windows(child: WindowsChild) -> Self {"
+            },
+            {
+              "line": 154,
+              "text": "        Self {"
+            },
+            {
+              "line": 155,
+              "text": "            inner: SandboxedChildInner::Windows(child),"
+            },
+            {
+              "line": 156,
+              "text": "        }"
+            },
+            {
+              "line": 164,
+              "text": "            SandboxedChildInner::Std(child) => child.wait(),"
+            },
+            {
+              "line": 165,
+              "text": "            #[cfg(target_os = \"windows\")]"
+            },
+            {
+              "line": 166,
+              "text": "            SandboxedChildInner::Windows(child) => child.wait(),"
+            },
+            {
+              "line": 167,
+              "text": "        };"
+            },
+            {
+              "line": 178,
+              "text": "            SandboxedChildInner::Std(child) => child.try_wait(),"
+            },
+            {
+              "line": 179,
+              "text": "            #[cfg(target_os = \"windows\")]"
+            },
+            {
+              "line": 180,
+              "text": "            SandboxedChildInner::Windows(child) => child.try_wait(),"
+            },
+            {
+              "line": 181,
+              "text": "        }"
+            },
+            {
+              "line": 189,
+              "text": "            SandboxedChildInner::Std(child) => {"
+            },
+            {
+              "line": 190,
+              "text": "                // On macOS/Linux the sandboxed child runs in its own"
+            },
+            {
+              "line": 191,
+              "text": "                // process group (via setsid in pre_exec). Kill the entire"
+            },
+            {
+              "line": 192,
+              "text": "                // group so that grandchild processes are cleaned up too,"
+            },
+            {
+              "line": 193,
+              "text": "                // mirroring the Windows Job-object behaviour."
+            },
+            {
+              "line": 194,
+              "text": "                #[cfg(unix)]"
+            },
+            {
+              "line": 210,
+              "text": "            }"
+            },
+            {
+              "line": 211,
+              "text": "            #[cfg(target_os = \"windows\")]"
+            },
+            {
+              "line": 212,
+              "text": "            SandboxedChildInner::Windows(child) => child.kill(),"
+            },
+            {
+              "line": 213,
+              "text": "        }"
+            },
+            {
+              "line": 218,
+              "text": "            SandboxedChildInner::Std(child) => child.id(),"
+            },
+            {
+              "line": 219,
+              "text": "            #[cfg(target_os = \"windows\")]"
+            },
+            {
+              "line": 220,
+              "text": "            SandboxedChildInner::Windows(child) => child.id(),"
+            },
+            {
+              "line": 221,
+              "text": "        }"
+            },
+            {
+              "line": 226,
+              "text": "            SandboxedChildInner::Std(child) => child.stdin.take(),"
+            },
+            {
+              "line": 227,
+              "text": "            #[cfg(target_os = \"windows\")]"
+            },
+            {
+              "line": 228,
+              "text": "            SandboxedChildInner::Windows(_) => None,"
+            },
+            {
+              "line": 229,
+              "text": "        }"
+            },
+            {
+              "line": 234,
+              "text": "            SandboxedChildInner::Std(child) => child.stdout.take(),"
+            },
+            {
+              "line": 235,
+              "text": "            #[cfg(target_os = \"windows\")]"
+            },
+            {
+              "line": 236,
+              "text": "            SandboxedChildInner::Windows(_) => None,"
+            },
+            {
+              "line": 237,
+              "text": "        }"
+            }
+          ]
+        },
+        {
+          "url": "https://raw.githubusercontent.com/agntcy/shadi/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/agentbridge/src/adapter.rs",
+          "startedAt": "2026-10-26T09:42:23.826227+00:00",
+          "finishedAt": "2026-10-26T09:42:25.193919+00:00",
+          "httpStatus": 200,
+          "sha256": "8e1c623b5fdd8910cbe0a13f81a8e26862561a4f88e98443bfd34715d34f1e92",
+          "path": "crates/agentbridge/src/adapter.rs",
+          "gitBlobSha": "ba4d263627d48b5cd43002c8a680c6b8db50dfd3",
+          "lineCount": 272,
+          "excerpts": [
+            {
+              "line": 1,
+              "text": "use shadi_mas::{AgentId, Epoch, ToolAdapter, ToolCall, ToolProvider, ToolResult};"
+            },
+            {
+              "line": 2,
+              "text": "use std::sync::Arc;"
+            },
+            {
+              "line": 3,
+              "text": "use thiserror::Error;"
+            },
+            {
+              "line": 4,
+              "text": ""
+            },
+            {
+              "line": 5,
+              "text": "use crate::context::ContextPacket;"
+            },
+            {
+              "line": 6,
+              "text": ""
+            },
+            {
+              "line": 7,
+              "text": "#[derive(Debug, Error)]"
+            },
+            {
+              "line": 8,
+              "text": "pub enum CliAdapterError {"
+            },
+            {
+              "line": 54,
+              "text": "    /// recent `execute_prompt` call spawned, if it's still running. Called"
+            },
+            {
+              "line": 55,
+              "text": "    /// during listener shutdown so an in-flight message doesn't leave an"
+            },
+            {
+              "line": 56,
+              "text": "    /// orphaned process behind after the listener itself has exited."
+            },
+            {
+              "line": 57,
+              "text": "    /// Default no-op \u2014 adapters that don't track a live child don't need"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "openagents",
+      "repository": "openagents-org/openagents",
+      "commit": "5eab18f3592dee227ff479d40c365904dbc53f7c",
+      "pin": {
+        "url": "https://api.github.com/repos/openagents-org/openagents/commits/v0.8.5",
+        "startedAt": "2026-10-26T09:42:19.976094+00:00",
+        "finishedAt": "2026-10-26T09:42:21.425102+00:00",
+        "httpStatus": 200,
+        "sha256": "f6076737bda468a14261d8830fdea7790acdbef15ed4043430232d85d7b39d7a",
+        "resolvedCommit": "5eab18f3592dee227ff479d40c365904dbc53f7c",
+        "matchesLock": true
+      },
+      "files": [
+        {
+          "url": "https://raw.githubusercontent.com/openagents-org/openagents/5eab18f3592dee227ff479d40c365904dbc53f7c/src/openagents/core/transports/a2a.py",
+          "startedAt": "2026-10-26T09:42:21.427522+00:00",
+          "finishedAt": "2026-10-26T09:42:23.086097+00:00",
+          "httpStatus": 200,
+          "sha256": "b0f4b6644e43e20f882d759d4bff91aaf856ffc5b4e93e250a1657786007b753",
+          "path": "src/openagents/core/transports/a2a.py",
+          "gitBlobSha": "8f127266bdd1cacecaf39e9cf6d876f085b34ad0",
+          "lineCount": 1591,
+          "excerpts": [
+            {
+              "line": 1,
+              "text": "\"\"\""
+            },
+            {
+              "line": 2,
+              "text": "A2A (Agent2Agent) Transport Implementation for OpenAgents."
+            },
+            {
+              "line": 3,
+              "text": ""
+            },
+            {
+              "line": 4,
+              "text": "This module provides a full A2A transport that enables protocol-agnostic"
+            },
+            {
+              "line": 5,
+              "text": "agent communication. Agents connected via any transport (gRPC, WebSocket,"
+            },
+            {
+              "line": 6,
+              "text": "HTTP, A2A) can discover and communicate with each other."
+            },
+            {
+              "line": 7,
+              "text": ""
+            },
+            {
+              "line": 8,
+              "text": "Based on A2A Protocol Specification v0.3:"
+            },
+            {
+              "line": 20,
+              "text": "    - tasks/list       - List tasks"
+            },
+            {
+              "line": 21,
+              "text": "    - tasks/cancel     - Cancel a task"
+            },
+            {
+              "line": 22,
+              "text": ""
+            },
+            {
+              "line": 67,
+              "text": "    create_task_from_message,"
+            },
+            {
+              "line": 68,
+              "text": "    TASK_STATE_TO_EVENT,"
+            },
+            {
+              "line": 69,
+              "text": ")"
+            },
+            {
+              "line": 91,
+              "text": "    Configuration:"
+            },
+            {
+              "line": 92,
+              "text": "        port: Port to listen on (default: 8900)"
+            },
+            {
+              "line": 93,
+              "text": "        host: Host to bind to (default: 0.0.0.0)"
+            },
+            {
+              "line": 94,
+              "text": "        agent:"
+            },
+            {
+              "line": 95,
+              "text": "            name: Agent name for the card"
+            },
+            {
+              "line": 96,
+              "text": "            version: Agent version"
+            },
+            {
+              "line": 97,
+              "text": "            description: Agent description"
+            },
+            {
+              "line": 98,
+              "text": "        auth:"
+            },
+            {
+              "line": 99,
+              "text": "            type: Authentication type (bearer, apiKey)"
+            },
+            {
+              "line": 100,
+              "text": "            token: Token value or env var name"
+            },
+            {
+              "line": 125,
+              "text": "        self.port = self.config.get(\"port\", 8900)"
+            },
+            {
+              "line": 126,
+              "text": "        self.host = self.config.get(\"host\", \"0.0.0.0\")"
+            },
+            {
+              "line": 127,
+              "text": ""
+            },
+            {
+              "line": 130,
+              "text": ""
+            },
+            {
+              "line": 131,
+              "text": "        # Authentication configuration"
+            },
+            {
+              "line": 132,
+              "text": "        self.auth_config = self.config.get(\"auth\", {})"
+            },
+            {
+              "line": 133,
+              "text": ""
+            },
+            {
+              "line": 175,
+              "text": "        response.headers[\"Access-Control-Allow-Headers\"] = ("
+            },
+            {
+              "line": 176,
+              "text": "            \"Content-Type, Authorization, Accept\""
+            },
+            {
+              "line": 177,
+              "text": "        )"
+            },
+            {
+              "line": 189,
+              "text": "            \"protocol\": \"a2a\","
+            },
+            {
+              "line": 190,
+              "text": "            \"protocolVersion\": \"0.3\","
+            },
+            {
+              "line": 191,
+              "text": "            \"status\": \"running\","
+            },
+            {
+              "line": 328,
+              "text": "            name=self.agent_config.get(\"name\", \"OpenAgents Network\"),"
+            },
+            {
+              "line": 329,
+              "text": "            version=self.agent_config.get(\"version\", \"1.0.0\"),"
+            },
+            {
+              "line": 330,
+              "text": "            description=self.agent_config.get("
+            },
+            {
+              "line": 333,
+              "text": "            url=url,"
+            },
+            {
+              "line": 334,
+              "text": "            protocol_version=\"0.3\","
+            },
+            {
+              "line": 335,
+              "text": "            skills=skills,"
+            },
+            {
+              "line": 345,
+              "text": "        \"\"\"Handle JSON-RPC requests.\"\"\""
+            },
+            {
+              "line": 346,
+              "text": "        # Check authentication"
+            },
+            {
+              "line": 347,
+              "text": "        auth_error = self._check_auth(request)"
+            },
+            {
+              "line": 348,
+              "text": "        if auth_error:"
+            },
+            {
+              "line": 349,
+              "text": "            return auth_error"
+            },
+            {
+              "line": 350,
+              "text": ""
+            },
+            {
+              "line": 366,
+              "text": "            \"tasks/list\": self._handle_list_tasks,"
+            },
+            {
+              "line": 367,
+              "text": "            \"tasks/cancel\": self._handle_cancel_task,"
+            },
+            {
+              "line": 368,
+              "text": "            # OpenAgents extensions (A2A-aligned)"
+            },
+            {
+              "line": 379,
+              "text": "            \"delegation/fail\": self._handle_delegation_fail,"
+            },
+            {
+              "line": 380,
+              "text": "            \"delegation/cancel\": self._handle_delegation_cancel,"
+            },
+            {
+              "line": 381,
+              "text": "            \"delegation/get\": self._handle_delegation_get,"
+            },
+            {
+              "line": 629,
+              "text": ""
+            },
+            {
+              "line": 630,
+              "text": "    async def _handle_cancel_task("
+            },
+            {
+              "line": 631,
+              "text": "        self, params: Dict[str, Any]"
+            },
+            {
+              "line": 632,
+              "text": "    ) -> Dict[str, Any]:"
+            },
+            {
+              "line": 633,
+              "text": "        \"\"\"Handle tasks/cancel method."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "failures": []
+}
