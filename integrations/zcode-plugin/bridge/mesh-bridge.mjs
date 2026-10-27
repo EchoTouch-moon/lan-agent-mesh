@@ -4,10 +4,10 @@
 import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
-import { isAbsolute, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const pluginRoot = resolve(fileURLToPath(new URL('../', import.meta.url)));
+const pluginRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const fail = (reason) => {
   process.stderr.write(`lam-mesh bridge: ${reason}\n`);
   process.exit(1);

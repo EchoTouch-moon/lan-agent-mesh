@@ -6,9 +6,9 @@ import { promisify } from 'node:util';
 const run = promisify(execFile);
 import { createRequire } from 'node:module';
 import { randomUUID } from 'node:crypto';
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 
 // Resolve workspace packages explicitly: this directory is not itself a workspace package.
@@ -18,7 +18,7 @@ const { StdioClientTransport } = requireFromMcpServer('@modelcontextprotocol/cli
 const { Gateway } = await import(pathToFileURL(resolve('packages/runtime/dist/index.js')));
 const { privateDirectory } = await import(pathToFileURL(resolve('packages/private-storage/dist/index.js')));
 
-const pluginRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
+const pluginRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const bridge = join(pluginRoot, 'bridge', 'mesh-bridge.mjs');
 const pins = JSON.parse(readFileSync(join(pluginRoot, 'digests.json'), 'utf8'));
 const report = {
