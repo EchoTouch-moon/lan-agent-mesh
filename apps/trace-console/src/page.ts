@@ -504,10 +504,10 @@ export const PAGE_JS = `'use strict';
         var sub2 = el('div', 'sub', '网关审批策略为 deny-only：已自动拒绝；本页面不提供任何批准操作');
         p.appendChild(sub2);
         li.appendChild(p);
-      } else if (event.droppedFields && event.droppedFields.length) {
+      } else if (event.droppedCount) {
         var d = el('span', 'ev-preview');
         d.appendChild(el('div', null, preview || '（无摘要）'));
-        var sub3 = el('div', 'sub', '服务端已丢弃未列入白名单的字段：' + event.droppedFields.join('，'));
+        var sub3 = el('div', 'sub', '服务端已丢弃 ' + event.droppedCount + ' 个未列入白名单的字段（字段名一律不回显）');
         d.appendChild(sub3);
         li.appendChild(d);
       } else {

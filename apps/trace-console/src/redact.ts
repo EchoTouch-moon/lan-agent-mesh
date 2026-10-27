@@ -34,10 +34,9 @@ export function redactAddress(address: string): string {
 const MAX_PREVIEW = 400;
 
 // Untrusted event objects can encode payloads in field NAMES (a key like
-// "/Users/x/token=<secret>" or "<script>…"). Only structurally safe names are
-// ever echoed back; anything else is counted, not repeated.
+// "/Users/x/token=<secret>" or a bare 40-hex token). Unknown field names are
+// therefore reported by COUNT only, never echoed (see RedactedEvent).
 const SAFE_FIELD_NAME = /^[A-Za-z0-9_.-]{1,64}$/;
-const MAX_DROPPED_LISTED = 16;
 // Identifiers forwarded verbatim must match the wire ID grammar; anything
 // else (overlong, spacing, markup, path-like) is withheld.
 const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/;
@@ -72,18 +71,20 @@ export interface RedactedEvent {
   preview?: string | undefined;
   code?: string | undefined;
   permission?: { requestId: string; operationDigest: string; expiresAt: string } | undefined;
-  droppedFields: string[];
-  droppedUnsafeCount?: number | undefined;
+  /** How many unknown fields were dropped. Their NAMES are never echoed:
+   * even a grammar-valid name can itself encode a credential or a
+   * high-entropy secret (e.g. a 40-hex token shape), so only the count
+   * reaches the page and the JSON export. */
+  droppedCount: number;
 }
 
 /** Whitelisted, field-by-field projection of one stored task event. Unknown
- * fields are dropped; only structurally safe field NAMES are reported, unsafe
- * names are aggregated into droppedUnsafeCount and never echoed. */
+ * fields are dropped and reported by count only; no field name of an unknown
+ * field is ever returned. */
 export function redactEvent(event: unknown, seq: number): RedactedEvent {
   const value = (event ?? {}) as Record<string, unknown>;
-  const droppedFields: string[] = [];
-  let droppedUnsafe = 0;
-  const out: RedactedEvent = { seq, type: '[missing]', droppedFields };
+  let droppedCount = 0;
+  const out: RedactedEvent = { seq, type: '[missing]', droppedCount };
   const type = safeShort(value.type, 64);
   if (type !== undefined && SAFE_FIELD_NAME.test(type)) out.type = type;
   out.taskId = safeId(value.taskId);
@@ -100,12 +101,8 @@ export function redactEvent(event: unknown, seq: number): RedactedEvent {
       out.permission = { requestId, operationDigest, expiresAt };
   }
   const known = new Set(['type', 'taskId', 'text', 'code', 'reason', 'request']);
-  for (const key of Object.keys(value))
-    if (!known.has(key)) {
-      if (SAFE_FIELD_NAME.test(key) && droppedFields.length < MAX_DROPPED_LISTED) droppedFields.push(key);
-      else droppedUnsafe++;
-    }
-  if (droppedUnsafe > 0) out.droppedUnsafeCount = droppedUnsafe;
+  for (const key of Object.keys(value)) if (!known.has(key)) droppedCount++;
+  out.droppedCount = droppedCount;
   return out;
 }
 

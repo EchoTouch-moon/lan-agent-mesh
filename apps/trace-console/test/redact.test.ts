@@ -48,7 +48,7 @@ describe('redactEvent', () => {
     const unknown = redactEvent({ type: 'unknown', taskId: 't1', reason: 'at /Users/x/ gone' }, 0);
     expect(unknown.preview).not.toContain('/Users');
   });
-  it('whitelists permission request fields and drops unknown fields with a report', () => {
+  it('whitelists permission request fields and drops unknown fields by count only', () => {
     const out = redactEvent(
       {
         type: 'permission',
@@ -60,25 +60,33 @@ describe('redactEvent', () => {
     expect(out.permission).toBeDefined();
     expect(out.permission!.requestId).toBe('8b5a1050-0000-4000-8000-000000000000');
     expect((out.permission as unknown as Record<string, unknown>).nonce).toBeUndefined();
-    expect(out.droppedFields).toEqual([]);
+    expect(out.droppedCount).toBe(0);
     const dirty = redactEvent({ type: 'delta', taskId: 't1', text: 'x', evil: 'value' }, 0);
-    expect(dirty.droppedFields).toEqual(['evil']);
+    expect(dirty.droppedCount).toBe(1);
+    expect(JSON.stringify(dirty)).not.toContain('evil');
   });
 
-  it('never echoes hostile field NAMES: unsafe names are counted, not repeated', () => {
+  it('never echoes ANY unknown field name, hostile or grammar-valid', () => {
     const evilName = '/Users/alice/.ssh/id_rsa=<script>alert(1)</script> ' + 'x'.repeat(200);
-    const out = redactEvent({ type: 'delta', taskId: 't1', [evilName]: 'v' }, 0);
+    const hexShapedKey = 'a'.repeat(40); // grammar-valid 40-hex token shape
+    const secretShapedKey = 'secret_abcd12345678901234567890';
+    const bearerShapedKey = 'bearer_0123456789abcdef0123456789abcdef';
+    const out = redactEvent(
+      { type: 'delta', taskId: 't1', [evilName]: 1, [hexShapedKey]: 1, [secretShapedKey]: 1, [bearerShapedKey]: 1 },
+      0,
+    );
     const serialized = JSON.stringify(out);
+    expect(out.droppedCount).toBe(4);
     expect(serialized).not.toContain('/Users/alice');
     expect(serialized).not.toContain('<script>');
-    expect(out.droppedFields).toEqual([]);
-    expect(out.droppedUnsafeCount).toBe(1);
-    // Structurally safe unknown names are still listed, capped at 16.
-    const many: Record<string, unknown> = { type: 'delta', taskId: 't1' };
-    for (let i = 0; i < 20; i++) many[`extra_${i}`] = 1;
-    const listed = redactEvent(many, 0);
-    expect(listed.droppedFields).toHaveLength(16);
-    expect(listed.droppedUnsafeCount).toBe(4);
+    expect(serialized).not.toContain(hexShapedKey);
+    expect(serialized).not.toContain('secret_abcd');
+    expect(serialized).not.toContain('bearer_0123');
+    // The count-only contract holds through the events projection used by
+    // both the page API and the JSON export.
+    const projected = redactEvents({ state: 'RUNNING', events: [{ type: 'delta', taskId: 't1', [hexShapedKey]: 1 }], next: 1 }, 0);
+    expect(JSON.stringify(projected)).not.toContain(hexShapedKey);
+    expect(projected.events[0]!.droppedCount).toBe(1);
   });
 
   it('withholds identifiers that fail the wire grammar (overlong, markup, path-like)', () => {
