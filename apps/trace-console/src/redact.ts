@@ -45,7 +45,11 @@ const SAFE_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
 const SAFE_DIGEST = /^[a-f0-9]{64}$/i;
 
 function safeId(value: unknown): string | undefined {
-  return typeof value === 'string' && SAFE_ID.test(value) ? value : undefined;
+  // Wire-grammar check first, then a defence-in-depth text pass: a grammar-
+  // valid id can still embed credential-shaped substrings, which get masked
+  // (the displayed id degrades instead of leaking).
+  if (typeof value !== 'string' || !SAFE_ID.test(value)) return undefined;
+  return redactText(value);
 }
 
 function safeShort(value: unknown, max: number): string | undefined {

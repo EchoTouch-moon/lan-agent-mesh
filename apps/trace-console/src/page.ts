@@ -224,7 +224,7 @@ export const PAGE_JS = `'use strict';
       tasks.set(taskId, {
         taskId: taskId, peer: peer, cursor: 0, state: 'QUEUED', events: [],
         error: null, notObservable: false, terminal: false, lastObserved: null, source: source,
-        inFlight: false, generation: 0,
+        inFlight: false, generation: 0, repoll: false,
       });
     }
     return tasks.get(taskId);
@@ -270,12 +270,22 @@ export const PAGE_JS = `'use strict';
           if (selected === view.taskId) renderTimeline();
           return false;
         }
+        var incoming = (data.events || []).length;
+        // 分页契约：非空页必须推进游标。等值非空页视为网关违约，整页
+        // 拒绝，防止同游标反复取页造成重复 append。
+        if (data.next === view.cursor && incoming > 0) {
+          view.notObservable = true;
+          view.error = '响应违反分页契约（next 未推进），已拒绝整页';
+          renderTasks();
+          if (selected === view.taskId) renderTimeline();
+          return false;
+        }
         view.notObservable = false;
         view.error = null;
         view.notObservableReason = null;
         view.state = data.state;
         view.terminal = !!data.terminal;
-        var got = (data.events || []).length;
+        var got = incoming;
         for (var i = 0; i < got; i++) {
           var event = data.events[i];
           event.observedAt = data.observedAt;
@@ -294,9 +304,12 @@ export const PAGE_JS = `'use strict';
   function pollTask(view, force) {
     if (view.terminal && !force) return Promise.resolve();
     // 串行化（P1）：同一任务同时只允许一条在途请求链。800ms 定时器与
-    // drain 递归、手动添加并发触发时，后来者直接跳过本周期，而不是带着
-    // 同一旧游标发出第二个请求。
-    if (view.inFlight) return Promise.resolve();
+    // drain 递归、手动添加并发触发时，后来者直接跳过本周期；带 force 的
+    // 触发记下 repoll，待在途链结束后立即补跑，而不是等下一个周期。
+    if (view.inFlight) {
+      if (force) view.repoll = true;
+      return Promise.resolve();
+    }
     view.inFlight = true;
     var gen = view.generation;
     function drain(more) {
@@ -305,7 +318,12 @@ export const PAGE_JS = `'use strict';
     return drainPage(view, gen)
       .then(drain)
       .catch(function () { /* 瞬时轮询失败；断线提示在别处统一处理 */ })
-      .then(function () { view.inFlight = false; });
+      .then(function () {
+        view.inFlight = false;
+        var again = view.repoll && !view.terminal;
+        view.repoll = false;
+        if (again) return pollTask(view, false);
+      });
   }
 
   function pollOverview() {
@@ -430,6 +448,12 @@ export const PAGE_JS = `'use strict';
       li.addEventListener('click', function () { selected = view.taskId; renderTasks(); renderNodes(); renderTimeline(); });
       list.appendChild(li);
     });
+    // 持久上限提示：随列表渲染显示，而不是只靠很快被轮询清掉的横幅。
+    if (tasks.size >= 64) {
+      var cap = el('li', 'terminal');
+      cap.appendChild(el('span', 'task-meta', '已达观察上限（64 个任务）。刷新页面可清空列表；导出 JSON 保留全部已观察事件。'));
+      list.appendChild(cap);
+    }
   }
 
   function typeClass(type) {

@@ -248,9 +248,44 @@ describe('frontend polling logic (synthetic negatives)', () => {
     await new Promise((resolve) => setImmediate(resolve));
     h.addTask('task-64', 'p1');
     await new Promise((resolve) => setImmediate(resolve));
-    expect(h.taskList()).toHaveLength(64);
-    expect(h.taskList().some((row) => row.includes('task-64'))).toBe(false);
+    const rows = h.taskList();
+    // 64 task rows plus one persistent cap notice rendered with the list.
+    expect(rows).toHaveLength(65);
+    expect(rows.some((row) => row.includes('task-63'))).toBe(true);
+    expect(rows.some((row) => row.includes('task-64'))).toBe(false);
+    expect(rows[64]).toContain('上限');
     expect(h.bannerText()).toContain('上限');
+  });
+
+  it('drops in-flight responses whose generation is stale after re-adding the task', async () => {
+    const h = await boot();
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => (release = resolve));
+    // First generation response is held; re-addTask bumps the generation.
+    h.script.plan({ hold: held, respond: () => page('RUNNING', [{ seq: 0, type: 'started', taskId: 't1' }], 1, false) });
+    h.script.plan({ respond: () => page('COMPLETED', [{ seq: 0, type: 'started', taskId: 't1' }], 1, false) });
+    h.script.plan({ respond: () => page('COMPLETED', [], 1, true) });
+    h.addTask('t1', 'p1');
+    await new Promise((resolve) => setImmediate(resolve));
+    h.addTask('t1', 'p1'); // generation++, terminal reset, fresh drain queued
+    await new Promise((resolve) => setImmediate(resolve));
+    release(); // stale first-generation response arrives now
+    for (let i = 0; i < 12; i++) await new Promise((resolve) => setImmediate(resolve));
+    // The stale page must not double-append; the fresh drain wrote seq 0 once.
+    expect(h.timeline()).toHaveLength(1);
+    expect(h.timeline()[0]).toContain('#0');
+  });
+
+  it('rounds-robin task polling with a 16-per-tick budget', async () => {
+    const h = await boot();
+    for (let i = 0; i < 20; i++) h.addTask(`t${i}`, 'p1');
+    for (let i = 0; i < 8; i++) await new Promise((resolve) => setImmediate(resolve));
+    // 20 immediate add-time polls already happened; reset the counter.
+    const before = h.script.taskCalls();
+    h.tick();
+    for (let i = 0; i < 10; i++) await new Promise((resolve) => setImmediate(resolve));
+    expect(h.script.taskCalls() - before).toBeLessThanOrEqual(16);
+    expect(h.script.taskCalls() - before).toBeGreaterThan(0);
   });
 
   it('mentions the outbox auto-discovery boundary in the static page', async () => {

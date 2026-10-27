@@ -45,7 +45,8 @@ then revoked. If the Gateway restarts and rotates its control token, press
   path; V0 is not zero-touch full-chain tracing. Per-task polling is
   serialized (one in-flight request per task, stale responses dropped by
   generation, cursor-regressing pages refused), capped at 64 watched tasks and
-  16 task queries per 800 ms cycle.
+  16 task queries per 800 ms cycle (adding a task triggers one immediate
+  out-of-budget poll).
 - **Timeline** per task: `seq / state / type / observed-at / preview` with text
   filter, type filter, pause-auto-scroll and **Export redacted JSON**.
 - Task states, `WAITING_INPUT` permission events (Gateway policy is
