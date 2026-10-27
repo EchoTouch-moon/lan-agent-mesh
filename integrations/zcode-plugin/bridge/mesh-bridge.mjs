@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+// Thin stdio wrapper: verifies the pinned LAM MCP server digest, then execs it.
+// Fail-closed: any missing/mismatched input exits 1 without spawning anything.
+import { createHash } from 'node:crypto';
+import { spawn } from 'node:child_process';
+import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
+import { isAbsolute, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const pluginRoot = resolve(fileURLToPath(new URL('../', import.meta.url)));
+const fail = (reason) => {
+  process.stderr.write(`lam-mesh bridge: ${reason}\n`);
+  process.exit(1);
+};
+
+function arg(name) {
+  const i = process.argv.indexOf(name);
+  if (i === -1 || i + 1 >= process.argv.length) fail(`missing ${name}`);
+  return process.argv[i + 1];
+}
+const lamRoot = arg('--lam-root');
+const credentials = arg('--credentials');
+if (!isAbsolute(lamRoot)) fail('--lam-root must be absolute');
+if (!isAbsolute(credentials)) fail('--credentials must be absolute');
+
+const cli = join(lamRoot, 'packages', 'mcp-server', 'dist', 'cli.js');
+if (!existsSync(cli) || !statSync(cli).isFile()) fail(`LAM MCP server not built: ${cli} is missing (run pnpm build in the LAM checkout)`);
+if (!existsSync(credentials) || !statSync(credentials).isFile()) fail('credential file not found');
+
+let pins;
+try {
+  pins = JSON.parse(readFileSync(join(pluginRoot, 'digests.json'), 'utf8'));
+} catch {
+  fail('digests.json unreadable; the plugin install is corrupt');
+}
+const actual = await new Promise((accept, reject) => {
+  const hash = createHash('sha256');
+  createReadStream(cli).on('data', (c) => hash.update(c)).on('error', reject).on('end', () => accept(hash.digest('hex')));
+}).catch(() => fail(`cannot hash ${cli}`));
+if (actual !== pins.mcpCliSha256)
+  fail(`LAM MCP server digest mismatch: expected ${pins.mcpCliSha256} (testedSourceSha ${pins.testedSourceSha}), found ${actual}. Update the LAM checkout or the plugin together.`);
+
+const child = spawn(process.execPath, [cli, '--credentials', credentials], { stdio: ['pipe', 'pipe', 'inherit'] });
+process.stdin.pipe(child.stdin);
+child.stdout.pipe(process.stdout);
+const forward = (signal) => () => child.kill(signal);
+process.on('SIGINT', forward('SIGINT'));
+process.on('SIGTERM', forward('SIGTERM'));
+child.on('exit', (code) => { process.exitCode = code ?? 1; });
+child.on('error', () => fail('failed to start the LAM MCP server'));

@@ -1,0 +1,10 @@
+{
+  "name": "lan-agent-mesh",
+  "version": "0.1.0",
+  "description": "LAN Agent Mesh: call permitted remote agents through the local LAM Gateway MCP bridge (mesh_* tools only).",
+  "author": { "name": "LAN Agent Mesh contributors" },
+  "keywords": ["lam", "mesh", "mcp", "agents"],
+  "commands": "commands",
+  "skills": "skills",
+  "mcpServers": ".mcp.json"
+}
