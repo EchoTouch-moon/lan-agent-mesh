@@ -20,10 +20,10 @@ try {
   });
   if (values.help || !values.data) {
     console.log(
-      'LAM Trace Console (read-only OBS-0 V0)\n' +
-        'usage: node dist/index.js --data <gateway-private-directory> [--port <0-65535>]\n' +
-        'The Gateway must already be running with control.json in --data. The console\n' +
-        'binds 127.0.0.1 only and never calls pair/confirm/spawn/send/cancel/retry/shutdown.',
+      'LAM 链路观察台（只读，OBS-0 V0）\n' +
+        '用法：node dist/index.js --data <网关私有目录> [--port <0-65535>]\n' +
+        '网关必须已运行且 --data 下存在 control.json。观察台仅绑定 127.0.0.1，\n' +
+        '绝不调用 pair/confirm/spawn/send/cancel/retry/shutdown 等变更类命令。',
     );
     if (!values.help) process.exitCode = 1;
   } else {
@@ -36,7 +36,7 @@ try {
           ready: true,
           listen: `127.0.0.1:${console_.port}`,
           loginUrl: console_.loginUrl,
-          note: 'Open the login URL in a local browser once; the token works exactly once.',
+          note: '在本地浏览器中打开 loginUrl，一次性令牌仅可使用一次。',
         },
         null,
         2,

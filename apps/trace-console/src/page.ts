@@ -240,7 +240,9 @@ export const PAGE_JS = `'use strict';
     return api('/api/task?peer=' + encodeURIComponent(view.peer) + '&taskId=' + encodeURIComponent(view.taskId) + '&cursor=' + view.cursor)
       .then(function (data) {
         view.lastObserved = data.observedAt || new Date().toISOString();
-        if (data.ok === false) {
+        // 非 ok 响应（网关拒绝、400 参数错误、无 ok 字段的错误体）统一按
+        // 不可观察处理，绝不落入成功分支编造状态。
+        if (data.ok !== true) {
           view.notObservable = true;
           view.error = data.error || (data.reason || '不可观察');
           view.notObservableReason = data.reason || null;
@@ -249,6 +251,8 @@ export const PAGE_JS = `'use strict';
           return;
         }
         view.notObservable = false;
+        view.error = null;
+        view.notObservableReason = null;
         view.state = data.state;
         view.terminal = !!data.terminal;
         var got = (data.events || []).length;
@@ -329,7 +333,7 @@ export const PAGE_JS = `'use strict';
   }
 
   function renderSessions() {
-    var sig = JSON.stringify(overview && overview.sessions);
+    var sig = JSON.stringify(overview && overview.sessions) || 'null';
     if (renderSessions.sig === sig) return;
     renderSessions.sig = sig;
     var body = $('session-table').querySelector('tbody');
@@ -408,7 +412,7 @@ export const PAGE_JS = `'use strict';
     var view = selected ? tasks.get(selected) : null;
     // 同 renderTasks：内容签名未变化时不重建，保持滚动位置与交互稳定。
     var sig = view
-      ? view.taskId + '|' + view.state + '|' + view.notObservable + '|' + view.terminal + '|' + view.events.length + '|' + ($('filter-text').value || '') + '|' + $('filter-type').value
+      ? view.taskId + '|' + view.state + '|' + view.notObservable + '|' + view.terminal + '|' + view.events.length + '|' + (view.error || '') + '|' + (view.notObservableReason || '') + '|' + ($('filter-text').value || '') + '|' + $('filter-type').value
       : 'none';
     if (renderTimeline.sig === sig) return;
     renderTimeline.sig = sig;
