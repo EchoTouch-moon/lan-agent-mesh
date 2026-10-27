@@ -1,0 +1,31 @@
+{
+  "kind": "installed ZCode plugin surface probe (real CLI 0.17.0 / desktop 3.16.3, Windows host, isolated homes only)",
+  "testedSourceSha": "ec940168eda1d1f2fc9823afe9036bff859b5b5c",
+  "zcodeCliSha256": "97490d0f06a7a225d54d47817acf4b4859cdb268b59f2490caaeda982bef063a",
+  "zcodeCliVersion": "0.17.0",
+  "platform": "win32 10.0.22621 x64",
+  "node": "v24.12.0",
+  "startedUtc": "2026-10-27T13:20:00Z",
+  "endedUtc": "2026-10-27T15:05:00Z",
+  "results": {
+    "plugin-loader-compiled-in": "PASS: bundle contains zcode-plugin/plugin.json/marketplace.json/ZCODE_PLUGIN_ROOT/CLAUDE_PLUGIN_ROOT/user_config resolver",
+    "plugins-subcommand-family": "PASS: 'zcode plugins list|install|uninstall|enable|disable|update|validate|marketplace add|list|remove|update' all present in installed CLI",
+    "plugins-validate-manifest": "PASS: 'plugins validate <dir>' parses .zcode-plugin/plugin.json + marketplace.json; flags only missing required userConfig (by design before configuration)",
+    "isolated-marketplace-add": "PASS: exit 0, 'Added marketplace lam-local (1 plugins)' with USERPROFILE-redirected isolated home",
+    "isolated-install-enabled": "PASS: exit 0, 'Installed plugin lan-agent-mesh@lam-local (0.1.0) [enabled]', cache inside isolated home",
+    "commands-registered": "PASS: 'zcode commands list' shows all 4 (/mesh-agents /mesh-status /mesh-delegate /mesh-watch)",
+    "mcp-registration-env-vars": "PASS: 'plugins list' shows mcp: plugin:lan-agent-mesh:lam-mesh once ZCODE_LAM_NODE/ZCODE_LAM_ROOT/ZCODE_LAM_CREDENTIAL_FILE are set; ${ZCODE_*} env expansion is compiled into the installed CLI's plugin template resolver",
+    "uninstall-not-run": "NOT-RUN (deferred to acceptance round)",
+    "mcp-config-negative-without-env": "PASS (re-verified live): env unset -> plugin enabled but mcp: none (fail-closed, no mesh tools); env set -> mcp: plugin:lan-agent-mesh:lam-mesh"
+  },
+  "findings": [
+    "Plugin discovery is bound to the real user profile: even with ZCODE_DATA_BASE_DIR/XDG_* redirected, 'plugins list' enumerates the host's official plugins; full isolation requires USERPROFILE (and APPDATA/LOCALAPPDATA) redirection. No real user plugin state was modified.",
+    "The plugins-list per-plugin counter ('commands: 1') does not reflect command registration; 'zcode commands list' is the authoritative check (4/4).",
+    "userConfig values have no non-interactive CLI setter in 0.17.0; the plugin therefore resolves its three inputs via explicit ZCODE_LAM_* environment variables (auditable, scriptable, supported by the installed resolver). Manifest keeps no secrets.",
+    "Synchronous execFile against the gateway control CLI deadlocks when the gateway runs in the same process (control HTTP server starves); async execFile required."
+  ],
+  "notRun": [
+    "native ZCode session tool advertisement/call through the plugin (needs fixture-provider session harness; next step)",
+    "P1 trace panel (waits on #98 schema)"
+  ]
+}
