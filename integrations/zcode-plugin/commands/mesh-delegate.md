@@ -5,7 +5,7 @@ argument-hint: <agentId> <workspaceAlias> <task text>
 
 Delegate a task to a remote agent over the mesh. Follow these steps exactly; the tools are asynchronous — none of them returns the task result directly.
 
-**1. Resolve the target (read-only).** Call `mesh_list_agents` and find the entry whose agentId matches $ARGUMENTS. Note its **peerId** and confirm the workspace alias is listed for that agent. `mesh_start_session` requires `peerId`, `agentId` and `workspaceAlias` together — an agentId alone is not enough.
+**1. Resolve the target (read-only).** Call `mesh_list_agents`; entries carry `id`, `nodeId`, `harnessId`, `name`, `workspaceAliases`, `capabilities` — **no `agentId`/`peerId` fields exist in this response**. Map them explicitly for the session call: **`agentId` = the entry's `id`**, **`peerId` = the entry's `nodeId`**. If $ARGUMENTS' agent id (or name) matches several entries, list them and ask the user to pick one exact entry before continuing. Then verify the requested workspace alias is present in that entry's `workspaceAliases` array — if it is not, stop and report the available aliases instead of guessing. `mesh_start_session` requires `peerId`, `agentId` and `workspaceAlias` together, all taken from this one chosen entry.
 
 **2. Confirm with the user.** Echo back the peerId, agentId, workspace alias and the exact task text, and ask for explicit confirmation. If the user does not confirm, stop before calling any side-effecting tool. The ZCode host's native permission prompt still governs each actual tool call; this command never bypasses or auto-approves it.
 

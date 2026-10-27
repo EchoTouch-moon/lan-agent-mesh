@@ -43,15 +43,20 @@ if (actual !== pins.mcpCliSha256)
 const child = spawn(process.execPath, [cli, '--credentials', credentials], { stdio: ['pipe', 'pipe', 'inherit'] });
 // The bridge supervises exactly one child it spawned itself; nothing else is ever signalled.
 let shuttingDown = false;
+let childExited = false;
+let guard = null;
 const shutdown = () => {
   if (shuttingDown) return;
   shuttingDown = true;
   process.stdin.unpipe(child.stdin);
   child.stdout.unpipe(process.stdout);
   if (!child.stdin.destroyed) child.stdin.end();
-  // Grace period for the child's own SIGINT/SIGTERM handling, then force-terminate our child only.
-  const guard = setTimeout(() => child.kill('SIGKILL'), 2000);
-  child.once('exit', () => clearTimeout(guard));
+  // Grace period for the child's own SIGINT/SIGTERM handling; never armed once the child is gone,
+  // and unreferenced so a late timer cannot hold the wrapper open.
+  if (!childExited) {
+    guard = setTimeout(() => child.kill('SIGKILL'), 2000);
+    guard.unref();
+  }
 };
 const ignorePipeError = (error) => { if (error?.code !== 'EPIPE') throw error; };
 process.stdin.on('error', ignorePipeError);
@@ -66,6 +71,8 @@ child.stdout.pipe(process.stdout);
 process.once('SIGINT', () => { child.kill('SIGINT'); shutdown(); });
 process.once('SIGTERM', () => { child.kill('SIGTERM'); shutdown(); });
 child.on('exit', (code) => {
+  childExited = true;
+  if (guard) clearTimeout(guard);
   shutdown();
   process.exitCode = code ?? 1;
 });

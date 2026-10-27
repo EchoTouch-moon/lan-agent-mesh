@@ -124,7 +124,12 @@ try {
       check('bridge-serves-seven-mesh-tools', tools.length === 7 && tools.every((n) => n.startsWith('mesh_')), tools.join(','));
 
       const agent = (await call('mesh_list_agents', {})).agents[0];
-      check('mesh-list-agents-over-bridge', Boolean(agent?.id && agent?.nodeId && agent?.workspaceAliases?.length), JSON.stringify(agent).slice(0, 120));
+      check(
+        'list-agents-real-field-shape',
+        Boolean(agent) && typeof agent.id === 'string' && typeof agent.nodeId === 'string' && typeof agent.name === 'string' && Array.isArray(agent.workspaceAliases) && agent.workspaceAliases.length > 0 && !('agentId' in agent) && !('peerId' in agent),
+        `keys=${Object.keys(agent ?? {}).join(',')}`,
+      );
+      check('mesh-list-agents-over-bridge', Boolean(agent?.id && agent?.nodeId), JSON.stringify(agent).slice(0, 120));
 
       const startRequest = randomUUID();
       const started = await call('mesh_start_session', { peerId: agent.nodeId, agentId: agent.id, workspaceAlias: agent.workspaceAliases[0], requestId: startRequest });
