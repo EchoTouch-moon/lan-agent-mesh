@@ -1,18 +1,28 @@
 {
   "kind": "zcode-plugin bridge smoke (loopback fixture gateways, real scoped credential)",
-  "testedSourceSha": "c956f80a04823238c3cabd100a40179640a82ea5",
+  "testedSourceSha": "ec940168eda1d1f2fc9823afe9036bff859b5b5c",
   "platform": "win32",
   "node": "v24.12.0",
-  "startedUtc": "2026-10-27T13:53:58.825Z",
+  "startedUtc": "2026-10-27T14:56:00.551Z",
   "results": {
     "credential-issued-via-operator-cli": "PASS",
     "missing-lam-root-fails-closed": "PASS",
     "digest-mismatch-fails-closed": "PASS",
     "bridge-serves-seven-mesh-tools": "PASS",
-    "mesh-list-agents-over-bridge": "PASS"
+    "mesh-list-agents-over-bridge": "PASS",
+    "start-session-contract": "PASS",
+    "same-requestid-start-is-idempotent": "PASS",
+    "delegate-returns-submission-not-result": "PASS",
+    "same-requestid-retry-returns-same-task": "PASS",
+    "same-cursor-replays-same-event": "PASS",
+    "get-task-cursor-advances-to-terminal-drain": "PASS",
+    "cancel-returns-delivery-ack-only": "PASS",
+    "after-cancel-poll-to-terminal": "PASS",
+    "owned-bridge-children-exited-after-close": "PASS"
   },
   "externalModels": 0,
   "cleanup": "complete",
-  "endedUtc": "2026-10-27T13:54:03.831Z",
+  "cancelTerminal": "CANCELLED",
+  "endedUtc": "2026-10-27T14:56:10.290Z",
   "status": "passed"
 }
