@@ -68,3 +68,7 @@
 - AgentTorrent：https://github.com/raghavan/agent-torrent （上游称 research prototype）
 
 以上是外部公开资料的**documented** 级别；未对其 Mac/Win 实际安装二进制运行全量安全测试，也未核定全部许可证与依赖义务。正式采纳前必须 R0 evidence 和安全审查。
+
+## R0 固定源码审查增量（2026-10-26，待复核）
+
+已形成 [11 项研究锁](upstream-locks.json)、[决策与安全边界](R0_DECISIONS.md) 和 [复核证据](evidence/r0-2026-10-26/README.md)，证据等级保持 **documented**。表中 A2A SDK 的“v1.0 支持”指协议版本，本轮 SDK 候选精确 pin 为 **1.3.0**；JSON-RPC 使用 `SendMessage`。MCP 2.4.0 保持现有 pin，但根 LICENSE 存在 Apache-2.0/MIT 过渡和非规范文档 CC-BY-4.0，不能据 manifest 推断整仓库许可一致。Directory 默认公网接口监听且 authn/authz 关闭；SHADI Windows 修改 DACL、secret backend 与 Mac 不等效；AgentBridge Codex profile 带 bypass approvals/sandbox 参数。均不作为集成授权。上表策略保留，具体版本、不可复用项和 R1/SEC/NET 前置以 R0 报告为准；未运行上游，不升级为 verified。

@@ -1,0 +1,87 @@
+{
+  "testedSourceSha": "d73157cb9fffd6c44d02e7dd2dfef0c2b25e8bc4",
+  "worktreeCleanBefore": true,
+  "evidenceClass": "docs",
+  "nativeModelCalls": "not-used",
+  "environment": {
+    "os": "macOS-27.0-arm64-arm-64bit",
+    "python": "3.9.6",
+    "node": "v22.23.2",
+    "pnpm": "10.18.3",
+    "harness": null
+  },
+  "inputHashes": {
+    "docs/research/r0-tools/collect.py": "5697489b84a40f5ad8b3e9cf127faf0a999623452dbc0f633564f9768f655eaf",
+    "docs/research/r0-tools/check.mjs": "43c5d2dd62968baff8dd19f77b7bc4bd47c7730020fa2fd020a1a65cd5d99844",
+    "docs/research/r0-tools/validate.py": "48cbc64f434cfb123c99926aaed63c08388285d1e25022dc3bf91829e7fbbe50",
+    "docs/research/upstream-locks.json": "d01e80e0eb956aaa7db4b76db875be6ae6bccc3377fad545320086c2c1da2c9a",
+    "docs/research/upstream-locks.schema.json": "80e48c30a491dec1ca7cfaa60046a511a8b3eceb1d2351c61120fc6bf2d68914",
+    "package.json": "bce5b5831970fa3a0651adec3ef866c1a7b38e6d6146228069f23f4ed2fad9e3",
+    "pnpm-lock.yaml": "f3b48488655b4c25645a5fcfb8a2dd5a8b66307df0ae6893c9c281b12e971bbc",
+    ".github/workflows/ci.yml": "71eca27abc6469dc93d5f5a40fe8234403c9f6513c8f99de332fe0f8fe0188c3",
+    "eslint.config.js": "80257c078d3892688052e9897ce28312a97ea5d1756fa4d8ed64ba2542796898",
+    "docs/research/r0-tools/supplement.py": "0cdba8e3c600892018bb4dff5588a18bac8c7ffed1b6e2c01587792e19e14b8d",
+    "docs/research/r0-tools/check-evidence.py": "3ec5fb0fc4d7210ffb4c0881f66061dff5186f141891f225f221018fb7e9cd6a"
+  },
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "docs/research/r0-tools/supplement.py"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-26T09:42:19.897179+00:00",
+      "finishedAt": "2026-10-26T09:42:25.361262+00:00",
+      "rawSha256": "8a57ee66704728bdf34232ee6ca94f05cf0f8abb5830ab1825f502697a027191",
+      "log": "validation-02-0.log",
+      "logSha256": "8a57ee66704728bdf34232ee6ca94f05cf0f8abb5830ab1825f502697a027191"
+    },
+    {
+      "command": [
+        "node",
+        "docs/research/r0-tools/check.mjs"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-26T09:42:25.363247+00:00",
+      "finishedAt": "2026-10-26T09:42:25.456886+00:00",
+      "rawSha256": "e132271517a78f9b14d6fef229ca0527fb00ed2299bc32c65f097ade510b0a54",
+      "log": "validation-02-1.log",
+      "logSha256": "e132271517a78f9b14d6fef229ca0527fb00ed2299bc32c65f097ade510b0a54"
+    },
+    {
+      "command": [
+        "python3",
+        "docs/research/r0-tools/check-evidence.py"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-26T09:42:25.457678+00:00",
+      "finishedAt": "2026-10-26T09:42:25.522027+00:00",
+      "rawSha256": "bb5e1710f5346c7b308d522263775c32127f08e298a6bcde5f6dbe524c81ed6c",
+      "log": "validation-02-2.log",
+      "logSha256": "bb5e1710f5346c7b308d522263775c32127f08e298a6bcde5f6dbe524c81ed6c"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-26T09:42:25.522832+00:00",
+      "finishedAt": "2026-10-26T09:42:25.531427+00:00",
+      "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log": "validation-02-3.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "ciScope": "macos-latest/windows-latest x Node22/24; results tracked separately on PR",
+  "rawLogStorage": "local temporary directory, not committed; immutable raw SHA256 below; committed logs redact only repository/home path strings",
+  "cleanup": {
+    "upstreamProcessesStarted": 0,
+    "upstreamServiceListeners": 0,
+    "existingRegressionLoopbackFixtures": "pnpm check may start existing synthetic sockets; no separate port audit",
+    "credentialsCreated": 0,
+    "aclFirewallChanges": 0,
+    "upstreamCacheContainsOnlyPublicText": true
+  }
+}

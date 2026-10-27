@@ -1,0 +1,12 @@
+{
+  "evidenceClass": "preflight-observation",
+  "testedSourceSha": null,
+  "limitations": "Interactive reconnaissance before the committed audit runner; full timestamps/exit codes were not captured for each individual read. Null means unavailable, never success.",
+  "observations": [
+    {"operation":"Read requested files on original local feature checkout", "sourceSha":"8bfe5a2 (abbreviated observation)", "exitCode":1, "result":"AGENTS.md and three requested docs absent; fetched origin/main and read before any change"},
+    {"operation":"GitHub connector GET /repos/{repo}/tags?per_page=5 across ten upstream repositories", "exitCode":null, "result":"INVALID_ARGUMENT HTTP 400: GitHub Fetch URL is not an allowed public GitHub repository or search endpoint", "fallback":"Public HTTPS GitHub API/raw sources; no upstream execution"},
+    {"operation":"Exploratory Directory tree path proto/agntcy/dir/routing/v1/routing.proto", "exitCode":null, "result":"MISSING in selected tree; removed from collection targets; no claim of reading nonexistent source"},
+    {"operation":"python3 import jsonschema availability", "exitCode":1, "result":"ModuleNotFoundError; no installation; use existing locked Ajv through ESLint for Draft-07 validation"},
+    {"operation":"Exploratory reads/searches while downloads were incomplete or optional manifest files absent", "exitCode":null, "result":"Some cat/rg reads reported missing files; no evidence inferred from absent files; authoritative collector separately records every selected source fetch"}
+  ]
+}

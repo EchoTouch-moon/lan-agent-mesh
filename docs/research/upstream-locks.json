@@ -1,0 +1,487 @@
+{
+  "schemaVersion": 1,
+  "baseSha": "1c5697219a7d3281f37d57981b5b548d7c1c9d5b",
+  "evidenceClass": "documented",
+  "runtimeChanges": false,
+  "upstreams": [
+    {
+      "name": "A2A specification",
+      "id": "a2a-spec",
+      "url": "https://github.com/a2aproject/A2A",
+      "tagOrCommit": "v1.0.0",
+      "commit": "173695755607e884aa9acf8ce4feed90e32727a1",
+      "pinEvidence": "https://api.github.com/repos/a2aproject/A2A/commits/v1.0.0",
+      "license": "Apache-2.0",
+      "licenseEvidence": [
+        "https://github.com/a2aproject/A2A/blob/173695755607e884aa9acf8ce4feed90e32727a1/LICENSE"
+      ],
+      "apiEvidence": [
+        "https://github.com/a2aproject/A2A/blob/173695755607e884aa9acf8ce4feed90e32727a1/specification/a2a.proto",
+        "https://github.com/a2aproject/A2A/blob/173695755607e884aa9acf8ce4feed90e32727a1/docs/specification.md"
+      ],
+      "platformEvidence": [
+        "https://github.com/a2aproject/A2A/blob/173695755607e884aa9acf8ce4feed90e32727a1/specification/a2a.proto"
+      ],
+      "securityNotes": "A2A v1.0 is the target; JSON-RPC SendMessage, not legacy message/send. No standard UNKNOWN; UNSPECIFIED is not uncertainty. Cancel acceptance is not proof of native cancellation.",
+      "status": "documented",
+      "lastChecked": "2026-10-26",
+      "decision": "ADOPT",
+      "sourcePaths": [
+        "LICENSE",
+        "specification/a2a.proto",
+        "docs/specification.md"
+      ],
+      "platformVerification": {
+        "macOS": null,
+        "Windows": null
+      },
+      "transitiveLicenseReview": "unknown — no new installation or runtime adoption approved",
+      "runtimeDependencyApproved": false
+    },
+    {
+      "name": "A2A JavaScript SDK",
+      "id": "a2a-js",
+      "url": "https://github.com/a2aproject/a2a-js",
+      "tagOrCommit": "v1.3.0",
+      "commit": "29417a5bb4038f804f310ce4fffd267a9375aa90",
+      "pinEvidence": "https://api.github.com/repos/a2aproject/a2a-js/commits/v1.3.0",
+      "license": "Apache-2.0",
+      "licenseEvidence": [
+        "https://github.com/a2aproject/a2a-js/blob/29417a5bb4038f804f310ce4fffd267a9375aa90/LICENSE"
+      ],
+      "apiEvidence": [
+        "https://github.com/a2aproject/a2a-js/blob/29417a5bb4038f804f310ce4fffd267a9375aa90/package.json",
+        "https://github.com/a2aproject/a2a-js/blob/29417a5bb4038f804f310ce4fffd267a9375aa90/src/types/index.ts",
+        "https://github.com/a2aproject/a2a-js/blob/29417a5bb4038f804f310ce4fffd267a9375aa90/src/types/pb/a2a.ts",
+        "https://github.com/a2aproject/a2a-js/blob/29417a5bb4038f804f310ce4fffd267a9375aa90/src/client/index.ts"
+      ],
+      "platformEvidence": [
+        "https://github.com/a2aproject/a2a-js/blob/29417a5bb4038f804f310ce4fffd267a9375aa90/README.md"
+      ],
+      "securityNotes": "Node >=20. Root jose ^6.2.3; optional Express/gRPC/database peers must be separately locked/reviewed. Default owner resolver groups anonymous users into unknown. Agent-card helper defaults to public max-age=3600; private scoped cards require authentication before helper and no-store cache isolation.",
+      "status": "documented",
+      "lastChecked": "2026-10-26",
+      "decision": "ADAPT",
+      "sourcePaths": [
+        "README.md",
+        "package.json",
+        "LICENSE",
+        "src/types/index.ts",
+        "src/types/pb/a2a.ts",
+        "src/client/index.ts",
+        "src/client/transports/json_rpc_transport.ts",
+        "src/server/request_handler/default_request_handler.ts",
+        "src/server/owner_resolver.ts",
+        "src/server/authentication/user.ts",
+        "src/server/express/agent_card_handler.ts"
+      ],
+      "platformVerification": {
+        "macOS": null,
+        "Windows": null
+      },
+      "transitiveLicenseReview": "unknown — no new installation or runtime adoption approved",
+      "runtimeDependencyApproved": false
+    },
+    {
+      "name": "MCP TypeScript SDK",
+      "id": "mcp",
+      "url": "https://github.com/modelcontextprotocol/typescript-sdk",
+      "tagOrCommit": "v2.4.0",
+      "commit": "951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5",
+      "pinEvidence": "https://api.github.com/repos/modelcontextprotocol/typescript-sdk/commits/v2.4.0",
+      "license": "Apache-2.0 AND MIT AND CC-BY-4.0",
+      "licenseEvidence": [
+        "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/LICENSE"
+      ],
+      "apiEvidence": [
+        "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/packages/server/src/index.ts",
+        "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/packages/client/src/index.ts",
+        "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/packages/server/package.json",
+        "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/packages/client/package.json"
+      ],
+      "platformEvidence": [
+        "https://github.com/modelcontextprotocol/typescript-sdk/blob/951fe5603a7ec0b2dcb6a0b95d92cd86f93ad9e5/packages/server/package.json"
+      ],
+      "securityNotes": "Existing exact 2.4.0 server/client/core. Package manifests declare Apache-2.0, but root LICENSE explicitly retains unconsented MIT contributions and licenses non-spec documentation CC-BY-4.0. Composite is repository scope, not a per-file relicensing conclusion; attribution completeness remains unknown. Keep stdio and existing scoped policy; SDK version is not protocol revision.",
+      "status": "documented",
+      "lastChecked": "2026-10-26",
+      "decision": "ADOPT",
+      "sourcePaths": [
+        "LICENSE",
+        "packages/server/package.json",
+        "packages/client/package.json",
+        "packages/core/package.json",
+        "docs/protocol-versions.md",
+        "SECURITY.md",
+        ".github/workflows/main.yml",
+        "packages/server/src/index.ts",
+        "packages/client/src/index.ts"
+      ],
+      "platformVerification": {
+        "macOS": null,
+        "Windows": null
+      },
+      "transitiveLicenseReview": "unknown — no new installation or runtime adoption approved",
+      "runtimeDependencyApproved": false
+    },
+    {
+      "name": "AGNTCY SLIM",
+      "id": "slim",
+      "url": "https://github.com/agntcy/slim",
+      "tagOrCommit": "cd505c2cf241481e44604b71a3d2d6d5d43c7839",
+      "commit": "cd505c2cf241481e44604b71a3d2d6d5d43c7839",
+      "pinEvidence": "https://api.github.com/repos/agntcy/slim/commits/cd505c2cf241481e44604b71a3d2d6d5d43c7839",
+      "license": "Apache-2.0",
+      "licenseEvidence": [
+        "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/LICENSE.md"
+      ],
+      "apiEvidence": [
+        "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/crates/proto/proto/data-plane/v1/data_plane.proto",
+        "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/crates/proto/proto/controlplane/v1/controlplane.proto",
+        "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/Cargo.toml",
+        "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/config/base/server-config.yaml"
+      ],
+      "platformEvidence": [
+        "https://github.com/agntcy/slim/blob/cd505c2cf241481e44604b71a3d2d6d5d43c7839/README.md"
+      ],
+      "securityNotes": "Workspace commit, not one monolithic release. Base example binds 0.0.0.0:46357 with insecure TLS; this is an example configuration, not proof of all compiled defaults. Rust/MLS/crypto and optional coordinator/control plane increase dependencies; no transport replacement.",
+      "status": "documented",
+      "lastChecked": "2026-10-26",
+      "decision": "DEFER",
+      "sourcePaths": [
+        "LICENSE.md",
+        "README.md",
+        "Cargo.toml",
+        "config/base/server-config.yaml",
+        "config/reference/config.yaml",
+        ".github/workflows/reusable-rust-build-and-test.yaml",
+        "crates/proto/proto/data-plane/v1/data_plane.proto",
+        "crates/proto/proto/controlplane/v1/controlplane.proto"
+      ],
+      "platformVerification": {
+        "macOS": null,
+        "Windows": null
+      },
+      "transitiveLicenseReview": "unknown — no new installation or runtime adoption approved",
+      "runtimeDependencyApproved": false
+    },
+    {
+      "name": "AGNTCY Directory",
+      "id": "dir",
+      "url": "https://github.com/agntcy/dir",
+      "tagOrCommit": "v1.8.0",
+      "commit": "337ddd89721bd66595c701c9675d6bfbb5a65997",
+      "pinEvidence": "https://api.github.com/repos/agntcy/dir/commits/v1.8.0",
+      "license": "Apache-2.0",
+      "licenseEvidence": [
+        "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/LICENSE.md"
+      ],
+      "apiEvidence": [
+        "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/proto/agntcy/dir/store/v1/store_service.proto",
+        "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/proto/agntcy/dir/routing/v1/routing_service.proto",
+        "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/client/client.go",
+        "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/server/go.mod",
+        "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/api/go.mod"
+      ],
+      "platformEvidence": [
+        "https://github.com/agntcy/dir/blob/337ddd89721bd66595c701c9675d6bfbb5a65997/README.md"
+      ],
+      "securityNotes": "Default gRPC 0.0.0.0:8888; metrics enabled :9090; authn/authz default false; REST gateway default false. Registry/OASF schema, optional SPIFFE/OCI/relay are deployment dependencies; discovery does not establish trust.",
+      "status": "documented",
+      "lastChecked": "2026-10-26",
+      "decision": "DEFER",
+      "sourcePaths": [
+        "LICENSE.md",
+        "README.md",
+        "api/LICENSE.md",
+        "client/LICENSE.md",
+        "server/go.mod",
+        "api/go.mod",
+        "server/config/config.go",
+        "server/authn/config/config.go",
+        "server/authz/config/config.go",
+        "install/docker/server.config.yml",
+        "proto/agntcy/dir/store/v1/store_service.proto",
+        "proto/agntcy/dir/routing/v1/routing_service.proto",
+        "client/client.go"
+      ],
+      "platformVerification": {
+        "macOS": null,
+        "Windows": null
+      },
+      "transitiveLicenseReview": "unknown — no new installation or runtime adoption approved",
+      "runtimeDependencyApproved": false
+    },
+    {
+      "name": "SHADI",
+      "id": "shadi",
+      "url": "https://github.com/agntcy/shadi",
+      "tagOrCommit": "4b56555e892517050f3c9a7a16d48afa6fb1baa9",
+      "commit": "4b56555e892517050f3c9a7a16d48afa6fb1baa9",
+      "pinEvidence": "https://api.github.com/repos/agntcy/shadi/commits/4b56555e892517050f3c9a7a16d48afa6fb1baa9",
+      "license": "Apache-2.0",
+      "licenseEvidence": [
+        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/LICENSE.md"
+      ],
+      "apiEvidence": [
+        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/shadi_sandbox/src/lib.rs",
+        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/Cargo.toml",
+        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/shadi_sandbox/Cargo.toml"
+      ],
+      "platformEvidence": [
+        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/README.md"
+      ],
+      "securityNotes": "macOS Seatbelt and Windows AppContainer differ. Windows implementation mutates DACLs, journals rollback, and warns proxy env is bypassable via direct connect. Non-macOS default secret store returns NotSupported; optional 1Password changes dependencies. No execution authorized.",
+      "status": "documented",
+      "lastChecked": "2026-10-26",
+      "decision": "STUDY",
+      "sourcePaths": [
+        "LICENSE.md",
+        "README.md",
+        "Cargo.toml",
+        "crates/shadi_sandbox/Cargo.toml",
+        "crates/shadi_sandbox/src/platform/mod.rs",
+        "crates/shadi_sandbox/src/platform/windows.rs",
+        "crates/shadi_sandbox/src/platform/macos.rs",
+        "crates/agentbridge/Cargo.toml",
+        "crates/agentbridge/README.md",
+        "crates/agentbridge/profiles/codex.json",
+        "crates/agentbridge/src/subprocess.rs",
+        "crates/agent_secrets/README.md",
+        "crates/agent_secrets/src/platform/mod.rs",
+        "crates/agent_secrets/src/platform/noop.rs",
+        "crates/shadi_a2a/Cargo.toml",
+        "crates/shadi_sandbox/src/lib.rs",
+        "crates/agentbridge/src/adapter.rs"
+      ],
+      "platformVerification": {
+        "macOS": null,
+        "Windows": null
+      },
+      "transitiveLicenseReview": "unknown — no new installation or runtime adoption approved",
+      "runtimeDependencyApproved": false
+    },
+    {
+      "name": "ANP",
+      "id": "anp",
+      "url": "https://github.com/agent-network-protocol/AgentNetworkProtocol",
+      "tagOrCommit": "release-20261014",
+      "commit": "463a9c8fbfc4683d13ff8ab492b830e81250b60c",
+      "pinEvidence": "https://api.github.com/repos/agent-network-protocol/AgentNetworkProtocol/commits/release-20261014",
+      "license": "Apache-2.0",
+      "licenseEvidence": [
+        "https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/463a9c8fbfc4683d13ff8ab492b830e81250b60c/LICENSE"
+      ],
+      "apiEvidence": [
+        "https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/463a9c8fbfc4683d13ff8ab492b830e81250b60c/02-anp-did-authentication-protocol-specification.md",
+        "https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/463a9c8fbfc4683d13ff8ab492b830e81250b60c/03-did-wba-method-design-specification.md",
+        "https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/463a9c8fbfc4683d13ff8ab492b830e81250b60c/06-anp-agent-communication-meta-protocol-specification.md",
+        "https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/463a9c8fbfc4683d13ff8ab492b830e81250b60c/07-anp-agent-description-protocol-specification.md"
+      ],
+      "platformEvidence": [
+        "https://github.com/agent-network-protocol/AgentNetworkProtocol/blob/463a9c8fbfc4683d13ff8ab492b830e81250b60c/README.md"
+      ],
+      "securityNotes": "Freeze dated protocol snapshot, not vnext/draft promotion. DID web resolution implies DNS/HTTPS dependencies. DID authentication is not paired peer authorization; key rotation/revocation mapping unknown.",
+      "status": "documented",
+      "lastChecked": "2026-10-26",
+      "decision": "STUDY",
+      "sourcePaths": [
+        "LICENSE",
+        "README.md",
+        "02-anp-did-authentication-protocol-specification.md",
+        "03-did-wba-method-design-specification.md",
+        "06-anp-agent-communication-meta-protocol-specification.md",
+        "07-anp-agent-description-protocol-specification.md"
+      ],
+      "platformVerification": {
+        "macOS": null,
+        "Windows": null
+      },
+      "transitiveLicenseReview": "unknown — no new installation or runtime adoption approved",
+      "runtimeDependencyApproved": false
+    },
+    {
+      "name": "AgentLink",
+      "id": "agentlink",
+      "url": "https://github.com/Oryntai/AgentLink",
+      "tagOrCommit": "v0.5.0",
+      "commit": "942a0a8c9af21313a45b70dabc513fc8bac021f5",
+      "pinEvidence": "https://api.github.com/repos/Oryntai/AgentLink/commits/v0.5.0",
+      "license": "MIT",
+      "licenseEvidence": [
+        "https://github.com/Oryntai/AgentLink/blob/942a0a8c9af21313a45b70dabc513fc8bac021f5/LICENSE"
+      ],
+      "apiEvidence": [
+        "https://github.com/Oryntai/AgentLink/blob/942a0a8c9af21313a45b70dabc513fc8bac021f5/SECURITY.md",
+        "https://github.com/Oryntai/AgentLink/blob/942a0a8c9af21313a45b70dabc513fc8bac021f5/package.json",
+        "https://github.com/Oryntai/AgentLink/blob/942a0a8c9af21313a45b70dabc513fc8bac021f5/src/broker-server.js",
+        "https://github.com/Oryntai/AgentLink/blob/942a0a8c9af21313a45b70dabc513fc8bac021f5/src/relay-server.js"
+      ],
+      "platformEvidence": [
+        "https://github.com/Oryntai/AgentLink/blob/942a0a8c9af21313a45b70dabc513fc8bac021f5/README.md"
+      ],
+      "securityNotes": "Node >=20; legacy MCP ^1.25.3, ngrok ^1.7.0, ws, zod plus optional Electron. Relay and broker are separate; remote deployment can use ngrok/self-hosted relay. Do not run host/install-mcp scripts or inherit GUI/account configuration.",
+      "status": "documented",
+      "lastChecked": "2026-10-26",
+      "decision": "STUDY",
+      "sourcePaths": [
+        "LICENSE",
+        "README.md",
+        "SECURITY.md",
+        "package.json",
+        "src/broker-server.js",
+        "src/relay-server.js",
+        "src/config.js",
+        "docs/PROTOCOL.md"
+      ],
+      "platformVerification": {
+        "macOS": null,
+        "Windows": null
+      },
+      "transitiveLicenseReview": "unknown — no new installation or runtime adoption approved",
+      "runtimeDependencyApproved": false
+    },
+    {
+      "name": "OpenAgents",
+      "id": "openagents",
+      "url": "https://github.com/openagents-org/openagents",
+      "tagOrCommit": "v0.8.5",
+      "commit": "5eab18f3592dee227ff479d40c365904dbc53f7c",
+      "pinEvidence": "https://api.github.com/repos/openagents-org/openagents/commits/v0.8.5",
+      "license": "Apache-2.0",
+      "licenseEvidence": [
+        "https://github.com/openagents-org/openagents/blob/5eab18f3592dee227ff479d40c365904dbc53f7c/LICENSE"
+      ],
+      "apiEvidence": [
+        "https://github.com/openagents-org/openagents/blob/5eab18f3592dee227ff479d40c365904dbc53f7c/src/openagents/core/transports/a2a.py",
+        "https://github.com/openagents-org/openagents/blob/5eab18f3592dee227ff479d40c365904dbc53f7c/pyproject.toml",
+        "https://github.com/openagents-org/openagents/blob/5eab18f3592dee227ff479d40c365904dbc53f7c/setup.py"
+      ],
+      "platformEvidence": [
+        "https://github.com/openagents-org/openagents/blob/5eab18f3592dee227ff479d40c365904dbc53f7c/README.md"
+      ],
+      "securityNotes": "Tag v0.8.5 manifest says 0.8.5.post4 (version discrepancy retained). Broad >= dependencies include openai, mcp, grpcio and crypto. Server/workspace examples are not proof of local policy or native permission equivalence.",
+      "status": "documented",
+      "lastChecked": "2026-10-26",
+      "decision": "DEFER",
+      "sourcePaths": [
+        "LICENSE",
+        "README.md",
+        "pyproject.toml",
+        "setup.py",
+        "docker-compose.yml",
+        ".github/workflows/pytest.yml",
+        "src/openagents/core/transports/a2a.py"
+      ],
+      "platformVerification": {
+        "macOS": null,
+        "Windows": null
+      },
+      "transitiveLicenseReview": "unknown — no new installation or runtime adoption approved",
+      "runtimeDependencyApproved": false
+    },
+    {
+      "name": "AgentTorrent",
+      "id": "agenttorrent",
+      "url": "https://github.com/raghavan/agent-torrent",
+      "tagOrCommit": "257d33386df4fc10b5464077565268a23d5a6e79",
+      "commit": "257d33386df4fc10b5464077565268a23d5a6e79",
+      "pinEvidence": "https://api.github.com/repos/raghavan/agent-torrent/commits/257d33386df4fc10b5464077565268a23d5a6e79",
+      "license": "MIT",
+      "licenseEvidence": [
+        "https://github.com/raghavan/agent-torrent/blob/257d33386df4fc10b5464077565268a23d5a6e79/LICENSE"
+      ],
+      "apiEvidence": [
+        "https://github.com/raghavan/agent-torrent/blob/257d33386df4fc10b5464077565268a23d5a6e79/SECURITY.md",
+        "https://github.com/raghavan/agent-torrent/blob/257d33386df4fc10b5464077565268a23d5a6e79/pyproject.toml",
+        "https://github.com/raghavan/agent-torrent/blob/257d33386df4fc10b5464077565268a23d5a6e79/agenttorrent/peer.py",
+        "https://github.com/raghavan/agent-torrent/blob/257d33386df4fc10b5464077565268a23d5a6e79/agenttorrent/executor.py"
+      ],
+      "platformEvidence": [
+        "https://github.com/raghavan/agent-torrent/blob/257d33386df4fc10b5464077565268a23d5a6e79/README.md"
+      ],
+      "securityNotes": "No tags; freeze commit with package 0.1.0. README explicitly lacks authorization, transport encryption and result verification. Python >=3.11 plus PyNaCl. Upstream CI starts real local LLM; never run it in R0.",
+      "status": "documented",
+      "lastChecked": "2026-10-26",
+      "decision": "STUDY",
+      "sourcePaths": [
+        "LICENSE",
+        "README.md",
+        "SECURITY.md",
+        "pyproject.toml",
+        "agenttorrent/peer.py",
+        "agenttorrent/executor.py",
+        ".github/workflows/ci.yml"
+      ],
+      "platformVerification": {
+        "macOS": null,
+        "Windows": null
+      },
+      "transitiveLicenseReview": "unknown — no new installation or runtime adoption approved",
+      "runtimeDependencyApproved": false
+    },
+    {
+      "name": "AgentBridge (SHADI workspace)",
+      "id": "agentbridge",
+      "url": "https://github.com/agntcy/shadi",
+      "tagOrCommit": "4b56555e892517050f3c9a7a16d48afa6fb1baa9",
+      "commit": "4b56555e892517050f3c9a7a16d48afa6fb1baa9",
+      "pinEvidence": "https://api.github.com/repos/agntcy/shadi/commits/4b56555e892517050f3c9a7a16d48afa6fb1baa9",
+      "license": "Apache-2.0",
+      "licenseEvidence": [
+        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/LICENSE.md"
+      ],
+      "apiEvidence": [
+        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/agentbridge/src/adapter.rs",
+        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/agentbridge/Cargo.toml",
+        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/crates/agentbridge/profiles/codex.json"
+      ],
+      "platformEvidence": [
+        "https://github.com/agntcy/shadi/blob/4b56555e892517050f3c9a7a16d48afa6fb1baa9/README.md"
+      ],
+      "securityNotes": "Workspace crate agntcy-agentbridge 0.5.0; a2a-lf 0.4.2 and a2a-server-lf 0.5.3 do not prove protocol v1.0 conformance. Bundled Codex profile passes --dangerously-bypass-approvals-and-sandbox; cannot reuse under ADR0004 native default-deny. Subprocess lifetime and cancel/restart semantics remain untested.",
+      "status": "documented",
+      "lastChecked": "2026-10-26",
+      "decision": "STUDY",
+      "sourcePaths": [
+        "LICENSE.md",
+        "README.md",
+        "Cargo.toml",
+        "crates/shadi_sandbox/Cargo.toml",
+        "crates/shadi_sandbox/src/platform/mod.rs",
+        "crates/shadi_sandbox/src/platform/windows.rs",
+        "crates/shadi_sandbox/src/platform/macos.rs",
+        "crates/agentbridge/Cargo.toml",
+        "crates/agentbridge/README.md",
+        "crates/agentbridge/profiles/codex.json",
+        "crates/agentbridge/src/subprocess.rs",
+        "crates/agent_secrets/README.md",
+        "crates/agent_secrets/src/platform/mod.rs",
+        "crates/agent_secrets/src/platform/noop.rs",
+        "crates/shadi_a2a/Cargo.toml",
+        "crates/shadi_sandbox/src/lib.rs",
+        "crates/agentbridge/src/adapter.rs"
+      ],
+      "platformVerification": {
+        "macOS": null,
+        "Windows": null
+      },
+      "transitiveLicenseReview": "unknown — no new installation or runtime adoption approved",
+      "runtimeDependencyApproved": false
+    }
+  ],
+  "a2aContract": {
+    "protocolVersion": "1.0",
+    "jsonRpcSendMethod": "SendMessage",
+    "terminalStates": [
+      "TASK_STATE_COMPLETED",
+      "TASK_STATE_FAILED",
+      "TASK_STATE_CANCELED",
+      "TASK_STATE_REJECTED"
+    ],
+    "unknownMapping": "unsupported-until-reviewed-extension",
+    "cancelRequiresNativeTerminal": true,
+    "authenticationBeforeSdk": true,
+    "revocationMustInvalidateCardAndTaskAccess": true
+  }
+}

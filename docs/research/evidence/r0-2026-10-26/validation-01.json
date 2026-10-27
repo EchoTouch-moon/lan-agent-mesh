@@ -1,0 +1,86 @@
+{
+  "testedSourceSha": "1bc3477922079a1e9ecd9f10dd8bdf08f9c41864",
+  "worktreeCleanBefore": true,
+  "evidenceClass": "docs",
+  "nativeModelCalls": "not-used",
+  "environment": {
+    "os": "macOS-27.0-arm64-arm-64bit",
+    "python": "3.9.6",
+    "node": "v22.23.2",
+    "pnpm": "10.18.3",
+    "harness": null
+  },
+  "inputHashes": {
+    "docs/research/r0-tools/collect.py": "5697489b84a40f5ad8b3e9cf127faf0a999623452dbc0f633564f9768f655eaf",
+    "docs/research/r0-tools/check.mjs": "43c5d2dd62968baff8dd19f77b7bc4bd47c7730020fa2fd020a1a65cd5d99844",
+    "docs/research/r0-tools/validate.py": "1674661e2ccb78f03a42f6c64097fdb167e6d198d5817a720a84be6b4d98a4ca",
+    "docs/research/upstream-locks.json": "3195f14812fc0324c2f61a2ab4d0ec8f54d5fc1497facb18ba0aed62736231a2",
+    "docs/research/upstream-locks.schema.json": "80e48c30a491dec1ca7cfaa60046a511a8b3eceb1d2351c61120fc6bf2d68914",
+    "package.json": "bce5b5831970fa3a0651adec3ef866c1a7b38e6d6146228069f23f4ed2fad9e3",
+    "pnpm-lock.yaml": "f3b48488655b4c25645a5fcfb8a2dd5a8b66307df0ae6893c9c281b12e971bbc",
+    ".github/workflows/ci.yml": "71eca27abc6469dc93d5f5a40fe8234403c9f6513c8f99de332fe0f8fe0188c3",
+    "eslint.config.js": "80257c078d3892688052e9897ce28312a97ea5d1756fa4d8ed64ba2542796898"
+  },
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "docs/research/r0-tools/collect.py",
+        "--output",
+        "docs/research/evidence/r0-2026-10-26/source-01"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-26T09:38:44.974972+00:00",
+      "finishedAt": "2026-10-26T09:39:15.109434+00:00",
+      "rawSha256": "bfebc082a62dabc7d26e08ca97acf3e9de5cd68085a5d873e1ef6366c00d5d0a",
+      "log": "validation-01-0.log",
+      "logSha256": "bfebc082a62dabc7d26e08ca97acf3e9de5cd68085a5d873e1ef6366c00d5d0a"
+    },
+    {
+      "command": [
+        "node",
+        "docs/research/r0-tools/check.mjs"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-26T09:39:15.110850+00:00",
+      "finishedAt": "2026-10-26T09:39:15.214702+00:00",
+      "rawSha256": "e132271517a78f9b14d6fef229ca0527fb00ed2299bc32c65f097ade510b0a54",
+      "log": "validation-01-1.log",
+      "logSha256": "e132271517a78f9b14d6fef229ca0527fb00ed2299bc32c65f097ade510b0a54"
+    },
+    {
+      "command": [
+        "pnpm",
+        "check"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-26T09:39:15.215442+00:00",
+      "finishedAt": "2026-10-26T09:39:42.938233+00:00",
+      "rawSha256": "cbe189866bb235763fba1f780125e20b5856c0882b752500194552dfced3f3ce",
+      "log": "validation-01-2.log",
+      "logSha256": "9e43aa20a7e311f895c418dccf6c6c64375888de267ee1805b1ae5b03f6339e7"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-26T09:39:42.939771+00:00",
+      "finishedAt": "2026-10-26T09:39:42.963627+00:00",
+      "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log": "validation-01-3.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "ciScope": "macos-latest/windows-latest x Node22/24; results tracked separately on PR",
+  "rawLogStorage": "local temporary directory, not committed; immutable raw SHA256 below; committed logs redact only repository/home path strings",
+  "cleanup": {
+    "upstreamProcessesStarted": 0,
+    "newServiceListeners": 0,
+    "credentialsCreated": 0,
+    "aclFirewallChanges": 0,
+    "upstreamCacheContainsOnlyPublicText": true
+  }
+}
