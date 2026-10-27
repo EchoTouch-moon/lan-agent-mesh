@@ -136,7 +136,10 @@ async function terminateOwnedSurvivors(scan, signal) {
       }
       if (!command.includes(root)) { actions.push({ pid, action: 'skipped', reason: 'command line no longer attributes this pid to the run root' }); continue; }
       process.kill(pid, signal);
-      actions.push({ pid, action: signal, command: command.trim().slice(0, 160).replaceAll(root, '<disposable-root>') });
+      // Redact every local absolute-path class that can appear in a survivor's argv BEFORE
+      // any length truncation — slicing first would cut a path in half and defeat the
+      // replacement. Classes: the disposable run root and the repository worktree.
+      actions.push({ pid, action: signal, command: command.trim().replaceAll(root, '<disposable-root>').replaceAll(repoRoot, '<repo>').slice(0, 200) });
     } catch (error) {
       actions.push({ pid, action: 'failed', reason: String(error?.message ?? error).slice(0, 80) });
     }
@@ -171,7 +174,7 @@ async function ownedProcessScanUntilClean(label, graceMs = 3000) {
   if (scan.status === 'FAIL') {
     scan.survivorDetails = process.platform === 'win32' ? [] : await Promise.all(scan.survivors.slice(0, 8).map(pid =>
       execFileAsync('ps', ['-o', 'pid=,ppid=,command=', '-p', String(pid)], { timeout: 5000 })
-        .then(r => r.stdout.trim().slice(0, 200).replaceAll(root, '<disposable-root>'))
+        .then(r => r.stdout.trim().replaceAll(root, '<disposable-root>').replaceAll(repoRoot, '<repo>').slice(0, 240))
         .catch(() => `pid ${pid} (details unavailable)`)));
   }
   scan.log = log;
@@ -504,6 +507,11 @@ async function runPhaseC2(report, root) {
       delta({ role: 'assistant' }); delta({ content: value }); delta({}, 'stop'); response.end('data: [DONE]\n\n');
     };
     const sawToolResult = /"role":"tool"/.test(text) || /tool_result/.test(text);
+    // Deliberate negative validation (LHI3_NEGATIVE_NO_TOOLS=1): the fixture never offers a
+    // tool call, so the native turn completes with zero native tool evidence. The C2 rating
+    // must then be BLOCKED (not PARTIAL) and the overall LHI-3 verdict must not claim any
+    // native evidence — this exercises the "startup is not evidence" review rule end-to-end.
+    if (process.env.LHI3_NEGATIVE_NO_TOOLS === '1') return finishText('LHI3 tool not advertised');
     const hasSession = /"sessionId"/.test(text) && /mesh_start_session/.test(text);
     const hasTask = /"taskId"/.test(text) && /mesh_send_message/.test(text);
     const completed = /LHI3 RECEIVER DONE/.test(text);
@@ -646,8 +654,9 @@ async function runPhaseC2(report, root) {
         tick();
       });
     } catch (error) {
-      // Keep the evidence (fixture step trace) instead of losing it to the outer catch.
-      return { status: 'PARTIAL', reason: String(error?.message ?? error), entry: entryReport, codexVersion, chain: { steps: 'incomplete' }, notes: observed, cleanup: c2Cleanup };
+      // Startup alone is never evidence: an incomplete turn with no verified native tool
+      // call is BLOCKED, not PARTIAL (review rule).
+      return { status: 'BLOCKED', reason: `turn incomplete (${String(error?.message ?? error)}) and NO verified native tool-call evidence — startup alone is never rated PARTIAL`, entry: entryReport, codexVersion, chain: { steps: 'incomplete' }, notes: observed, cleanup: c2Cleanup };
     }
     const finalText = zcodeEvents.filter(m => m.method === 'session/event' && m.params?.type === 'model.streaming' && m.params.payload?.kind === 'text_delta' && m.params.payload).map(m => m.params.payload.delta).join('');
     const receiverDiagnostics = await receiver.command('diagnostics', {});
@@ -667,8 +676,13 @@ async function runPhaseC2(report, root) {
     const executionChain = finalText.includes('LHI3 NATIVE OK')
       ? { status: 'VERIFIED' }
       : { status: 'BLOCKED_NEEDS_USER_AUTH', reason: 'plan mode refuses non-read-only MCP tools ("Plan mode only allows read-only, non-destructive tools"); build mode would require a native permission allow, which the overnight packet does not grant (no #65-style auto-approve for ZCode)' };
+    // PARTIAL requires at least one chain with VERIFIED native tool-call evidence; merely
+    // having started native processes never rates PARTIAL (review rule).
+    const anyChainVerified = readOnlyChainVerified || executionChain.status === 'VERIFIED';
+    const bothChainsVerified = executionChain.status === 'VERIFIED' && readOnlyChainVerified;
     return {
-      status: executionChain.status === 'VERIFIED' && readOnlyChainVerified ? 'PASS' : 'PARTIAL',
+      status: !anyChainVerified ? 'BLOCKED' : bothChainsVerified ? 'PASS' : 'PARTIAL',
+      ...(anyChainVerified ? {} : { reason: 'native caller started and the turn ran, but NO chain has verified native tool-call evidence — startup alone is never rated PARTIAL' }),
       entry: entryReport, codexVersion,
       chain: {
         readOnlyNativeChain: readOnlyChainVerified ? 'VERIFIED (ZCode native mesh_list_agents -> bridge -> gateway pair -> CodexAdapter registry; agent id + capabilities returned to the ZCode model context)' : 'NOT-VERIFIED',

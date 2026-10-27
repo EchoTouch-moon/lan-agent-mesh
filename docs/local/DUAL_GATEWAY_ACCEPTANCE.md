@@ -106,3 +106,10 @@ native 结果 → 事件 cursor → mesh → MCP tool result → caller 模型�
 | 清理证据 | 独立 owned-process 扫描（argv 引用本 run 唯一 root 即归属；pgrep/powershell，失败=UNKNOWN）+ 端口释放核查；3s 宽限后对仍存活可归属后代**逐 PID 复核归属再 SIGTERM/SIGKILL**，全处置链入报告 | self-test 0 存活；native 捕获 1 个 ZCode 派生 MCP bridge 孤儿子进程（>10s 未退）→ SIGTERM 后清空（新观察 4） |
 
 其余修复：`mesh_list_sessions` 补实际驱动断言（20 门）；`mesh_delegate_task` 与 ACK-drop 注入显式 NOT-RUN；时间预算文档对齐 runner 实际强制值；self-test 基线挂入 CI（mac/win × node22/24）；runner 动态 import 改 `pathToFileURL`（Windows 合规）。
+
+### 7.1 复审二轮修复（2026-10-27 03:17 UTC）
+
+| 项 | 修复 | 证据 |
+|---|---|---|
+| 公开证据路径脱敏 | 存活进程命令行同时替换 `<disposable-root>` 与 `<repo>`（仓库工作树）；**替换先于长度截断**（截断会截断路径使替换失效——实测发现）；已归档 r2/r3 就地补脱敏（仅路径替换，如实记录于 evidence README） | st-r4/native-r4/negative 报告全量扫描零 `/Users/`、零 tmp 绝对路径 |
+| PARTIAL 评级须有真实工具证据 | C2 状态 = 双链 VERIFIED→PASS；**任一链 VERIFIED→PARTIAL**；零链证据→**BLOCKED**（含超时路径："启动过原生"本身不构成证据）。新增 `LHI3_NEGATIVE_NO_TOOLS=1` 负例开关 | negative-noevidence 归档：真实启动原生 + 1 次推理 + 0 工具调用 → C2/overall 均 BLOCKED、exit 2 |
