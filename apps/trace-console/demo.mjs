@@ -11,6 +11,7 @@
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { setInterval as every, clearInterval as stopEvery } from 'node:timers';
 import { setTimeout as delay } from 'node:timers/promises';
 import { Gateway } from '../../packages/runtime/dist/index.js';
 import { TraceConsole } from './dist/server.js';
@@ -89,13 +90,13 @@ async function main() {
     note: 'Open loginUrl once, paste taskIds from the rounds below. Ctrl-C stops and cleans up.',
   }, null, 2));
 
-  const loop = setInterval(() => {
+  const loop = every(() => {
     void runRound(caller, worker, workerSession, flaky).catch((error) => {
       console.error(`round ${round + 1} failed: ${error.message}`);
     });
   }, 4000);
   stopping.unshift(() => new Promise((resolve) => {
-    clearInterval(loop);
+    stopEvery(loop);
     resolve();
   }));
   await runRound(caller, worker, workerSession, flaky).catch(() => {});
