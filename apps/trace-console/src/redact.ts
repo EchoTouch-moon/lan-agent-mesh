@@ -209,6 +209,65 @@ export function redactPending(pending: unknown): RedactedPending[] {
   });
 }
 
+export interface RedactedPairing {
+  id: string;
+  peer: string;
+  localConfirmed: boolean;
+  remoteConfirmed: boolean;
+  expires: number;
+}
+
+/** Pending pairings are coordination state, not secrets: the one-time CODE
+ * stays server-side and is never forwarded to the page. */
+export function redactPairings(pairings: unknown): RedactedPairing[] {
+  if (!Array.isArray(pairings)) return [];
+  return pairings.map((pairing) => {
+    const value = (pairing ?? {}) as Record<string, unknown>;
+    return {
+      id: safeId(value.id) ?? '[unknown]',
+      peer: safeId(value.peer) ?? '[unknown]',
+      localConfirmed: value.localConfirmed === true,
+      remoteConfirmed: value.remoteConfirmed === true,
+      expires: typeof value.expires === 'number' && Number.isFinite(value.expires) ? value.expires : 0,
+    };
+  });
+}
+
+export type NodeSource = 'discovered' | 'pairing' | 'pending' | 'task';
+
+export interface RedactedNode {
+  peer: string;
+  addresses: string[];
+  source: NodeSource;
+  /** null = never probed yet; true/false = last registry probe outcome. */
+  online: boolean | null;
+  /** true only after a successful registry round-trip (paired + answered);
+   * false when the Gateway answered permission_denied (unpaired/unreachable);
+   * null when pairing state could not be determined from the failure. */
+  trusted: boolean | null;
+}
+
+/** Server-side peer table projection for the multi-node view. Entries are
+ * built from already-redacted Gateway rows; this pass re-validates peer IDs
+ * and re-redacts addresses so no raw value can reach the page by accident. */
+export function redactNodes(nodes: unknown): RedactedNode[] {
+  if (!Array.isArray(nodes)) return [];
+  return nodes.map((node) => {
+    const value = (node ?? {}) as Record<string, unknown>;
+    const source: NodeSource =
+      value.source === 'pairing' || value.source === 'pending' || value.source === 'task'
+        ? value.source
+        : 'discovered';
+    return {
+      peer: safeId(value.peer) ?? '[unknown]',
+      addresses: Array.isArray(value.addresses) ? value.addresses.map((a) => redactAddress(String(a))) : [],
+      source,
+      online: value.online === true || value.online === false ? value.online : null,
+      trusted: value.trusted === true || value.trusted === false ? value.trusted : null,
+    };
+  });
+}
+
 export function redactDiagnostics(diagnostics: unknown): Record<string, unknown> {
   const value = (diagnostics ?? {}) as Record<string, unknown>;
   const allowed = ['schemaVersion', 'tasks', 'inbox', 'outbox', 'pending', 'mdns', 'approvalPolicy'];

@@ -17,7 +17,11 @@ import {
   redactPeers,
   redactSessions,
   redactPending,
+  redactPairings,
+  redactNodes,
   redactDiagnostics,
+  type NodeSource,
+  type RedactedNode,
 } from './redact.js';
 import { PAGE_HTML, PAGE_JS, PAGE_CSS } from './page.js';
 
@@ -27,6 +31,24 @@ const MAX_SESSIONS = 16;
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 const EXPORT_EVENT_LIMIT = 4096;
 const EXPORT_TIME_BUDGET_MS = 60000;
+// Multi-node online probing: at most PROBE_BUDGET registry round-trips per
+// overview request, one per peer per PROBE_TTL_MS, plus a soft cap so a
+// paired-but-offline peer's dial timeout cannot stall the overview response.
+const PROBE_TTL_MS = 10_000;
+const PROBE_BUDGET = 2;
+const PROBE_SOFT_CAP_MS = 2_000;
+const SOURCE_RANK: Record<NodeSource, number> = {
+  discovered: 0,
+  pending: 1,
+  pairing: 2,
+  task: 3,
+};
+
+interface KnownPeer {
+  addresses: string[];
+  source: NodeSource;
+  lastProbe: { online: boolean; trusted: boolean | null; at: number } | null;
+}
 
 interface ConsoleSession {
   csrf: string;
@@ -59,6 +81,11 @@ export class TraceConsole {
   private readonly server: Server;
   private readonly reader: GatewayReader;
   private readonly sessions = new Map<string, ConsoleSession>();
+  /** Every peer id the console has legitimately seen (discovery, pairing,
+   * un-ACKed outbox traffic, observed tasks), kept in memory only. */
+  private readonly knownPeers = new Map<string, KnownPeer>();
+  private readonly probing = new Set<string>();
+  private probeCursor = 0;
   private loginToken: string | null = null;
   private stopping = false;
   readonly port: number;
@@ -151,6 +178,80 @@ export class TraceConsole {
       return undefined;
     }
     return session;
+  }
+
+  /** Merges one peer sighting into the in-memory node table. The source only
+   * ever upgrades along task > pairing > pending > discovered; addresses are
+   * the already-redacted ones from the Gateway rows. */
+  private observePeer(rawPeer: unknown, source: NodeSource, addresses: readonly string[] = []): void {
+    if (typeof rawPeer !== 'string' || !IDENTIFIER.test(rawPeer)) return;
+    const existing = this.knownPeers.get(rawPeer);
+    if (!existing) {
+      this.knownPeers.set(rawPeer, { addresses: [...addresses], source, lastProbe: null });
+      return;
+    }
+    if (SOURCE_RANK[source] > SOURCE_RANK[existing.source]) existing.source = source;
+    if (addresses.length && existing.addresses.join('\u0000') !== addresses.join('\u0000'))
+      existing.addresses = [...addresses];
+  }
+
+  /** One registry round-trip: success proves paired + reachable; the Gateway
+   * answering permission_denied proves unpaired/unreachable. Failures are
+   * swallowed into the probe record — they must never fail /api/overview. */
+  private async probePeer(peer: string): Promise<void> {
+    const entry = this.knownPeers.get(peer);
+    if (!entry) return;
+    try {
+      await this.reader.command('registry', { peer });
+      entry.lastProbe = { online: true, trusted: true, at: Date.now() };
+    } catch (error) {
+      entry.lastProbe = {
+        online: false,
+        trusted: error instanceof GatewayError && error.code === 'permission_denied' ? false : null,
+        at: Date.now(),
+      };
+    } finally {
+      this.probing.delete(peer);
+    }
+  }
+
+  /** Probes at most PROBE_BUDGET peers whose last probe is older than
+   * PROBE_TTL_MS, rotating through the stale set so every node is eventually
+   * covered. The response waits at most PROBE_SOFT_CAP_MS: probes that settle
+   * later still write their result for the next poll. */
+  private async probeStalePeers(): Promise<void> {
+    const now = Date.now();
+    const stale = [...this.knownPeers.entries()]
+      .filter(
+        ([peer, entry]) =>
+          !this.probing.has(peer) && (!entry.lastProbe || now - entry.lastProbe.at > PROBE_TTL_MS),
+      )
+      .map(([peer]) => peer);
+    if (!stale.length) return;
+    const picked: string[] = [];
+    for (let i = 0; i < stale.length && picked.length < PROBE_BUDGET; i++)
+      picked.push(stale[(this.probeCursor + i) % stale.length]!);
+    this.probeCursor = (this.probeCursor + picked.length) % stale.length;
+    for (const peer of picked) this.probing.add(peer);
+    const cap = new Promise<void>((resolve) => {
+      const timer = setTimeout(resolve, PROBE_SOFT_CAP_MS);
+      // The cap only bounds how long THIS response waits; it must not hold
+      // the event loop open on an otherwise idle console.
+      (timer as { unref?(): void }).unref?.();
+    });
+    await Promise.race([Promise.allSettled(picked.map((peer) => this.probePeer(peer))), cap]);
+  }
+
+  private knownNodes(): RedactedNode[] {
+    return redactNodes(
+      [...this.knownPeers.entries()].map(([peer, entry]) => ({
+        peer,
+        addresses: entry.addresses,
+        source: entry.source,
+        online: entry.lastProbe ? entry.lastProbe.online : null,
+        trusted: entry.lastProbe ? entry.lastProbe.trusted : null,
+      })),
+    );
   }
 
   private async dispatch(req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -253,16 +354,27 @@ export class TraceConsole {
     }
 
     if (url.pathname === '/api/overview') {
-      const [status, peers, sessions, diagnostics, outbox] = await Promise.all([
+      const [status, peers, sessions, diagnostics, outbox, pairings] = await Promise.all([
         this.reader.command('status').catch((error: unknown) => error),
         this.reader.command('peers').catch((error: unknown) => error),
         this.reader.command('sessions').catch((error: unknown) => error),
         this.reader.command('diagnostics').catch((error: unknown) => error),
         this.reader.command('outbox').catch((error: unknown) => error),
+        this.reader.command('pairings').catch((error: unknown) => error),
       ]);
-      const failure = [status, peers, sessions, diagnostics, outbox].find(
+      const failure = [status, peers, sessions, diagnostics, outbox, pairings].find(
         (result) => result instanceof GatewayError,
       );
+      const peerRows = peers instanceof GatewayError ? [] : redactPeers(peers);
+      const pairingRows = pairings instanceof GatewayError ? [] : redactPairings(pairings);
+      const pendingRows = outbox instanceof GatewayError ? [] : redactPending(outbox);
+      // Merge every legitimate peer sighting into the node table before
+      // probing, then run the throttled registry probes so the response can
+      // carry fresh online states. Probe failures never fail the overview.
+      for (const row of peerRows) this.observePeer(row.peer, 'discovered', row.addresses);
+      for (const row of pairingRows) this.observePeer(row.peer, 'pairing');
+      for (const row of pendingRows) this.observePeer(row.peer, 'pending');
+      await this.probeStalePeers();
       this.securityHeaders(res, 'application/json');
       res.writeHead(200);
       res.end(
@@ -270,10 +382,12 @@ export class TraceConsole {
           ok: !failure,
           ...(failure instanceof GatewayError ? { error: failure.code } : {}),
           status: status instanceof GatewayError ? null : redactStatus(status),
-          peers: peers instanceof GatewayError ? null : redactPeers(peers),
+          peers: peers instanceof GatewayError ? null : peerRows,
           sessions: sessions instanceof GatewayError ? null : redactSessions(sessions),
           diagnostics: diagnostics instanceof GatewayError ? null : redactDiagnostics(diagnostics),
-          pending: outbox instanceof GatewayError ? null : redactPending(outbox),
+          pending: outbox instanceof GatewayError ? null : pendingRows,
+          pairings: pairings instanceof GatewayError ? null : pairingRows,
+          nodes: this.knownNodes(),
           fetchedAt: new Date().toISOString(),
         }),
       );
@@ -290,6 +404,9 @@ export class TraceConsole {
         res.end(JSON.stringify({ error: 'invalid_arguments' }));
         return;
       }
+      // A task this page actively watches is the strongest signal that a peer
+      // matters; it enters the node table at the highest source priority.
+      this.observePeer(peer, 'task');
       // Locally-received tasks (this node is the receiver, not the caller)
       // have no loopback read interface on the Gateway; do not pretend.
       const local = await this.reader.command('status').catch(() => null) as { nodeId?: string } | null;

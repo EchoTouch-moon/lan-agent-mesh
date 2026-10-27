@@ -15,6 +15,10 @@ export const READ_ONLY_COMMANDS = [
   'events',
   'outbox',
   'pairings',
+  // 'registry' fetches the paired remote's agent registry over the encrypted
+  // mesh (read-only sync, same class as 'events'); it is the probe used for
+  // the multi-node online status and never mutates either side.
+  'registry',
 ] as const;
 
 export type ReadOnlyCommand = (typeof READ_ONLY_COMMANDS)[number];

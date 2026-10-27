@@ -288,6 +288,78 @@ describe('frontend polling logic (synthetic negatives)', () => {
     expect(h.script.taskCalls() - before).toBeGreaterThan(0);
   });
 
+  it('renders multi-node cards with source/probe badges from overview.nodes', async () => {
+    const h = await boot();
+    h.script.overview = {
+      ok: true,
+      status: { nodeId: 'local' },
+      peers: [],
+      sessions: [],
+      diagnostics: {},
+      pending: [],
+      pairings: [],
+      nodes: [
+        { peer: '12D3KooPpairedonlinepeer00', addresses: ['/ip4/127.0.0.1/tcp/4001'], source: 'discovered', online: true, trusted: true },
+        { peer: '12D3KooPpendingofflinepeer1', addresses: [], source: 'pending', online: false, trusted: false },
+        { peer: '12D3KooPtaskprobingpeer222', addresses: [], source: 'task', online: null, trusted: null },
+      ],
+    };
+    h.tick();
+    for (let i = 0; i < 10; i++) await new Promise((resolve) => setImmediate(resolve));
+    const cards = h.elements.get('node-grid')?.children ?? [];
+    expect(cards).toHaveLength(3);
+    // Long peer ids are truncated to the first 20 characters.
+    expect(cards[0]!.children[0]!.textContent).toBe('peerId：12D3KooPpairedonline…');
+    expect(cards[0]!.children[1]!.textContent).toContain('/ip4/127.0.0.1/tcp/4001');
+    expect(cards[0]!.children[2]!.children[0]!.textContent).toBe('发现');
+    expect(cards[0]!.children[2]!.children[1]!.textContent).toBe('已配对 · 在线');
+    expect(cards[1]!.children[2]!.children[0]!.textContent).toBe('在途消息');
+    expect(cards[1]!.children[2]!.children[1]!.textContent).toBe('未配对或不可达');
+    expect(cards[2]!.children[2]!.children[0]!.textContent).toBe('任务');
+    expect(cards[2]!.children[2]!.children[1]!.textContent).toBe('探测中…');
+  });
+
+  it('renders the in-flight (un-ACKed) message table with deadline countdown and inbox receipts', async () => {
+    const h = await boot();
+    const soon = new Date(Date.now() + 45000).toISOString();
+    const late = new Date(Date.now() - 1000).toISOString();
+    h.script.overview = {
+      ok: true,
+      status: { nodeId: 'local' },
+      peers: [],
+      sessions: [],
+      diagnostics: { inbox: 3 },
+      pending: [
+        { messageId: 'm1', peer: '12D3KooPpairedonlinepeer00', type: 'session.create', taskId: 'task-9', deadline: soon },
+        { messageId: 'm2', peer: '12D3KooPpairedonlinepeer00', type: 'session.resume', taskId: 'task-x', deadline: late },
+      ],
+      pairings: [],
+      nodes: [],
+    };
+    h.tick();
+    for (let i = 0; i < 10; i++) await new Promise((resolve) => setImmediate(resolve));
+    expect(h.elements.get('pending-inbox')?.textContent).toContain('3');
+    const rows = h.elements.get('pending-table')?.querySelector('tbody')?.children ?? [];
+    expect(rows).toHaveLength(2);
+    expect(rows[0]!.children[0]!.textContent).toContain('12D3KooPpairedonline…');
+    expect(rows[0]!.children[1]!.textContent).toBe('session.create');
+    expect(rows[0]!.children[2]!.textContent).toBe('task-9');
+    expect(rows[0]!.children[3]!.textContent).not.toContain('已过期');
+    expect(rows[1]!.children[3]!.textContent).toBe('已过期');
+  });
+
+  it('shows the honest empty state when every outbound message is ACKed', async () => {
+    const h = await boot(); // default overview carries pending: []
+    for (let i = 0; i < 10; i++) await new Promise((resolve) => setImmediate(resolve));
+    const rows = h.elements.get('pending-table')?.querySelector('tbody')?.children ?? [];
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.children[0]!.textContent).toContain('暂无在途消息');
+    expect(rows[0]!.children[0]!.textContent).toContain('ACK');
+    const cards = h.elements.get('node-grid')?.children ?? [];
+    expect(cards).toHaveLength(1);
+    expect(cards[0]!.textContent).toContain('尚未发现对端节点');
+  });
+
   it('mentions the outbox auto-discovery boundary in the static page', async () => {
     const pageModule = await import('../src/page.js');
     expect(pageModule.PAGE_HTML).toContain('自动发现的边界');

@@ -37,7 +37,22 @@ then revoked. If the Gateway restarts and rotates its control token, press
 ## What you can watch
 
 - **Nodes**: local node identity/fingerprint/addresses and the selected receiver
-  peer side by side, with the arrow showing call direction.
+  peer side by side, with the arrow showing call direction. A multi-node card
+  grid lists every peer the console has legitimately seen — discovered via
+  mDNS (`发现`), in an in-progress pairing (`配对中`), carrying an un-ACKed
+  outbound message (`在途消息`) or actively watched for a task (`任务`) — with
+  a throttled read-only `registry` probe badge per peer: `已配对 · 在线`
+  (paired and answered), `未配对或不可达` (Gateway answered permission_denied
+  or the peer did not answer) or `探测中…` (not probed yet). At most 2 probes
+  per overview poll, one per peer per 10 s, soft-capped at 2 s so an offline
+  peer's dial timeout cannot stall the page.
+- **In-flight messages** (`在途消息（发出未确认 ACK）`): every outbound
+  message still awaiting the peer's ACK, with peer, type, taskId and deadline
+  countdown. An entry disappearing means the peer has confirmed receipt — the
+  caller-side visible "sent → received" closure. The reverse direction is only
+  visible as the `diagnostics.inbox` receipt counter shown in the panel
+  header; the peer-originated content itself belongs to the peer's own
+  console.
 - **Watched tasks**: paste a `taskId` (the caller/MCP side knows it) plus the
   receiver peerId. Auto-discovery only covers tasks **still awaiting an ACK in
   the local outbox** — a task the peer accepts quickly is usually gone from the
@@ -78,7 +93,7 @@ then revoked. If the Gateway restarts and rotates its control token, press
 | Browser auth | One-time 32-byte login token → `HttpOnly` + `SameSite=Strict` session cookie, ≤16 sessions, 12 h TTL, destroyed on process exit |
 | CSRF | Double-submit: non-HttpOnly `lam_trace_csrf` cookie must be echoed in `X-LAM-CSRF` (used by `POST /api/reconnect`) |
 | Origin / Host | `Origin` (if present) must equal the loopback origin; `Host` must name this listener (DNS-rebinding defence) |
-| Read-only whitelist | Server proxies exactly `status, peers, sessions, diagnostics, events, outbox, pairings`; there is no route that can reach `pair/confirm/spawn/send/cancel/retry/shutdown/mcp-grant/revoke` |
+| Read-only whitelist | Server proxies exactly `status, peers, sessions, diagnostics, events, outbox, pairings, registry`; there is no route that can reach `pair/confirm/spawn/send/cancel/retry/shutdown/mcp-grant/revoke`. `registry` is a read-only sync used solely for the throttled node online probe |
 | XSS | Static HTML (zero interpolation), `script-src 'self'` CSP, `nosniff`, all rendering via `textContent`; task text is inert JSON data |
 | Redaction | Field whitelist per event type + text redaction of credential-shaped strings, long hex tokens, non-loopback IPs and private absolute paths; exports are redacted the same way |
 

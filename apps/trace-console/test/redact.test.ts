@@ -7,6 +7,7 @@ import {
   redactSessions,
   redactStatus,
   redactPending,
+  redactNodes,
 } from '../src/redact.js';
 
 describe('redactText', () => {
@@ -141,5 +142,29 @@ describe('redactStatus / redactPending', () => {
     ]);
     expect(out[0]).toMatchObject({ messageId: 'm1', peer: '12D3', type: 'task.request', taskId: 't9' });
     expect(JSON.stringify(out)).not.toContain('secret prompt');
+  });
+});
+
+describe('redactNodes', () => {
+  it('keeps probe states, re-validates ids and re-masks addresses', () => {
+    const out = redactNodes([
+      { peer: '12D3KooPabc', addresses: ['/ip4/192.168.1.9/tcp/4001'], source: 'discovered', online: true, trusted: true },
+      { peer: '12D3KooPdef', addresses: [], source: 'task', online: false, trusted: null },
+    ]);
+    expect(out[0]).toMatchObject({ peer: '12D3KooPabc', source: 'discovered', online: true, trusted: true });
+    expect(out[0]!.addresses[0]).toContain('[REDACTED:ip]');
+    expect(out[1]).toMatchObject({ peer: '12D3KooPdef', source: 'task', online: false, trusted: null });
+  });
+  it('degrades malformed entries instead of echoing them', () => {
+    const out = redactNodes([
+      { peer: 'bad peer!<img>', source: 'weird', online: 'yes', trusted: 1, addresses: 'not-a-list' },
+    ]);
+    expect(out[0]!.peer).toBe('[unknown]');
+    expect(out[0]!.source).toBe('discovered');
+    expect(out[0]!.online).toBeNull();
+    expect(out[0]!.trusted).toBeNull();
+    expect(out[0]!.addresses).toEqual([]);
+    expect(JSON.stringify(out)).not.toContain('<img');
+    expect(redactNodes(null)).toEqual([]);
   });
 });

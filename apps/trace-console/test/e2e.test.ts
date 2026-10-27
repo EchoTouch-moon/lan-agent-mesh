@@ -150,6 +150,7 @@ describe('trace console over two real loopback gateways', () => {
       peers: { peer: string }[];
       sessions: unknown[];
       diagnostics: { approvalPolicy: string };
+      nodes: { peer: string; source: string; online: boolean | null; trusted: boolean | null }[];
     };
     expect(body.ok).toBe(true);
     expect(body.status.nodeId).toBe(caller.mesh.id);
@@ -159,6 +160,22 @@ describe('trace console over two real loopback gateways', () => {
     expect(body.sessions).toEqual([]);
     expect(session.id).toBeTruthy();
     expect(body.diagnostics.approvalPolicy).toBe('deny-only');
+    // Multi-node table: the receiver appears as a node. The first overview
+    // merges it from discovery and starts the throttled registry probe; a
+    // second call makes sure the probe result is reflected.
+    expect(Array.isArray(body.nodes)).toBe(true);
+    expect(body.nodes.some((n) => n.peer === receiver.mesh.id)).toBe(true);
+    const second = (await (await api('/api/overview', {}, cookie)).json()) as {
+      nodes: { peer: string; source: string; online: boolean | null; trusted: boolean | null }[];
+    };
+    const receiverNode = second.nodes.find((n) => n.peer === receiver.mesh.id);
+    expect(receiverNode).toBeDefined();
+    expect(receiverNode!.online).not.toBeNull();
+    // Caller and receiver are paired and loopback-connected: the registry
+    // probe must resolve to paired + online.
+    expect(receiverNode!.online).toBe(true);
+    expect(receiverNode!.trusted).toBe(true);
+    expect(['discovered', 'pairing', 'pending', 'task']).toContain(receiverNode!.source);
     const raw = JSON.stringify(body);
     expect(raw).not.toContain(caller.token);
     // Loopback multiaddrs stay visible; nothing outside loopback exists here.

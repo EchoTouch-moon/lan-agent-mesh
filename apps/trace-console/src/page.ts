@@ -42,6 +42,16 @@ export const PAGE_HTML = `<!doctype html>
         </div>
       </div>
       <div class="hint">事件经加密 mesh 传输；本观察台只通过本机网关读取。</div>
+      <h2 style="margin-top:12px">对端节点（多节点状态）</h2>
+      <div id="node-grid" class="node-grid"></div>
+      <div class="hint">在线状态由本机网关按节流轮询向已配对对端发起 registry 只读探测得出；「未配对或不可达」表示探测被拒（未配对）或对端无响应。</div>
+      <h2 style="margin-top:12px">配对与连接状态</h2>
+      <div id="pairing-status" class="pairing-box">…</div>
+    </section>
+    <section class="panel" id="pending-panel">
+      <h2>在途消息（发出未确认 ACK）<span id="pending-inbox" class="mono"></span></h2>
+      <table id="pending-table"><thead><tr><th>→ 对端</th><th>类型</th><th>任务ID</th><th>剩余时间</th></tr></thead><tbody></tbody></table>
+      <div class="hint"><strong>读法：</strong>条目从下表消失＝对端已确认接收（ACK），这是发起方侧可见的「发出→接收」闭环。对端发来的内容需在对端自己的观察台查看；本机视角只能看到上方 inbox 回执计数（对端→本机方向已收到的消息数）。deadline 为负数表示已过期。</div>
     </section>
     <section class="panel" id="watch-panel">
       <h2>观察任务</h2>
@@ -165,6 +175,19 @@ th { color: #8fa3bd; font-weight: normal; }
 .ev-preview.dim { color: #8fa3bd; }
 .ev-preview .sub { color: #6f7f95; font-size: 11px; margin-top: 2px; }
 .not-observable { border: 1px dashed #4a5260; color: #9aa4b2; padding: 11px 13px; margin-top: 10px; border-radius: 6px; font-size: 12px; line-height: 1.7; background: #12161d; }
+.pairing-box { font-size: 12px; line-height: 1.8; color: #b9c4d4; white-space: pre-wrap; word-break: break-all; background: #101620; border: 1px solid #2e3a4d; border-radius: 8px; padding: 9px 11px; }
+.pairing-box .ok { color: #7ee2a0; }
+.pairing-box .wait { color: #ffcf7e; }
+.node-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.node-card { border: 1px solid #2e3a4d; border-radius: 8px; padding: 9px 11px; background: #101620; min-width: 0; }
+.node-card .node-peer { font-size: 12px; color: #b9c4d4; word-break: break-all; margin-bottom: 5px; }
+.node-card .node-addr { font-size: 11px; color: #6f7f95; word-break: break-all; white-space: pre-wrap; margin-bottom: 7px; }
+.node-card .node-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+.node-empty { border: 1px dashed #4a5260; color: #9aa4b2; padding: 10px 12px; border-radius: 6px; font-size: 12px; background: #12161d; }
+.badge { display: inline-block; font-size: 10px; border-radius: 8px; padding: 1px 7px; border: 1px solid #37455a; color: #8fa3bd; background: #141a23; }
+.badge-online { color: #7ee2a0; border-color: #2e6b45; background: #12291a; }
+.badge-offline { color: #9aa4b2; border-color: #4a5260; background: #161a20; }
+.badge-probing { color: #ffcf7e; border-color: #8a6a2e; background: #2e2412; }
 .mono { font-weight: normal; color: #7ee2a0; font-size: 12px; }
 footer { padding: 14px 18px 26px; color: #6f7f95; font-size: 12px; max-width: 1400px; line-height: 1.8; }
 code { color: #9fc1e8; }
@@ -337,6 +360,9 @@ export const PAGE_JS = `'use strict';
         banner('无法读取本机网关。若网关已重启，其控制令牌已轮换：请点击「重新连接网关」。');
       }
       renderNodes();
+      renderNodeGrid();
+      renderPairings();
+      renderPending();
       renderSessions();
       renderPeerOptions();
       autoDiscover();
@@ -379,6 +405,105 @@ export const PAGE_JS = `'use strict';
         remote.textContent = '未选择任务';
       }
     }
+  }
+
+  function shortPeer(peer) {
+    return peer && peer.length > 20 ? peer.slice(0, 20) + '…' : peer;
+  }
+
+  var NODE_SOURCE_LABEL = { discovered: '发现', pairing: '配对中', pending: '在途消息', task: '任务' };
+
+  function renderNodeGrid() {
+    var grid = $('node-grid');
+    var nodes = (overview && overview.nodes) || [];
+    var sig = JSON.stringify(nodes);
+    if (renderNodeGrid.sig === sig) return;
+    renderNodeGrid.sig = sig;
+    grid.textContent = '';
+    if (!nodes.length) {
+      grid.appendChild(el('div', 'node-empty', '尚未发现对端节点。'));
+      return;
+    }
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      var card = el('div', 'node-card');
+      card.appendChild(el('div', 'node-peer', 'peerId：' + shortPeer(n.peer)));
+      card.appendChild(el('div', 'node-addr', (n.addresses || []).join('\\n') || '地址未知'));
+      var badges = el('div', 'node-badges');
+      badges.appendChild(el('span', 'badge', NODE_SOURCE_LABEL[n.source] || n.source || '未知来源'));
+      if (n.online === true && n.trusted === true) badges.appendChild(el('span', 'badge badge-online', '已配对 · 在线'));
+      else if (n.online === true) badges.appendChild(el('span', 'badge badge-online', '在线'));
+      else if (n.online === false) badges.appendChild(el('span', 'badge badge-offline', '未配对或不可达'));
+      else badges.appendChild(el('span', 'badge badge-probing', '探测中…'));
+      card.appendChild(badges);
+      grid.appendChild(card);
+    }
+  }
+
+  function remainingText(deadline) {
+    if (!deadline) return '未知';
+    var t = Date.parse(deadline);
+    if (isNaN(t)) return '未知';
+    var ms = t - Date.now();
+    if (ms < 0) return '已过期';
+    if (ms < 60000) return (ms / 1000).toFixed(1) + ' 秒';
+    return (ms / 60000).toFixed(1) + ' 分钟';
+  }
+
+  function renderPending() {
+    var body = $('pending-table').querySelector('tbody');
+    var inboxNode = $('pending-inbox');
+    var pending = (overview && overview.pending) || [];
+    var diagnostics = (overview && overview.diagnostics) || {};
+    var inbox = diagnostics.inbox;
+    // 一秒一个桶：倒计时每秒刷新一次，其余轮询周期沿用脏检查跳过重建。
+    var sig = JSON.stringify(pending) + '|' + (inbox === undefined ? '' : String(inbox)) + '|' + (overview ? overview.ok : 'null') + '|' + Math.floor(Date.now() / 1000);
+    if (renderPending.sig === sig) return;
+    renderPending.sig = sig;
+    inboxNode.textContent = '· inbox 回执计数：' + (typeof inbox === 'number' ? inbox : '未知');
+    body.textContent = '';
+    if (!pending.length) {
+      var tr = el('tr');
+      var td = el('td', null, '暂无在途消息——所有外发消息均已被对端确认（ACK）或队列为空。');
+      td.colSpan = 4;
+      tr.appendChild(td);
+      body.appendChild(tr);
+      return;
+    }
+    for (var i = 0; i < pending.length; i++) {
+      var row = pending[i];
+      var line = el('tr');
+      line.appendChild(el('td', null, '→ ' + shortPeer(row.peer)));
+      line.appendChild(el('td', null, row.type || '—'));
+      line.appendChild(el('td', null, row.taskId || '—'));
+      line.appendChild(el('td', null, remainingText(row.deadline)));
+      body.appendChild(line);
+    }
+  }
+
+  function renderPairings() {
+    var box = $('pairing-status');
+    var sig = JSON.stringify(overview && overview.pairings) + '|' + JSON.stringify(overview && overview.peers) + '|' + (overview ? overview.ok : 'null');
+    if (renderPairings.sig === sig) return;
+    renderPairings.sig = sig;
+    box.textContent = '';
+    var lines = [];
+    var pairings = (overview && overview.pairings) || [];
+    var peers = (overview && overview.peers) || [];
+    if (overview && overview.ok === false) lines.push('网关不可达，无法读取配对状态。');
+    else if (!pairings.length && !peers.length) lines.push('暂无进行中的配对，也尚未发现对端节点。');
+    for (var i = 0; i < pairings.length; i++) {
+      var p = pairings[i];
+      var stage = !p.localConfirmed && !p.remoteConfirmed
+        ? '已发起，等待双方输入一次性 code（code 只在两侧 Gateway 终端交换，本页面不显示）'
+        : p.localConfirmed && !p.remoteConfirmed ? '本机已确认，等待对端确认…'
+        : !p.localConfirmed && p.remoteConfirmed ? '对端已确认，等待本机确认…'
+        : '双方已确认，信任建立 ✅';
+      lines.push('配对中 → ' + p.peer + '\\n· ' + stage);
+    }
+    for (var j = 0; j < peers.length; j++) lines.push('已发现对端：' + peers[j].peer);
+    if (!lines.length) lines.push('无进行中的配对。');
+    for (var k = 0; k < lines.length; k++) box.appendChild(el('div', null, lines[k]));
   }
 
   function renderSessions() {
