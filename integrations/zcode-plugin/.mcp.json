@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "lam-mesh": {
+      "command": "${ZCODE_LAM_NODE}",
+      "args": [
+        "${ZCODE_PLUGIN_ROOT}/bridge/mesh-bridge.mjs",
+        "--lam-root",
+        "${ZCODE_LAM_ROOT}",
+        "--credentials",
+        "${ZCODE_LAM_CREDENTIAL_FILE}"
+      ],
+      "enabled": true
+    }
+  }
+}
