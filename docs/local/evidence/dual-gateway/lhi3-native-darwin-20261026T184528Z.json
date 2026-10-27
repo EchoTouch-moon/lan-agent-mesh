@@ -299,7 +299,7 @@
                   {
                     "pid": 99964,
                     "action": "SIGTERM",
-                    "command": "/usr/local/bin/node <repo>/packages/mcp-server/dist/cli.js --credentials /private/var/folders/qf/8dl_r4f52znbjjpgmdw1wg140000gn/T/lam-l"
+                    "command": "<redacted-owned-mcp-bridge-argv>"
                   }
                 ]
               }
