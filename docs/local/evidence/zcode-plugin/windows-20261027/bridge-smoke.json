@@ -1,14 +1,15 @@
 {
   "kind": "zcode-plugin bridge smoke (loopback fixture gateways, real scoped credential)",
-  "testedSourceSha": "ec940168eda1d1f2fc9823afe9036bff859b5b5c",
+  "testedSourceSha": "70496b609945c9eea9a52dbd457de05910f0892f",
   "platform": "win32",
   "node": "v24.12.0",
-  "startedUtc": "2026-10-27T14:56:00.551Z",
+  "startedUtc": "2026-10-27T15:43:08.800Z",
   "results": {
     "credential-issued-via-operator-cli": "PASS",
     "missing-lam-root-fails-closed": "PASS",
     "digest-mismatch-fails-closed": "PASS",
     "bridge-serves-seven-mesh-tools": "PASS",
+    "list-agents-real-field-shape": "PASS",
     "mesh-list-agents-over-bridge": "PASS",
     "start-session-contract": "PASS",
     "same-requestid-start-is-idempotent": "PASS",
@@ -23,6 +24,6 @@
   "externalModels": 0,
   "cleanup": "complete",
   "cancelTerminal": "CANCELLED",
-  "endedUtc": "2026-10-27T14:56:10.290Z",
+  "endedUtc": "2026-10-27T15:43:17.961Z",
   "status": "passed"
 }
