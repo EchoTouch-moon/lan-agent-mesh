@@ -1,0 +1,16 @@
+{
+  "name": "lam-local",
+  "description": "Operator-managed local marketplace for the LAN Agent Mesh ZCode plugin; install from this checkout directory, never from an unreviewed remote.",
+  "pluginRoot": ".",
+  "plugins": [
+    {
+      "name": "lan-agent-mesh",
+      "source": "./",
+      "description": "Call permitted remote LAM agents through the local Gateway MCP bridge (mesh_* tools only; read-only list/get, delegations default-deny).",
+      "version": "0.1.0",
+      "category": "integration",
+      "tags": ["mcp", "mesh", "agents"],
+      "strict": true
+    }
+  ]
+}
