@@ -1,0 +1,388 @@
+{
+  "mode": "self-test",
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "startedAt": "2026-10-26T18:44:18.268Z",
+  "phases": {
+    "pairing": {
+      "peerId": "12D3KooWLjFS…",
+      "grantCreated": true,
+      "controlUrlOrigin": "http://127.0.0.1:52993"
+    },
+    "listAgents": {
+      "visibleAgents": [
+        "12D3KooWLjFSyub4rTnG6CRXWME5QF6Cbz2u7hwSfzH1Na7UXaGY/mock/default"
+      ]
+    },
+    "startSession": {
+      "sessionId": "0cb1063a-412…"
+    },
+    "debugTurns": [
+      {
+        "text": "first",
+        "progression": [
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "COMPLETED",
+            "events": 1
+          }
+        ]
+      },
+      {
+        "text": "second",
+        "progression": [
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "COMPLETED",
+            "events": 1
+          }
+        ]
+      }
+    ],
+    "twoTurns": {
+      "first": {
+        "state": "COMPLETED",
+        "text": "p1-p2"
+      },
+      "second": {
+        "state": "COMPLETED",
+        "text": "p1-p2"
+      }
+    },
+    "listSessions": {
+      "count": 1,
+      "onlyOwnSession": true
+    },
+    "phaseC": {
+      "C1_codex_to_zcode": {
+        "status": "BLOCKED",
+        "reason": "PR #92 re-review fixes pushed (head 7972669) but independent re-review still pending; packet gate forbids receiver-native until reviewed"
+      },
+      "C2_zcode_to_codex": {
+        "status": "NOT-RUN",
+        "reason": "self-test mode; native requires --native and the C2 preconditions"
+      }
+    }
+  },
+  "negatives": {
+    "unpaired-peer-grant": {
+      "rejected": true,
+      "code": "permission_denied"
+    },
+    "agent-outside-scope": {
+      "rejected": true,
+      "code": "mesh tool mesh_start_session returned isError: [{\"type\":\"text\",\"text\":\"{\\\"code\\\":\\\"permiss"
+    },
+    "workspace-outside-scope": {
+      "rejected": true,
+      "code": "mesh tool mesh_start_session returned isError: [{\"type\":\"text\",\"text\":\"{\\\"code\\\":\\\"permiss"
+    },
+    "revoked-grant": {
+      "rejected": true
+    },
+    "expired-grant": {
+      "rejected": true,
+      "layer": "bridge-start",
+      "detail": "Connection closed"
+    },
+    "expired-grant-http": {
+      "rejected": true,
+      "status": 403
+    },
+    "request-id-conflict": {
+      "rejected": true,
+      "code": "mesh tool mesh_send_message returned isError: [{\"type\":\"text\",\"text\":\"{\\\"code\\\":\\\"conflict"
+    },
+    "exact-retry-once": {
+      "taskId": "aaec3b49-95c5-4108-abd5-7bb0030655e5",
+      "receiverTasks": 3
+    },
+    "receiver-loss-unknown": {
+      "offline": "UNKNOWN",
+      "afterRestart": "UNKNOWN",
+      "retryTaskId": "9e63ef2c-9d89-4954-89ad-50c5ead93fdf",
+      "retryDelivery": "accepted",
+      "receiverTasksAfter": 5
+    },
+    "stale-grant-after-caller-restart": {
+      "rejected": true
+    },
+    "ack-drop-injection": {
+      "status": "NOT-RUN",
+      "reason": "no controlled ACK-drop of the same envelope is injected; receiver-loss-unknown is a different fault (gateway loss)"
+    }
+  },
+  "assertions": [
+    {
+      "name": "B-list-agents-scoped",
+      "pass": true,
+      "detail": "[\"12D3KooWLjFSyub4rTnG6CRXWME5QF6Cbz2u7hwSfzH1Na7UXaGY/mock/default\"]"
+    },
+    {
+      "name": "B-start-session-owned",
+      "pass": true
+    },
+    {
+      "name": "B-start-session-idempotent",
+      "pass": true
+    },
+    {
+      "name": "B-first-turn-completed",
+      "pass": true,
+      "detail": "{\"taskId\":\"9d92b41e-4033-44ec-8ec1-b314b88cce56\",\"delivery\":\"accepted\",\"state\":\"COMPLETED\",\"cursor\":3,\"text\":\"p1-p2\"}"
+    },
+    {
+      "name": "B-second-turn-completed",
+      "pass": true,
+      "detail": "{\"taskId\":\"efc24777-f9ca-422d-8368-deed0ddd49b9\",\"delivery\":\"accepted\",\"state\":\"COMPLETED\",\"cursor\":3,\"text\":\"p1-p2\"}"
+    },
+    {
+      "name": "B-list-sessions-owned",
+      "pass": true,
+      "detail": "[\"0cb1063a-4123-4d27-aaaa-1d0c1d339b50\"]"
+    },
+    {
+      "name": "D-exact-retry-once",
+      "pass": true,
+      "detail": "{\"taskId\":\"aaec3b49-95c5-4108-abd5-7bb0030655e5\",\"delivery\":\"accepted\",\"deadline\":\"2026-10-26T18:44:53.831Z\",\"retry\":\"Reuse the identical tool arguments and requestId only; UNKNOWN is not permission to create a new task.\"}"
+    },
+    {
+      "name": "D-exact-retry-single-execution",
+      "pass": true,
+      "detail": "tasks 3 -> 3 (exact retry must not add a second task)"
+    },
+    {
+      "name": "D-cancel-in-flight-terminal",
+      "pass": true,
+      "detail": "CANCELLED"
+    },
+    {
+      "name": "D-unknown-no-replay",
+      "pass": true,
+      "detail": "{\"offline\":\"UNKNOWN\",\"afterRestart\":\"UNKNOWN\",\"retryTaskId\":\"9e63ef2c-9d89-4954-89ad-50c5ead93fdf\",\"retryDelivery\":\"accepted\",\"receiverTasksAfter\":5}"
+    },
+    {
+      "name": "N-unpaired-peer-grant",
+      "pass": true
+    },
+    {
+      "name": "N-agent-outside-scope",
+      "pass": true
+    },
+    {
+      "name": "N-workspace-outside-scope",
+      "pass": true
+    },
+    {
+      "name": "N-revoked-grant",
+      "pass": true
+    },
+    {
+      "name": "N-expired-grant",
+      "pass": true
+    },
+    {
+      "name": "N-expired-grant-http",
+      "pass": true,
+      "detail": "{\"rejected\":true,\"status\":403}"
+    },
+    {
+      "name": "N-request-id-conflict",
+      "pass": true
+    },
+    {
+      "name": "N-stale-grant-after-restart",
+      "pass": true
+    },
+    {
+      "name": "no-external-models-accounted",
+      "pass": true,
+      "detail": "runner-owned counters only: when fixtures ran, every inference request hit a loopback fixture; this is not an independent network monitor"
+    },
+    {
+      "name": "cleanup-verified",
+      "pass": true,
+      "detail": "{\"caller-home-lock-released\":true,\"receiver-home-lock-released\":true,\"disposableRootRemoved\":true,\"ownedProcessScan\":{\"label\":\"final\",\"status\":\"PASS\",\"survivors\":[],\"scanner\":\"pgrep\",\"log\":[{\"phase\":\"initial\",\"status\":\"PASS\",\"survivors\":[]}]},\"callerHttpPort\":{\"port\":53065,\"released\":true}}"
+    }
+  ],
+  "fixtureRequests": 0,
+  "externalModelRequests": 0,
+  "tools": {
+    "exercised": [
+      "mesh_list_agents",
+      "mesh_start_session",
+      "mesh_send_message",
+      "mesh_get_task",
+      "mesh_cancel_task",
+      "mesh_list_sessions"
+    ],
+    "notRun": [
+      {
+        "name": "mesh_delegate_task",
+        "reason": "delegation path not driven by this baseline; only the mcp-server smoke covers it"
+      }
+    ]
+  },
+  "stage": "complete",
+  "cleanup": {
+    "caller-home-lock-released": true,
+    "receiver-home-lock-released": true,
+    "disposableRootRemoved": true,
+    "ownedProcessScan": {
+      "label": "final",
+      "status": "PASS",
+      "survivors": [],
+      "scanner": "pgrep",
+      "log": [
+        {
+          "phase": "initial",
+          "status": "PASS",
+          "survivors": []
+        }
+      ]
+    },
+    "callerHttpPort": {
+      "port": 53065,
+      "released": true
+    }
+  },
+  "finishedAt": "2026-10-26T18:44:30.884Z",
+  "durationMs": 12616,
+  "baselineVerdict": "PASS",
+  "overallLhi3Verdict": "NOT-RUN",
+  "verdict": "PASS"
+}

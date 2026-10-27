@@ -1,0 +1,331 @@
+{
+  "mode": "self-test",
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "startedAt": "2026-10-26T17:45:22.518Z",
+  "phases": {
+    "pairing": {
+      "peerId": "12D3KooWQKtR…",
+      "grantCreated": true,
+      "controlUrlOrigin": "http://127.0.0.1:51874"
+    },
+    "listAgents": {
+      "visibleAgents": [
+        "12D3KooWQKtRp4ctdbcodAGdWtDaJ1F8NhrSfymJb4gQcUzNyyVQ/mock/default"
+      ]
+    },
+    "startSession": {
+      "sessionId": "432cac7a-765…"
+    },
+    "debugTurns": [
+      {
+        "text": "first",
+        "progression": [
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "COMPLETED",
+            "events": 1
+          }
+        ]
+      },
+      {
+        "text": "second",
+        "progression": [
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "COMPLETED",
+            "events": 1
+          }
+        ]
+      }
+    ],
+    "twoTurns": {
+      "first": {
+        "state": "COMPLETED",
+        "text": "p1-p2"
+      },
+      "second": {
+        "state": "COMPLETED",
+        "text": "p1-p2"
+      }
+    },
+    "phaseC": {
+      "C1_codex_to_zcode": {
+        "status": "BLOCKED",
+        "reason": "PR #92 (ZcodeAdapter) has fixes pushed but no independent re-review yet; packet gate forbids receiver-native until reviewed"
+      },
+      "C2_zcode_to_codex": {
+        "status": "NOT-RUN",
+        "reason": "self-test mode; native requires --native and the C2 preconditions"
+      }
+    }
+  },
+  "negatives": {
+    "unpaired-peer-grant": {
+      "rejected": true,
+      "code": "permission_denied"
+    },
+    "agent-outside-scope": {
+      "rejected": true,
+      "code": "mesh tool mesh_start_session returned isError: [{\"type\":\"text\",\"text\":\"{\\\"code\\\":\\\"permiss"
+    },
+    "workspace-outside-scope": {
+      "rejected": true,
+      "code": "mesh tool mesh_start_session returned isError: [{\"type\":\"text\",\"text\":\"{\\\"code\\\":\\\"permiss"
+    },
+    "revoked-grant": {
+      "rejected": true
+    },
+    "expired-grant": {
+      "rejected": true,
+      "layer": "bridge-start",
+      "detail": "Connection closed"
+    },
+    "expired-grant-http": {
+      "rejected": true,
+      "status": 403
+    },
+    "request-id-conflict": {
+      "rejected": true,
+      "code": "mesh tool mesh_send_message returned isError: [{\"type\":\"text\",\"text\":\"{\\\"code\\\":\\\"conflict"
+    },
+    "exact-retry-once": {
+      "taskId": "adb88207-f7c7-475b-9d45-731b59c37e7f",
+      "receiverTasks": 3
+    },
+    "receiver-loss-unknown": {
+      "offline": "UNKNOWN",
+      "afterRestart": "UNKNOWN",
+      "retryTaskId": "5bcfa6b8-2e3d-4cc8-b4c2-244adf70f58b",
+      "retryDelivery": "accepted",
+      "receiverTasksAfter": 5
+    },
+    "stale-grant-after-caller-restart": {
+      "rejected": true
+    }
+  },
+  "assertions": [
+    {
+      "name": "B-list-agents-scoped",
+      "pass": true,
+      "detail": "[\"12D3KooWQKtRp4ctdbcodAGdWtDaJ1F8NhrSfymJb4gQcUzNyyVQ/mock/default\"]"
+    },
+    {
+      "name": "B-start-session-owned",
+      "pass": true
+    },
+    {
+      "name": "B-start-session-idempotent",
+      "pass": true
+    },
+    {
+      "name": "B-first-turn-completed",
+      "pass": true,
+      "detail": "{\"taskId\":\"8b341d8a-540a-4566-ad25-171b49e7f4f0\",\"delivery\":\"accepted\",\"state\":\"COMPLETED\",\"cursor\":3,\"text\":\"p1-p2\"}"
+    },
+    {
+      "name": "B-second-turn-completed",
+      "pass": true,
+      "detail": "{\"taskId\":\"bb3193af-9b47-4d03-be67-e0382b2bc8e5\",\"delivery\":\"accepted\",\"state\":\"COMPLETED\",\"cursor\":3,\"text\":\"p1-p2\"}"
+    },
+    {
+      "name": "D-exact-retry-once",
+      "pass": true,
+      "detail": "{\"taskId\":\"adb88207-f7c7-475b-9d45-731b59c37e7f\",\"delivery\":\"accepted\",\"deadline\":\"2026-10-26T17:45:58.055Z\",\"retry\":\"Reuse the identical tool arguments and requestId only; UNKNOWN is not permission to create a new task.\"}"
+    },
+    {
+      "name": "D-exact-retry-single-execution",
+      "pass": true,
+      "detail": "tasks 3 -> 3 (exact retry must not add a second task)"
+    },
+    {
+      "name": "D-cancel-in-flight-terminal",
+      "pass": true,
+      "detail": "CANCELLED"
+    },
+    {
+      "name": "D-unknown-no-replay",
+      "pass": true,
+      "detail": "{\"offline\":\"UNKNOWN\",\"afterRestart\":\"UNKNOWN\",\"retryTaskId\":\"5bcfa6b8-2e3d-4cc8-b4c2-244adf70f58b\",\"retryDelivery\":\"accepted\",\"receiverTasksAfter\":5}"
+    },
+    {
+      "name": "N-unpaired-peer-grant",
+      "pass": true
+    },
+    {
+      "name": "N-agent-outside-scope",
+      "pass": true
+    },
+    {
+      "name": "N-workspace-outside-scope",
+      "pass": true
+    },
+    {
+      "name": "N-revoked-grant",
+      "pass": true
+    },
+    {
+      "name": "N-expired-grant",
+      "pass": true
+    },
+    {
+      "name": "N-expired-grant-http",
+      "pass": true,
+      "detail": "{\"rejected\":true,\"status\":403}"
+    },
+    {
+      "name": "N-request-id-conflict",
+      "pass": true
+    },
+    {
+      "name": "N-stale-grant-after-restart",
+      "pass": true
+    },
+    {
+      "name": "no-external-models-accounted",
+      "pass": true,
+      "detail": "accounting invariant: only loopback fixtures, if any"
+    },
+    {
+      "name": "cleanup-verified",
+      "pass": true,
+      "detail": "{\"caller-home-lock-released\":true,\"receiver-home-lock-released\":true,\"disposableRootRemoved\":true}"
+    }
+  ],
+  "fixtureRequests": 0,
+  "externalModelRequests": 0,
+  "stage": "complete",
+  "cleanup": {
+    "caller-home-lock-released": true,
+    "receiver-home-lock-released": true,
+    "disposableRootRemoved": true
+  },
+  "finishedAt": "2026-10-26T17:45:35.075Z",
+  "verdict": "PASS"
+}

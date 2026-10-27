@@ -1,0 +1,372 @@
+{
+  "mode": "native",
+  "platform": "darwin",
+  "node": "v22.23.2",
+  "startedAt": "2026-10-26T17:45:35.497Z",
+  "phases": {
+    "pairing": {
+      "peerId": "12D3KooWAiKr…",
+      "grantCreated": true,
+      "controlUrlOrigin": "http://127.0.0.1:51973"
+    },
+    "listAgents": {
+      "visibleAgents": [
+        "12D3KooWAiKrk5NtMiDFGnWm4iu8T17ZZLbLL8XQ7teyghVKPh2E/mock/default"
+      ]
+    },
+    "startSession": {
+      "sessionId": "7292d86e-cb8…"
+    },
+    "debugTurns": [
+      {
+        "text": "first",
+        "progression": [
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "COMPLETED",
+            "events": 1
+          }
+        ]
+      },
+      {
+        "text": "second",
+        "progression": [
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 1
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "RUNNING",
+            "events": 0
+          },
+          {
+            "state": "COMPLETED",
+            "events": 1
+          }
+        ]
+      }
+    ],
+    "twoTurns": {
+      "first": {
+        "state": "COMPLETED",
+        "text": "p1-p2"
+      },
+      "second": {
+        "state": "COMPLETED",
+        "text": "p1-p2"
+      }
+    },
+    "phaseC": {
+      "C1_codex_to_zcode": {
+        "status": "BLOCKED",
+        "reason": "PR #92 (ZcodeAdapter) has fixes pushed but no independent re-review yet; packet gate forbids receiver-native until reviewed"
+      },
+      "C2_zcode_to_codex": {
+        "status": "PARTIAL",
+        "entry": {
+          "cli": "0.17.0",
+          "sha256": "97490d0f06a7a225…"
+        },
+        "codexVersion": "codex-cli 0.146.0",
+        "chain": {
+          "readOnlyNativeChain": "VERIFIED (ZCode native mesh_list_agents -> bridge -> gateway pair -> CodexAdapter registry; agent id + capabilities returned to the ZCode model context)",
+          "executionChain": {
+            "status": "BLOCKED_NEEDS_USER_AUTH",
+            "reason": "plan mode refuses non-read-only MCP tools (\"Plan mode only allows read-only, non-destructive tools\"); build mode would require a native permission allow, which the overnight packet does not grant (no #65-style auto-approve for ZCode)"
+          },
+          "turnResult": "turn.completed",
+          "finalText": "LHI3 start_session failed repeatedly; see notes",
+          "receiverTasks": 0,
+          "grantAudit": [
+            "mcp.grant.created"
+          ]
+        },
+        "notes": [
+          {
+            "step": "mcp__lam-mesh__mesh_list_agents",
+            "args": "{}"
+          },
+          {
+            "listEvidence": "ol\",\"tool_call_id\":\"call_mcp__lam-mesh__mesh_list_agents\",\"content\":\"{\\\"agents\\\":[{\\\"id\\\":\\\"12D3KooWADgPgV6umSayEknqQRk6SzhAxWWF4U6K5h2KwwZUgW3x/codex/default\\\",\\\"nodeId\\\":\\\"12D3KooWADgPgV6umSayEknqQRk6SzhAxWWF4U6K5h2KwwZUgW3x\\\",\\\"harnessId\\\":\\\"12D3KooWADgPgV6umSayEknqQRk6SzhAxWWF4U6K5h2KwwZUgW3x/codex\\\",\\\"name\\\":\\\"Codex (isolated fixture)\\\",\\\"workspaceAliases\\\":[\\\"fixture\\\"],\\\"capabilities\\\":{\\\"discover\\\":\\\"supported\\\",\\\"spawn\\\":\\\"supported\\\",\\\"resume\\\":\\"
+          },
+          {
+            "step": "mcp__lam-mesh__mesh_start_session",
+            "args": "{\"peerId\":\"12D3KooWADgPgV6umSayEknqQRk6SzhAxWWF4U6K5h2KwwZUgW3x\",\"agentId\":\"12D3KooWADgPgV6umSayEknqQRk6SzhAxWWF4U6K5h2KwwZUgW3x/codex/default\",\"workspaceAlias\":\"fixture\",\"requestId\":\"5a68e60c-cb82-4e60-9639-cc9dd92db6a3\"}"
+          },
+          {
+            "step": "mcp__lam-mesh__mesh_start_session",
+            "args": "{\"peerId\":\"12D3KooWADgPgV6umSayEknqQRk6SzhAxWWF4U6K5h2KwwZUgW3x\",\"agentId\":\"12D3KooWADgPgV6umSayEknqQRk6SzhAxWWF4U6K5h2KwwZUgW3x/codex/default\",\"workspaceAlias\":\"fixture\",\"requestId\":\"79e098e9-b98b-40f9-9544-2ea76e8ef851\"}"
+          },
+          {
+            "step": "mcp__lam-mesh__mesh_start_session",
+            "args": "{\"peerId\":\"12D3KooWADgPgV6umSayEknqQRk6SzhAxWWF4U6K5h2KwwZUgW3x\",\"agentId\":\"12D3KooWADgPgV6umSayEknqQRk6SzhAxWWF4U6K5h2KwwZUgW3x/codex/default\",\"workspaceAlias\":\"fixture\",\"requestId\":\"6b06b2b5-d2f2-4cba-9973-c90e36990f1e\"}"
+          },
+          {
+            "startFailureSample": "\\\"}\"}}]},{\"role\":\"tool\",\"tool_call_id\":\"call_mcp__lam-mesh__mesh_start_session\",\"content\":\"Plan mode only allows read-only, non-destructive tools\"}]"
+          }
+        ]
+      }
+    }
+  },
+  "negatives": {
+    "unpaired-peer-grant": {
+      "rejected": true,
+      "code": "permission_denied"
+    },
+    "agent-outside-scope": {
+      "rejected": true,
+      "code": "mesh tool mesh_start_session returned isError: [{\"type\":\"text\",\"text\":\"{\\\"code\\\":\\\"permiss"
+    },
+    "workspace-outside-scope": {
+      "rejected": true,
+      "code": "mesh tool mesh_start_session returned isError: [{\"type\":\"text\",\"text\":\"{\\\"code\\\":\\\"permiss"
+    },
+    "revoked-grant": {
+      "rejected": true
+    },
+    "expired-grant": {
+      "rejected": true,
+      "layer": "bridge-start",
+      "detail": "Connection closed"
+    },
+    "expired-grant-http": {
+      "rejected": true,
+      "status": 403
+    },
+    "request-id-conflict": {
+      "rejected": true,
+      "code": "mesh tool mesh_send_message returned isError: [{\"type\":\"text\",\"text\":\"{\\\"code\\\":\\\"conflict"
+    },
+    "exact-retry-once": {
+      "taskId": "9a8541ae-0a7f-4431-a01c-702bf029718d",
+      "receiverTasks": 3
+    },
+    "receiver-loss-unknown": {
+      "offline": "UNKNOWN",
+      "afterRestart": "UNKNOWN",
+      "retryTaskId": "b86b3eb2-926d-4858-8db6-c9d272032752",
+      "retryDelivery": "accepted",
+      "receiverTasksAfter": 5
+    },
+    "stale-grant-after-caller-restart": {
+      "rejected": true
+    }
+  },
+  "assertions": [
+    {
+      "name": "B-list-agents-scoped",
+      "pass": true,
+      "detail": "[\"12D3KooWAiKrk5NtMiDFGnWm4iu8T17ZZLbLL8XQ7teyghVKPh2E/mock/default\"]"
+    },
+    {
+      "name": "B-start-session-owned",
+      "pass": true
+    },
+    {
+      "name": "B-start-session-idempotent",
+      "pass": true
+    },
+    {
+      "name": "B-first-turn-completed",
+      "pass": true,
+      "detail": "{\"taskId\":\"dd3035b5-893d-4569-bf5a-9b1dc8ee659c\",\"delivery\":\"accepted\",\"state\":\"COMPLETED\",\"cursor\":3,\"text\":\"p1-p2\"}"
+    },
+    {
+      "name": "B-second-turn-completed",
+      "pass": true,
+      "detail": "{\"taskId\":\"01036411-4d6b-42a4-ae40-9152562dbc72\",\"delivery\":\"accepted\",\"state\":\"COMPLETED\",\"cursor\":3,\"text\":\"p1-p2\"}"
+    },
+    {
+      "name": "D-exact-retry-once",
+      "pass": true,
+      "detail": "{\"taskId\":\"9a8541ae-0a7f-4431-a01c-702bf029718d\",\"delivery\":\"accepted\",\"deadline\":\"2026-10-26T17:46:11.016Z\",\"retry\":\"Reuse the identical tool arguments and requestId only; UNKNOWN is not permission to create a new task.\"}"
+    },
+    {
+      "name": "D-exact-retry-single-execution",
+      "pass": true,
+      "detail": "tasks 3 -> 3 (exact retry must not add a second task)"
+    },
+    {
+      "name": "D-cancel-in-flight-terminal",
+      "pass": true,
+      "detail": "CANCELLED"
+    },
+    {
+      "name": "D-unknown-no-replay",
+      "pass": true,
+      "detail": "{\"offline\":\"UNKNOWN\",\"afterRestart\":\"UNKNOWN\",\"retryTaskId\":\"b86b3eb2-926d-4858-8db6-c9d272032752\",\"retryDelivery\":\"accepted\",\"receiverTasksAfter\":5}"
+    },
+    {
+      "name": "N-unpaired-peer-grant",
+      "pass": true
+    },
+    {
+      "name": "N-agent-outside-scope",
+      "pass": true
+    },
+    {
+      "name": "N-workspace-outside-scope",
+      "pass": true
+    },
+    {
+      "name": "N-revoked-grant",
+      "pass": true
+    },
+    {
+      "name": "N-expired-grant",
+      "pass": true
+    },
+    {
+      "name": "N-expired-grant-http",
+      "pass": true,
+      "detail": "{\"rejected\":true,\"status\":403}"
+    },
+    {
+      "name": "N-request-id-conflict",
+      "pass": true
+    },
+    {
+      "name": "N-stale-grant-after-restart",
+      "pass": true
+    },
+    {
+      "name": "no-external-models-accounted",
+      "pass": true,
+      "detail": "accounting invariant: only loopback fixtures, if any"
+    },
+    {
+      "name": "cleanup-verified",
+      "pass": true,
+      "detail": "{\"caller-home-lock-released\":true,\"receiver-home-lock-released\":true,\"disposableRootRemoved\":true}"
+    }
+  ],
+  "fixtureRequests": 5,
+  "externalModelRequests": 0,
+  "stage": "complete",
+  "cleanup": {
+    "caller-home-lock-released": true,
+    "receiver-home-lock-released": true,
+    "disposableRootRemoved": true
+  },
+  "finishedAt": "2026-10-26T17:45:50.676Z",
+  "verdict": "PASS"
+}
