@@ -52,7 +52,7 @@ export const PAGE_HTML = `<!doctype html>
         <button type="submit">添加观察</button>
       </form>
       <ul id="task-list"></ul>
-      <div class="hint">等待 ACK 的本地外发消息（outbox）中发现的任务会自动加入，并标注 <code>外发箱</code>。</div>
+      <div class="hint"><strong>自动发现的边界：</strong>仅"尚未收到 ACK"的本地外发消息（outbox）会被自动加入观察。对端快速接受的任务通常在下次采样（800ms）前就已移出 outbox，因此<strong>不会被自动发现，需手动输入任务ID与 peerId</strong>（调用方持有它们）。这不是完整零操作全链追踪。</div>
     </section>
     <section class="panel" id="sessions-panel">
       <h2>本机侧会话</h2>
@@ -224,21 +224,34 @@ export const PAGE_JS = `'use strict';
       tasks.set(taskId, {
         taskId: taskId, peer: peer, cursor: 0, state: 'QUEUED', events: [],
         error: null, notObservable: false, terminal: false, lastObserved: null, source: source,
+        inFlight: false, generation: 0,
       });
     }
     return tasks.get(taskId);
   }
 
   function addTask(taskId, peer, source) {
+    // 背压：观察任务有硬上限，防止监控本身把网关压垮（P2 运维）。
+    if (!tasks.has(taskId) && tasks.size >= 64) {
+      banner('观察任务数已达上限（64）。请刷新页面清理列表，或导出后移除不再关注的任务。');
+      return;
+    }
     var view = taskView(taskId, peer, source);
+    // 重新添加即重置：generation 递增使任何在途响应过期，terminal 复位以重新 drain。
+    view.generation += 1;
+    view.terminal = false;
     if (!selected) selected = taskId;
     renderTasks();
     pollTask(view, true);
   }
 
-  function pullPage(view) {
+  // 单页读取与消费。gen 是本轮 drain 的世代号：任务被重新添加后，旧世代
+  // 的响应一律丢弃；next 不允许回退到当前游标之前（CAS 语义），否则拒绝
+  // 该响应，防止事件重复 append 或状态回写。
+  function drainPage(view, gen) {
     return api('/api/task?peer=' + encodeURIComponent(view.peer) + '&taskId=' + encodeURIComponent(view.taskId) + '&cursor=' + view.cursor)
       .then(function (data) {
+        if (view.generation !== gen) return false;
         view.lastObserved = data.observedAt || new Date().toISOString();
         // 非 ok 响应（网关拒绝、400 参数错误、无 ok 字段的错误体）统一按
         // 不可观察处理，绝不落入成功分支编造状态。
@@ -248,7 +261,14 @@ export const PAGE_JS = `'use strict';
           view.notObservableReason = data.reason || null;
           renderTasks();
           if (selected === view.taskId) renderTimeline();
-          return;
+          return false;
+        }
+        if (typeof data.next !== 'number' || !(data.next >= view.cursor)) {
+          view.notObservable = true;
+          view.error = '响应游标非法（next=' + data.next + '），已拒绝以避免事件重复/乱序';
+          renderTasks();
+          if (selected === view.taskId) renderTimeline();
+          return false;
         }
         view.notObservable = false;
         view.error = null;
@@ -267,14 +287,25 @@ export const PAGE_JS = `'use strict';
         if (selected === view.taskId) renderTimeline();
         // 网关每次只返回一页游标事件；即使状态已终态，也继续取到空页，
         // 保证补放的历史事件完整后再停止轮询。
-        if (got > 0 && view.events.length < 8192) return pullPage(view);
-      })
-      .catch(function () { /* 瞬时轮询失败；断线提示在别处统一处理 */ });
+        return got > 0 && view.events.length < 8192;
+      });
   }
 
   function pollTask(view, force) {
     if (view.terminal && !force) return Promise.resolve();
-    return pullPage(view);
+    // 串行化（P1）：同一任务同时只允许一条在途请求链。800ms 定时器与
+    // drain 递归、手动添加并发触发时，后来者直接跳过本周期，而不是带着
+    // 同一旧游标发出第二个请求。
+    if (view.inFlight) return Promise.resolve();
+    view.inFlight = true;
+    var gen = view.generation;
+    function drain(more) {
+      return more ? drainPage(view, gen).then(drain) : undefined;
+    }
+    return drainPage(view, gen)
+      .then(drain)
+      .catch(function () { /* 瞬时轮询失败；断线提示在别处统一处理 */ })
+      .then(function () { view.inFlight = false; });
   }
 
   function pollOverview() {
@@ -518,7 +549,16 @@ export const PAGE_JS = `'use strict';
   } catch (e) { /* 非法 hash 直接忽略 */ }
   pollOverview();
   setInterval(pollOverview, POLL_MS);
+  // 背压（P2 运维）：每个轮询周期最多查询 16 个未终态任务，按轮转顺序
+  // 覆盖全部任务；配合每任务串行化与 64 个观察上限，避免监控压垮网关。
+  var pollCursor = 0;
   setInterval(function () {
-    tasks.forEach(function (view) { pollTask(view, false); });
+    var active = [];
+    tasks.forEach(function (view) { if (!view.terminal) active.push(view); });
+    if (!active.length) return;
+    var budget = Math.min(active.length, 16);
+    var start = pollCursor % active.length;
+    pollCursor = start + budget;
+    for (var i = 0; i < budget; i++) pollTask(active[(start + i) % active.length], false);
   }, POLL_MS);
 })();`;

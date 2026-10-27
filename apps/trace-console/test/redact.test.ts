@@ -61,8 +61,43 @@ describe('redactEvent', () => {
     expect(out.permission!.requestId).toBe('8b5a1050-0000-4000-8000-000000000000');
     expect((out.permission as unknown as Record<string, unknown>).nonce).toBeUndefined();
     expect(out.droppedFields).toEqual([]);
-    const dirty = redactEvent({ type: 'delta', taskId: 't1', text: 'x', evil: new Map() }, 0);
+    const dirty = redactEvent({ type: 'delta', taskId: 't1', text: 'x', evil: 'value' }, 0);
     expect(dirty.droppedFields).toEqual(['evil']);
+  });
+
+  it('never echoes hostile field NAMES: unsafe names are counted, not repeated', () => {
+    const evilName = '/Users/alice/.ssh/id_rsa=<script>alert(1)</script> ' + 'x'.repeat(200);
+    const out = redactEvent({ type: 'delta', taskId: 't1', [evilName]: 'v' }, 0);
+    const serialized = JSON.stringify(out);
+    expect(serialized).not.toContain('/Users/alice');
+    expect(serialized).not.toContain('<script>');
+    expect(out.droppedFields).toEqual([]);
+    expect(out.droppedUnsafeCount).toBe(1);
+    // Structurally safe unknown names are still listed, capped at 16.
+    const many: Record<string, unknown> = { type: 'delta', taskId: 't1' };
+    for (let i = 0; i < 20; i++) many[`extra_${i}`] = 1;
+    const listed = redactEvent(many, 0);
+    expect(listed.droppedFields).toHaveLength(16);
+    expect(listed.droppedUnsafeCount).toBe(4);
+  });
+
+  it('withholds identifiers that fail the wire grammar (overlong, markup, path-like)', () => {
+    const out = redactEvent(
+      {
+        type: 'delta',
+        taskId: 'bad id\nwith spaces and <img src=x>',
+        request: { requestId: 'not-a-uuid', operationDigest: 'zz'.repeat(32), expiresAt: 'x'.repeat(500) },
+      },
+      0,
+    );
+    expect(out.taskId).toBeUndefined();
+    expect(out.permission).toBeUndefined();
+    const serialized = JSON.stringify(out);
+    expect(serialized).not.toContain('<img');
+    // Overlong free-text is truncated in previews.
+    const long = redactEvent({ type: 'completed', taskId: 't1', text: 'y'.repeat(1000) }, 0);
+    expect(long.preview!.length).toBeLessThanOrEqual(420);
+    expect(long.preview).toContain('[truncated]');
   });
 });
 

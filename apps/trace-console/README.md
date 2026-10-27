@@ -39,8 +39,13 @@ then revoked. If the Gateway restarts and rotates its control token, press
 - **Nodes**: local node identity/fingerprint/addresses and the selected receiver
   peer side by side, with the arrow showing call direction.
 - **Watched tasks**: paste a `taskId` (the caller/MCP side knows it) plus the
-  receiver peerId, or let the console auto-discover tasks still pending in the
-  local outbox. Polling runs at 800 ms per cursor page; terminal tasks stop.
+  receiver peerId. Auto-discovery only covers tasks **still awaiting an ACK in
+  the local outbox** — a task the peer accepts quickly is usually gone from the
+  outbox before the next 800 ms sample, so manual entry remains the primary
+  path; V0 is not zero-touch full-chain tracing. Per-task polling is
+  serialized (one in-flight request per task, stale responses dropped by
+  generation, cursor-regressing pages refused), capped at 64 watched tasks and
+  16 task queries per 800 ms cycle.
 - **Timeline** per task: `seq / state / type / observed-at / preview` with text
   filter, type filter, pause-auto-scroll and **Export redacted JSON**.
 - Task states, `WAITING_INPUT` permission events (Gateway policy is

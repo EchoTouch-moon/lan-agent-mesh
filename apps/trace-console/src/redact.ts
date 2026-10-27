@@ -33,6 +33,27 @@ export function redactAddress(address: string): string {
 
 const MAX_PREVIEW = 400;
 
+// Untrusted event objects can encode payloads in field NAMES (a key like
+// "/Users/x/token=<secret>" or "<script>…"). Only structurally safe names are
+// ever echoed back; anything else is counted, not repeated.
+const SAFE_FIELD_NAME = /^[A-Za-z0-9_.-]{1,64}$/;
+const MAX_DROPPED_LISTED = 16;
+// Identifiers forwarded verbatim must match the wire ID grammar; anything
+// else (overlong, spacing, markup, path-like) is withheld.
+const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/;
+const SAFE_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const SAFE_DIGEST = /^[a-f0-9]{64}$/i;
+
+function safeId(value: unknown): string | undefined {
+  return typeof value === 'string' && SAFE_ID.test(value) ? value : undefined;
+}
+
+function safeShort(value: unknown, max: number): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const redacted = redactText(value);
+  return redacted.length <= max ? redacted : undefined;
+}
+
 function preview(text: unknown): string | undefined {
   if (typeof text !== 'string') return undefined;
   const redacted = redactText(text);
@@ -43,35 +64,44 @@ export interface RedactedEvent {
   seq: number;
   type: string;
   taskId?: string | undefined;
-  state?: string;
+  state?: string | undefined;
   preview?: string | undefined;
   code?: string | undefined;
   permission?: { requestId: string; operationDigest: string; expiresAt: string } | undefined;
   droppedFields: string[];
+  droppedUnsafeCount?: number | undefined;
 }
 
 /** Whitelisted, field-by-field projection of one stored task event. Unknown
- * fields are dropped and reported by name instead of forwarded. */
+ * fields are dropped; only structurally safe field NAMES are reported, unsafe
+ * names are aggregated into droppedUnsafeCount and never echoed. */
 export function redactEvent(event: unknown, seq: number): RedactedEvent {
   const value = (event ?? {}) as Record<string, unknown>;
   const droppedFields: string[] = [];
+  let droppedUnsafe = 0;
   const out: RedactedEvent = { seq, type: '[missing]', droppedFields };
-  if (typeof value.type === 'string') out.type = redactText(value.type);
-  if (typeof value.taskId === 'string') out.taskId = value.taskId;
-  if (typeof value.code === 'string') out.code = redactText(value.code);
+  const type = safeShort(value.type, 64);
+  if (type !== undefined && SAFE_FIELD_NAME.test(type)) out.type = type;
+  out.taskId = safeId(value.taskId);
+  const code = safeShort(value.code, 128);
+  if (code !== undefined) out.code = code;
   if (typeof value.reason === 'string' && out.preview === undefined) out.preview = preview(value.reason);
   if (typeof value.text === 'string') out.preview = preview(value.text);
   if (value.request && typeof value.request === 'object') {
     const request = value.request as Record<string, unknown>;
-    if (typeof request.requestId === 'string' && typeof request.operationDigest === 'string' && typeof request.expiresAt === 'string')
-      out.permission = {
-        requestId: request.requestId,
-        operationDigest: request.operationDigest,
-        expiresAt: request.expiresAt,
-      };
+    const requestId = typeof request.requestId === 'string' && SAFE_UUID.test(request.requestId) ? request.requestId : undefined;
+    const operationDigest = typeof request.operationDigest === 'string' && SAFE_DIGEST.test(request.operationDigest) ? request.operationDigest : undefined;
+    const expiresAt = safeShort(request.expiresAt, 64);
+    if (requestId && operationDigest && expiresAt)
+      out.permission = { requestId, operationDigest, expiresAt };
   }
   const known = new Set(['type', 'taskId', 'text', 'code', 'reason', 'request']);
-  for (const key of Object.keys(value)) if (!known.has(key)) droppedFields.push(key);
+  for (const key of Object.keys(value))
+    if (!known.has(key)) {
+      if (SAFE_FIELD_NAME.test(key) && droppedFields.length < MAX_DROPPED_LISTED) droppedFields.push(key);
+      else droppedUnsafe++;
+    }
+  if (droppedUnsafe > 0) out.droppedUnsafeCount = droppedUnsafe;
   return out;
 }
 
@@ -99,8 +129,8 @@ export interface RedactedStatus {
 export function redactStatus(status: unknown): RedactedStatus {
   const value = (status ?? {}) as Record<string, unknown>;
   return {
-    nodeId: typeof value.nodeId === 'string' ? value.nodeId : undefined,
-    fingerprint: typeof value.fingerprint === 'string' ? value.fingerprint : undefined,
+    nodeId: safeId(value.nodeId),
+    fingerprint: typeof value.fingerprint === 'string' && SAFE_DIGEST.test(value.fingerprint) ? value.fingerprint : undefined,
     addresses: Array.isArray(value.addresses) ? value.addresses.map((a) => redactAddress(String(a))) : [],
     controlUrl: typeof value.controlUrl === 'string' ? redactAddress(value.controlUrl) : undefined,
   };
@@ -116,7 +146,7 @@ export function redactPeers(peers: unknown): RedactedPeer[] {
   return peers.map((peer) => {
     const value = (peer ?? {}) as Record<string, unknown>;
     return {
-      peer: typeof value.peer === 'string' ? value.peer : '[unknown]',
+      peer: safeId(value.peer) ?? '[unknown]',
       addresses: Array.isArray(value.addresses) ? value.addresses.map((a) => redactAddress(String(a))) : [],
     };
   });
@@ -132,7 +162,7 @@ export interface RedactedSession {
 }
 
 /** nativeSessionId identifies a private native harness thread and is never
- * forwarded to the page. */
+ * forwarded to the page. All echoed identifiers pass the wire ID grammar. */
 export function redactSessions(sessions: unknown): RedactedSession[] {
   if (!Array.isArray(sessions)) return [];
   return sessions.map((session) => {
@@ -140,11 +170,11 @@ export function redactSessions(sessions: unknown): RedactedSession[] {
     const redactedFields: string[] = [];
     if ('nativeSessionId' in value) redactedFields.push('nativeSessionId');
     return {
-      id: typeof value.id === 'string' ? value.id : '[unknown]',
-      agentId: typeof value.agentId === 'string' ? value.agentId : '[unknown]',
-      workspaceAlias: typeof value.workspaceAlias === 'string' ? value.workspaceAlias : '[unknown]',
-      state: typeof value.state === 'string' ? value.state : '[unknown]',
-      createdAt: typeof value.createdAt === 'string' ? value.createdAt : '[unknown]',
+      id: safeId(value.id) ?? '[unknown]',
+      agentId: safeId(value.agentId) ?? '[unknown]',
+      workspaceAlias: safeId(value.workspaceAlias) ?? '[unknown]',
+      state: safeShort(value.state, 32) ?? '[unknown]',
+      createdAt: safeShort(value.createdAt, 64) ?? '[unknown]',
       redactedFields,
     };
   });
@@ -166,12 +196,14 @@ export function redactPending(pending: unknown): RedactedPending[] {
     const value = (row ?? {}) as Record<string, unknown>;
     const message = (value.message ?? {}) as Record<string, unknown>;
     const out: RedactedPending = {
-      messageId: typeof value.id === 'string' ? value.id : '[unknown]',
-      peer: typeof value.peer === 'string' ? value.peer : '[unknown]',
+      messageId: safeId(value.id) ?? '[unknown]',
+      peer: safeId(value.peer) ?? '[unknown]',
     };
-    if (typeof message.type === 'string') out.type = message.type;
-    if (typeof message.taskId === 'string') out.taskId = message.taskId;
-    if (typeof message.deadline === 'string') out.deadline = message.deadline;
+    const type = safeShort(message.type, 64);
+    if (type !== undefined && SAFE_FIELD_NAME.test(type)) out.type = type;
+    out.taskId = safeId(message.taskId);
+    const deadline = safeShort(message.deadline, 64);
+    if (deadline !== undefined) out.deadline = deadline;
     return out;
   });
 }
