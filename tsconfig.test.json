@@ -43,6 +43,8 @@
   "include": [
     "packages/*/src/**/*.ts",
     "packages/*/test/**/*.ts",
+    "apps/trace-console/src/**/*.ts",
+    "apps/trace-console/test/**/*.ts",
     "vitest.config.ts"
   ]
 }
