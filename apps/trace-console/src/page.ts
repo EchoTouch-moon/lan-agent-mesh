@@ -27,32 +27,22 @@ export const PAGE_HTML = `<!doctype html>
 </header>
 <div id="banner" hidden></div>
 <main>
+  <section class="panel" id="topology-panel">
+    <h2>网络拓扑 · 每台电脑一个图标，箭头即调用方向</h2>
+    <div id="topology-canvas" class="topo-canvas"></div>
+    <div class="topo-legend">
+      <span class="lg"><span class="lg-dot lg-ok"></span>屏幕发光并缓慢呼吸＝该节点在线</span>
+      <span class="lg"><span class="lg-line"></span>▶ 绿色流动连线＝加密链路互通，任务可送达</span>
+      <span class="lg"><span class="lg-dot lg-down"></span>灰色＝未配对或不可达（消息送不过去＝堵塞点）</span>
+      <span class="lg"><span class="lg-dot lg-warn"></span>黄色＝本机正在节流探测对端</span>
+      <span class="lg">电脑造型（Mac / Windows）来自对端 registry 自报的 platform；连线表达本机↔对端可达性，任务方向见「观察任务」列表。</span>
+    </div>
+    <div id="node-detail" class="node-detail"></div>
+    <div class="hint">上方为完整节点信息（peerId 与监听地址，可直接复制到「观察任务」表单或深链）；脱敏后重复的地址已自动折叠。</div>
+    <h2 class="section-gap">配对与连接状态</h2>
+    <div id="pairing-status" class="pairing-box">…</div>
+  </section>
   <div class="col-left">
-    <section class="panel" id="nodes-panel">
-      <h2>节点视图</h2>
-      <div class="node-row">
-        <div class="node local" id="local-node">
-          <div class="node-title"><span class="dot dot-ok"></span>本机节点（发起方）</div>
-          <div class="node-body">…</div>
-        </div>
-        <div class="arrow" title="调用方向：本机 → 对端">──▶</div>
-        <div class="node remote" id="remote-node">
-          <div class="node-title"><span class="dot"></span>对端节点（接收方）</div>
-          <div class="node-body">未选择任务</div>
-        </div>
-      </div>
-      <div class="hint">事件经加密 mesh 传输；本观察台只通过本机网关读取。</div>
-      <h2 style="margin-top:12px">对端节点（多节点状态）</h2>
-      <div id="node-grid" class="node-grid"></div>
-      <div class="hint">在线状态由本机网关按节流轮询向已配对对端发起 registry 只读探测得出；「未配对或不可达」表示探测被拒（未配对）或对端无响应。</div>
-      <h2 style="margin-top:12px">配对与连接状态</h2>
-      <div id="pairing-status" class="pairing-box">…</div>
-    </section>
-    <section class="panel" id="pending-panel">
-      <h2>在途消息（发出未确认 ACK）<span id="pending-inbox" class="mono"></span></h2>
-      <table id="pending-table"><thead><tr><th>→ 对端</th><th>类型</th><th>任务ID</th><th>剩余时间</th></tr></thead><tbody></tbody></table>
-      <div class="hint"><strong>读法：</strong>条目从下表消失＝对端已确认接收（ACK），这是发起方侧可见的「发出→接收」闭环。对端发来的内容需在对端自己的观察台查看；本机视角只能看到上方 inbox 回执计数（对端→本机方向已收到的消息数）。deadline 为负数表示已过期。</div>
-    </section>
     <section class="panel" id="watch-panel">
       <h2>观察任务</h2>
       <form id="add-task">
@@ -71,6 +61,11 @@ export const PAGE_HTML = `<!doctype html>
     </section>
   </div>
   <div class="col-right">
+    <section class="panel" id="pending-panel">
+      <h2>在途消息（发出未确认 ACK）<span id="pending-inbox" class="mono"></span></h2>
+      <table id="pending-table"><thead><tr><th>→ 对端</th><th>类型</th><th>任务ID</th><th>剩余时间</th></tr></thead><tbody></tbody></table>
+      <div class="hint"><strong>读法：</strong>条目从下表消失＝对端已确认接收（ACK），这是发起方侧可见的「发出→接收」闭环。对端发来的内容需在对端自己的观察台查看；本机视角只能看到上方 inbox 回执计数（对端→本机方向已收到的消息数）。deadline 为负数表示已过期。</div>
+    </section>
     <section class="panel" id="timeline-panel">
       <h2>任务时间线 <span id="timeline-task" class="mono"></span></h2>
       <div class="controls">
@@ -111,6 +106,7 @@ header { display: flex; align-items: center; gap: 12px; padding: 10px 18px; back
 .logo { font-weight: 700; font-size: 13px; color: #7ee2a0; border: 1px solid #2e6b45; border-radius: 6px; padding: 2px 8px; letter-spacing: 1px; }
 h1 { font-size: 15px; margin: 0; letter-spacing: .5px; font-weight: 600; }
 h2 { font-size: 12px; margin: 0 0 10px; color: #8fa3bd; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+.section-gap { margin-top: 16px; }
 button { background: #222c3a; color: #d7dde6; border: 1px solid #37455a; border-radius: 6px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
 button:hover { background: #2b3850; border-color: #4c5f7d; }
 input, select { background: #0b0f14; border: 1px solid #37455a; color: #d7dde6; border-radius: 6px; padding: 6px 10px; font: inherit; font-size: 13px; }
@@ -122,20 +118,46 @@ input:focus, select:focus, button:focus-visible { outline: 1px solid #6a8dbd; ou
 .conn-down { background: #401414; color: #ff9c9c; border: 1px solid #7a2e2e; }
 .conn-connecting { background: #3a3114; color: #ffe08a; border: 1px solid #7a6a2e; }
 #banner { padding: 9px 18px; background: #401414; color: #ffb3b3; border-bottom: 1px solid #7a2e2e; font-size: 13px; }
-main { padding: 14px 18px; display: grid; grid-template-columns: minmax(340px, 430px) 1fr; gap: 14px; max-width: 1400px; align-items: start; }
-@media (max-width: 980px) { main { grid-template-columns: 1fr; } }
-.col-left, .col-right { display: grid; gap: 14px; min-width: 0; }
-.panel { background: #141a23; border: 1px solid #26303f; border-radius: 10px; padding: 14px; }
+main { padding: 14px 18px; display: grid; grid-template-columns: minmax(340px, 430px) 1fr; grid-template-areas: "top top" "left right"; gap: 14px; max-width: 1500px; align-items: start; }
+@media (max-width: 980px) { main { grid-template-columns: 1fr; grid-template-areas: "top" "left" "right"; } }
+#topology-panel { grid-area: top; }
+.col-left { grid-area: left; }
+.col-right { grid-area: right; }
+.col-left, .col-right { display: grid; gap: 14px; min-width: 0; align-content: start; }
+.panel { background: #141a23; border: 1px solid #26303f; border-radius: 10px; padding: 14px; scroll-margin-top: 56px; }
 .hint { color: #6f7f95; font-size: 12px; margin-top: 10px; line-height: 1.6; }
-.node-row { display: flex; align-items: stretch; gap: 10px; }
-.node { flex: 1; border: 1px solid #2e3a4d; border-radius: 8px; padding: 10px 12px; min-height: 68px; background: #101620; }
-.node.local { border-color: #2e6b45; }
-.node.remote { border-color: #37455a; }
-.node-title { font-size: 11px; color: #8fa3bd; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-.node-body { white-space: pre-wrap; word-break: break-all; font-size: 12px; line-height: 1.7; color: #b9c4d4; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: #525f70; display: inline-block; }
-.dot-ok { background: #7ee2a0; }
-.arrow { align-self: center; color: #7ee2a0; font-size: 22px; letter-spacing: -2px; }
+.topo-canvas { display: flex; align-items: stretch; flex-wrap: wrap; gap: 0; row-gap: 14px; padding: 4px 0 2px; }
+.topo-node { border: 1px solid #2e3a4d; border-radius: 10px; padding: 12px 14px 10px; min-width: 150px; max-width: 196px; min-height: 150px; flex: 0 1 auto; background: #101620; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; justify-content: flex-start; }
+.topo-node.local { border-color: #2e6b45; background: linear-gradient(180deg, #122018, #101620); }
+.topo-node.target { border-color: #8a6fd0; box-shadow: 0 0 0 1px #8a6fd0 inset; }
+.topo-node .topo-svg { display: block; }
+.topo-node .topo-name { font-size: 13px; font-weight: 600; color: #d7dde6; }
+.topo-node .topo-peer { font-size: 11px; color: #8fa3bd; word-break: break-all; }
+.topo-badges { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+.topo-legend { display: flex; gap: 6px 16px; flex-wrap: wrap; margin-top: 12px; font-size: 11px; color: #8fa3bd; }
+.topo-legend .lg { display: inline-flex; align-items: center; gap: 5px; min-width: 0; }
+.lg-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex: none; }
+.lg-dot.lg-ok { background: #7ee2a0; }
+.lg-dot.lg-warn { background: #ffcf7e; }
+.lg-dot.lg-down { background: #525f70; }
+.lg-line { width: 20px; height: 2px; display: inline-block; flex: none; background: repeating-linear-gradient(90deg, #2e6b45 0 4px, #7ee2a0 4px 8px); }
+.topo-link { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 10px; min-width: 92px; gap: 5px; }
+.topo-link .link-line { position: relative; width: 100%; min-width: 56px; height: 2px; border-radius: 1px; background: #525f70; }
+.topo-link .link-line::after { content: ""; position: absolute; right: -2px; top: -4px; width: 0; height: 0; border: 5px solid transparent; border-left: 7px solid #525f70; }
+.topo-link .link-label { font-size: 10px; color: #6f7f95; white-space: nowrap; }
+.topo-link.up .link-line { background: repeating-linear-gradient(90deg, #2e6b45 0 12px, #7ee2a0 12px 22px); animation: lam-flow 1.1s linear infinite; }
+.topo-link.up .link-line::after { border-left-color: #7ee2a0; }
+.topo-link.up .link-label { color: #7ee2a0; }
+.topo-link.probe .link-line { background: #8a6a2e; animation: lam-pulse 1.4s ease-in-out infinite; }
+.topo-link.probe .link-line::after { border-left-color: #ffcf7e; }
+.topo-link.probe .link-label { color: #ffcf7e; }
+@keyframes lam-flow { from { background-position: 0 0; } to { background-position: 22px 0; } }
+@keyframes lam-pulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+.node-detail { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; margin-top: 10px; }
+.nd-card { border: 1px solid #222c3a; border-radius: 8px; padding: 8px 10px; background: #0e131b; }
+.nd-card .nd-peer { font-size: 11px; color: #b9c4d4; word-break: break-all; }
+.nd-card .nd-addr { font-size: 11px; color: #6f7f95; word-break: break-all; white-space: pre-wrap; margin-top: 4px; }
+.nd-card .nd-badges { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
 #add-task { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
 #task-id { flex: 2; min-width: 200px; }
 #peer-id { flex: 1; min-width: 150px; }
@@ -161,7 +183,7 @@ th { color: #8fa3bd; font-weight: normal; }
 .controls { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 #filter-text { flex: 1; min-width: 150px; }
 .legend { display: flex; justify-content: space-between; gap: 10px; color: #6f7f95; font-size: 11px; margin-bottom: 10px; flex-wrap: wrap; }
-#events { list-style: none; margin: 0; padding: 0; max-height: 58vh; overflow-y: auto; border: 1px solid #222c3a; border-radius: 6px; background: #0e131b; }
+#events { list-style: none; margin: 0; padding: 0; min-height: 300px; max-height: 64vh; overflow-y: auto; border: 1px solid #222c3a; border-radius: 6px; background: #0e131b; }
 #events li { display: flex; gap: 10px; padding: 5px 12px; border-bottom: 1px solid #1a2230; align-items: baseline; }
 #events li:hover { background: #1a2230; }
 .ev-seq { color: #5f6f85; min-width: 44px; text-align: right; font-size: 12px; }
@@ -178,18 +200,13 @@ th { color: #8fa3bd; font-weight: normal; }
 .pairing-box { font-size: 12px; line-height: 1.8; color: #b9c4d4; white-space: pre-wrap; word-break: break-all; background: #101620; border: 1px solid #2e3a4d; border-radius: 8px; padding: 9px 11px; }
 .pairing-box .ok { color: #7ee2a0; }
 .pairing-box .wait { color: #ffcf7e; }
-.node-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
-.node-card { border: 1px solid #2e3a4d; border-radius: 8px; padding: 9px 11px; background: #101620; min-width: 0; }
-.node-card .node-peer { font-size: 12px; color: #b9c4d4; word-break: break-all; margin-bottom: 5px; }
-.node-card .node-addr { font-size: 11px; color: #6f7f95; word-break: break-all; white-space: pre-wrap; margin-bottom: 7px; }
-.node-card .node-badges { display: flex; gap: 5px; flex-wrap: wrap; }
 .node-empty { border: 1px dashed #4a5260; color: #9aa4b2; padding: 10px 12px; border-radius: 6px; font-size: 12px; background: #12161d; }
 .badge { display: inline-block; font-size: 10px; border-radius: 8px; padding: 1px 7px; border: 1px solid #37455a; color: #8fa3bd; background: #141a23; }
 .badge-online { color: #7ee2a0; border-color: #2e6b45; background: #12291a; }
 .badge-offline { color: #9aa4b2; border-color: #4a5260; background: #161a20; }
 .badge-probing { color: #ffcf7e; border-color: #8a6a2e; background: #2e2412; }
 .mono { font-weight: normal; color: #7ee2a0; font-size: 12px; }
-footer { padding: 14px 18px 26px; color: #6f7f95; font-size: 12px; max-width: 1400px; line-height: 1.8; }
+footer { padding: 14px 18px 26px; color: #6f7f95; font-size: 12px; max-width: 1500px; line-height: 1.8; }
 code { color: #9fc1e8; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: #26303f; border-radius: 6px; }
@@ -209,6 +226,52 @@ export const PAGE_JS = `'use strict';
     if (className) node.className = className;
     if (text !== undefined) node.textContent = text;
     return node;
+  }
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+  function svgEl(tag, attrs) {
+    var node = document.createElementNS(SVG_NS, tag);
+    if (attrs) for (var key in attrs) node.setAttribute(key, attrs[key]);
+    return node;
+  }
+  function svgAdd(parent, tag, attrs, extra) {
+    var merged = {};
+    for (var k in attrs) merged[k] = attrs[k];
+    if (extra) for (var k2 in extra) merged[k2] = extra[k2];
+    var node = svgEl(tag, merged);
+    parent.appendChild(node);
+    return node;
+  }
+  // Inline SVG computer icons (presentation attributes only — no inline style,
+  // no external assets). color carries the node status; live adds a slow
+  // breathing animation so an online machine is recognisable at a glance.
+  function computerIcon(kind, color, live) {
+    var svg = svgEl('svg', { viewBox: '0 0 96 60', width: '84', height: '52', 'class': 'topo-svg', 'aria-hidden': 'true' });
+    var g = svgEl('g', null);
+    var shell = { fill: '#0d1420', stroke: color, 'stroke-width': '2' };
+    var base = { fill: '#1a2230', stroke: color, 'stroke-width': '1.5' };
+    if (kind === 'win') {
+      svgAdd(g, 'rect', { x: '14', y: '3', width: '68', height: '38', rx: '3' }, shell);
+      svgAdd(g, 'rect', { x: '34', y: '10', width: '12', height: '11', rx: '1.5', fill: color });
+      svgAdd(g, 'rect', { x: '50', y: '10', width: '12', height: '11', rx: '1.5', fill: color });
+      svgAdd(g, 'rect', { x: '34', y: '24', width: '12', height: '11', rx: '1.5', fill: color });
+      svgAdd(g, 'rect', { x: '50', y: '24', width: '12', height: '11', rx: '1.5', fill: color });
+      svgAdd(g, 'rect', { x: '44', y: '41', width: '8', height: '8' }, base);
+      svgAdd(g, 'rect', { x: '32', y: '49', width: '32', height: '4', rx: '2' }, base);
+    } else if (kind === 'mac') {
+      svgAdd(g, 'rect', { x: '22', y: '4', width: '52', height: '34', rx: '4' }, shell);
+      svgAdd(g, 'circle', { cx: '48', cy: '20', r: '5.5', fill: color });
+      svgAdd(g, 'path', { d: 'M48,13 q3.6,-3.4 7,-1.4 q-2.2,3.6 -7,1.4 z', fill: color });
+      svgAdd(g, 'path', { d: 'M18,42 h60 l5,8 q1,3 -2,3 h-66 q-3,0 -2,-3 z' }, base);
+      svgAdd(g, 'rect', { x: '42', y: '49', width: '12', height: '2', rx: '1', fill: color, opacity: '.5' });
+    } else {
+      svgAdd(g, 'rect', { x: '34', y: '4', width: '30', height: '52', rx: '3' }, shell);
+      svgAdd(g, 'rect', { x: '40', y: '12', width: '18', height: '2.5', rx: '1', fill: '#2a3342' });
+      svgAdd(g, 'rect', { x: '40', y: '18', width: '18', height: '2.5', rx: '1', fill: '#2a3342' });
+      svgAdd(g, 'circle', { cx: '57', cy: '48', r: '2.5', fill: color });
+    }
+    if (live) g.appendChild(svgEl('animate', { attributeName: 'opacity', values: '1;.45;1', dur: '2.2s', repeatCount: 'indefinite' }));
+    svg.appendChild(g);
+    return svg;
   }
   function cookie(name) {
     var parts = document.cookie ? document.cookie.split(';') : [];
@@ -359,8 +422,7 @@ export const PAGE_JS = `'use strict';
         setConn('down', '网关不可达（' + (data.error || 'unknown') + '）');
         banner('无法读取本机网关。若网关已重启，其控制令牌已轮换：请点击「重新连接网关」。');
       }
-      renderNodes();
-      renderNodeGrid();
+      renderTopology();
       renderPairings();
       renderPending();
       renderSessions();
@@ -377,66 +439,113 @@ export const PAGE_JS = `'use strict';
     }
   }
 
-  function renderNodes() {
-    var local = $('local-node').querySelector('.node-body');
-    var remote = $('remote-node').querySelector('.node-body');
-    var statusSig = JSON.stringify(overview && overview.status) || 'null';
-    if (renderNodes.statusSig !== statusSig) {
-      renderNodes.statusSig = statusSig;
-      local.textContent = '';
-      if (overview && overview.status && overview.status.nodeId) {
-        local.appendChild(el('div', null, '节点ID：' + overview.status.nodeId));
-        local.appendChild(el('div', null, '指纹：' + (overview.status.fingerprint || '')));
-        local.appendChild(el('div', null, '地址：' + (overview.status.addresses || []).join('，')));
-      } else {
-        local.textContent = '状态不可观察（网关不可达）';
-      }
-    }
-    var view = selected ? tasks.get(selected) : null;
-    var remoteSig = view ? (view.peer + '|' + view.taskId + '|' + (view.notObservable ? 'N' : view.state)) : 'none';
-    if (renderNodes.remoteSig !== remoteSig) {
-      renderNodes.remoteSig = remoteSig;
-      remote.textContent = '';
-      if (view) {
-        remote.appendChild(el('div', null, 'peerId：' + view.peer));
-        remote.appendChild(el('div', null, '任务ID：' + view.taskId));
-        remote.appendChild(el('div', null, '状态：' + (view.notObservable ? '不可观察（NOT-OBSERVABLE）' : view.state)));
-      } else {
-        remote.textContent = '未选择任务';
-      }
-    }
-  }
-
   function shortPeer(peer) {
     return peer && peer.length > 20 ? peer.slice(0, 20) + '…' : peer;
   }
 
   var NODE_SOURCE_LABEL = { discovered: '发现', pairing: '配对中', pending: '在途消息', task: '任务' };
+  var PLATFORM_NAME = { darwin: 'macOS', win32: 'Windows', linux: 'Linux' };
+  var STATUS_COLOR = { online: '#7ee2a0', probing: '#ffcf7e', offline: '#525f70' };
 
-  function renderNodeGrid() {
-    var grid = $('node-grid');
+  function iconName(platform) {
+    if (platform === 'darwin') return 'mac';
+    if (platform === 'win32') return 'win';
+    return 'generic';
+  }
+
+  function nodeStatus(node) {
+    if (node.online === true && node.trusted === true) return { cls: 'online', label: '已配对 · 在线' };
+    if (node.online === true) return { cls: 'online', label: '在线' };
+    if (node.online === false) return { cls: 'offline', label: '未配对或不可达' };
+    return { cls: 'probing', label: '探测中…' };
+  }
+
+  function topoLink(cls, label) {
+    var link = el('div', 'topo-link ' + cls);
+    link.appendChild(el('span', 'link-line'));
+    link.appendChild(el('span', 'link-label', label));
+    return link;
+  }
+
+  // Redaction can make several distinct LAN addresses collapse into the same
+  // masked text; showing the duplicates adds noise, so equal lines fold.
+  function addressText(addresses) {
+    var seen = {};
+    var unique = [];
+    var raw = addresses || [];
+    for (var i = 0; i < raw.length; i++) {
+      if (!seen[raw[i]]) { seen[raw[i]] = true; unique.push(raw[i]); }
+    }
+    var folded = raw.length - unique.length;
+    return unique.join('\\n') || '未知';
+  }
+
+  // 节点拓扑带：本机一台电脑图标，每个已知对端一台；中间的连线表达
+  // 本机↔对端的可达性。所有节点数据来自 /api/overview（服务端脱敏后），
+  // 渲染仍走 createElement/createElementNS + textContent。
+  function renderTopology() {
+    var canvas = $('topology-canvas');
+    var detail = $('node-detail');
     var nodes = (overview && overview.nodes) || [];
-    var sig = JSON.stringify(nodes);
-    if (renderNodeGrid.sig === sig) return;
-    renderNodeGrid.sig = sig;
-    grid.textContent = '';
+    var selectedView = selected ? tasks.get(selected) : null;
+    var sig = JSON.stringify(overview && overview.status) + '|' + JSON.stringify(nodes) + '|' + (overview ? overview.ok : 'null') + '|' + (selectedView ? selectedView.peer : '');
+    if (renderTopology.sig === sig) return;
+    renderTopology.sig = sig;
+    canvas.textContent = '';
+    detail.textContent = '';
+    var ok = !!(overview && overview.ok);
+    var status = (overview && overview.status) || {};
+    // 本机（发起方）
+    var localCard = el('div', 'topo-node local');
+    localCard.appendChild(computerIcon(iconName(status.platform), STATUS_COLOR[ok ? 'online' : 'offline'], ok));
+    localCard.appendChild(el('div', 'topo-name', '本机 · ' + (PLATFORM_NAME[status.platform] || '平台未知')));
+    localCard.appendChild(el('div', 'topo-peer', status.nodeId ? shortPeer(status.nodeId) : '节点ID不可观察'));
+    var localBadges = el('div', 'topo-badges');
+    localBadges.appendChild(el('span', 'badge ' + (ok ? 'badge-online' : 'badge-offline'), ok ? '网关正常 · 发起方' : '网关不可达'));
+    localCard.appendChild(localBadges);
+    canvas.appendChild(localCard);
     if (!nodes.length) {
-      grid.appendChild(el('div', 'node-empty', '尚未发现对端节点。'));
-      return;
+      canvas.appendChild(topoLink('down', '待发现'));
+      var emptyCard = el('div', 'topo-node');
+      emptyCard.appendChild(computerIcon('generic', STATUS_COLOR.offline, false));
+      emptyCard.appendChild(el('div', 'topo-name', '尚无对端'));
+      emptyCard.appendChild(el('div', 'topo-peer', '尚未发现对端节点'));
+      canvas.appendChild(emptyCard);
     }
     for (var i = 0; i < nodes.length; i++) {
       var n = nodes[i];
-      var card = el('div', 'node-card');
-      card.appendChild(el('div', 'node-peer', 'peerId：' + shortPeer(n.peer)));
-      card.appendChild(el('div', 'node-addr', (n.addresses || []).join('\\n') || '地址未知'));
-      var badges = el('div', 'node-badges');
+      var st = nodeStatus(n);
+      var linkCls = st.cls === 'online' ? 'up' : st.cls === 'probing' ? 'probe' : 'down';
+      var linkLabel = st.cls === 'online' ? '加密链路 · 在线' : st.cls === 'probing' ? '探测中' : '未配对或不可达';
+      canvas.appendChild(topoLink(linkCls, linkLabel));
+      var card = el('div', 'topo-node' + (selectedView && n.peer === selectedView.peer ? ' target' : ''));
+      card.setAttribute('title', n.peer);
+      card.appendChild(computerIcon(iconName(n.platform), STATUS_COLOR[st.cls], st.cls === 'online'));
+      card.appendChild(el('div', 'topo-name', '对端 · ' + (PLATFORM_NAME[n.platform] || '平台未知')));
+      card.appendChild(el('div', 'topo-peer', shortPeer(n.peer)));
+      var badges = el('div', 'topo-badges');
       badges.appendChild(el('span', 'badge', NODE_SOURCE_LABEL[n.source] || n.source || '未知来源'));
-      if (n.online === true && n.trusted === true) badges.appendChild(el('span', 'badge badge-online', '已配对 · 在线'));
-      else if (n.online === true) badges.appendChild(el('span', 'badge badge-online', '在线'));
-      else if (n.online === false) badges.appendChild(el('span', 'badge badge-offline', '未配对或不可达'));
-      else badges.appendChild(el('span', 'badge badge-probing', '探测中…'));
+      badges.appendChild(el('span', 'badge badge-' + st.cls, st.label));
       card.appendChild(badges);
-      grid.appendChild(card);
+      canvas.appendChild(card);
+    }
+    // 详情区：完整 ID 与地址（复制用），不参与拓扑图形。
+    var localDetail = el('div', 'nd-card');
+    localDetail.appendChild(el('div', 'nd-peer', status.nodeId ? '本机节点ID：' + status.nodeId : '本机节点ID不可观察'));
+    localDetail.appendChild(el('div', 'nd-addr', '指纹：' + (status.fingerprint || '不可观察')));
+    localDetail.appendChild(el('div', 'nd-addr', '地址：' + addressText(status.addresses)));
+    detail.appendChild(localDetail);
+    for (var j = 0; j < nodes.length; j++) {
+      var node = nodes[j];
+      var nodeSt = nodeStatus(node);
+      var nd = el('div', 'nd-card');
+      nd.appendChild(el('div', 'nd-peer', '对端 peerId：' + node.peer));
+      nd.appendChild(el('div', 'nd-addr', '地址：' + addressText(node.addresses)));
+      var ndBadges = el('div', 'nd-badges');
+      ndBadges.appendChild(el('span', 'badge', NODE_SOURCE_LABEL[node.source] || node.source || '未知来源'));
+      ndBadges.appendChild(el('span', 'badge badge-' + nodeSt.cls, nodeSt.label));
+      nd.appendChild(ndBadges);
+      detail.appendChild(nd);
     }
   }
 
@@ -570,7 +679,7 @@ export const PAGE_JS = `'use strict';
       li.appendChild(el('span', 'task-source', SOURCE_LABEL[view.source] || view.source));
       li.appendChild(el('span', 'task-meta', view.events.length + ' 条事件'));
       if (view.error) li.appendChild(el('span', 'task-meta', '错误：' + view.error));
-      li.addEventListener('click', function () { selected = view.taskId; renderTasks(); renderNodes(); renderTimeline(); });
+      li.addEventListener('click', function () { selected = view.taskId; renderTasks(); renderTopology(); renderTimeline(); });
       list.appendChild(li);
     });
     // 持久上限提示：随列表渲染显示，而不是只靠很快被轮询清掉的横幅。

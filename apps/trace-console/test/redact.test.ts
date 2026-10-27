@@ -148,12 +148,23 @@ describe('redactStatus / redactPending', () => {
 describe('redactNodes', () => {
   it('keeps probe states, re-validates ids and re-masks addresses', () => {
     const out = redactNodes([
-      { peer: '12D3KooPabc', addresses: ['/ip4/192.168.1.9/tcp/4001'], source: 'discovered', online: true, trusted: true },
+      { peer: '12D3KooPabc', addresses: ['/ip4/192.168.1.9/tcp/4001'], source: 'discovered', online: true, trusted: true, platform: 'win32' },
       { peer: '12D3KooPdef', addresses: [], source: 'task', online: false, trusted: null },
     ]);
-    expect(out[0]).toMatchObject({ peer: '12D3KooPabc', source: 'discovered', online: true, trusted: true });
+    expect(out[0]).toMatchObject({ peer: '12D3KooPabc', source: 'discovered', online: true, trusted: true, platform: 'win32' });
     expect(out[0]!.addresses[0]).toContain('[REDACTED:ip]');
     expect(out[1]).toMatchObject({ peer: '12D3KooPdef', source: 'task', online: false, trusted: null });
+  });
+  it('withholds platform values outside the closed icon set', () => {
+    const out = redactNodes([
+      { peer: '12D3KooPabc', addresses: [], source: 'discovered', online: true, trusted: true, platform: 'win32; rm -rf /' },
+      { peer: '12D3KooPdef', addresses: [], source: 'discovered', online: null, trusted: null, platform: 'android' },
+    ]);
+    expect(out[0]!.platform).toBeUndefined();
+    expect(out[1]!.platform).toBeUndefined();
+    expect(JSON.stringify(out)).not.toContain('rm -rf');
+    expect(redactStatus({ nodeId: 'n', addresses: [], platform: 'darwin/iexplorer' }).platform).toBeUndefined();
+    expect(redactStatus({ nodeId: 'n', addresses: [], platform: 'linux' }).platform).toBe('linux');
   });
   it('degrades malformed entries instead of echoing them', () => {
     const out = redactNodes([

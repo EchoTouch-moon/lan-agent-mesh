@@ -42,6 +42,13 @@ const SAFE_FIELD_NAME = /^[A-Za-z0-9_.-]{1,64}$/;
 const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/;
 const SAFE_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SAFE_DIGEST = /^[a-f0-9]{64}$/i;
+// Platform labels drive the node icons on the page; anything outside this
+// closed set is withheld so the field cannot smuggle arbitrary text.
+const SAFE_PLATFORM = new Set(['darwin', 'win32', 'linux']);
+
+function safePlatform(value: unknown): string | undefined {
+  return typeof value === 'string' && SAFE_PLATFORM.has(value) ? value : undefined;
+}
 
 function safeId(value: unknown): string | undefined {
   // Wire-grammar check first, then a defence-in-depth text pass: a grammar-
@@ -125,6 +132,8 @@ export interface RedactedStatus {
   fingerprint?: string | undefined;
   addresses: string[];
   controlUrl?: string | undefined;
+  /** Injected by the console process (same machine as the Gateway); icons only. */
+  platform?: string | undefined;
 }
 
 export function redactStatus(status: unknown): RedactedStatus {
@@ -134,6 +143,7 @@ export function redactStatus(status: unknown): RedactedStatus {
     fingerprint: typeof value.fingerprint === 'string' && SAFE_DIGEST.test(value.fingerprint) ? value.fingerprint : undefined,
     addresses: Array.isArray(value.addresses) ? value.addresses.map((a) => redactAddress(String(a))) : [],
     controlUrl: typeof value.controlUrl === 'string' ? redactAddress(value.controlUrl) : undefined,
+    platform: safePlatform(value.platform),
   };
 }
 
@@ -245,6 +255,9 @@ export interface RedactedNode {
    * false when the Gateway answered permission_denied (unpaired/unreachable);
    * null when pairing state could not be determined from the failure. */
   trusted: boolean | null;
+  /** From the probed remote's registry response (node.platform); undefined
+   * until a probe succeeded or when the remote sent a non-enum value. */
+  platform?: string | undefined;
 }
 
 /** Server-side peer table projection for the multi-node view. Entries are
@@ -264,6 +277,7 @@ export function redactNodes(nodes: unknown): RedactedNode[] {
       source,
       online: value.online === true || value.online === false ? value.online : null,
       trusted: value.trusted === true || value.trusted === false ? value.trusted : null,
+      platform: safePlatform(value.platform),
     };
   });
 }

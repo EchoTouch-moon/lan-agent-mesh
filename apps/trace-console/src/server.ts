@@ -47,6 +47,9 @@ const SOURCE_RANK: Record<NodeSource, number> = {
 interface KnownPeer {
   addresses: string[];
   source: NodeSource;
+  /** Remote platform from the last successful registry probe (node.platform);
+   * only used to pick the node icon on the page. */
+  platform?: string;
   lastProbe: { online: boolean; trusted: boolean | null; at: number } | null;
 }
 
@@ -202,8 +205,13 @@ export class TraceConsole {
     const entry = this.knownPeers.get(peer);
     if (!entry) return;
     try {
-      await this.reader.command('registry', { peer });
+      const body = await this.reader.command('registry', { peer });
       entry.lastProbe = { online: true, trusted: true, at: Date.now() };
+      // The registry body carries the remote's self-reported platform; keep it
+      // only when it matches the closed icon set (redactNodes re-validates too).
+      const remotePlatform = (body as { node?: { platform?: unknown } } | null)?.node?.platform;
+      if (remotePlatform === 'darwin' || remotePlatform === 'win32' || remotePlatform === 'linux')
+        entry.platform = remotePlatform;
     } catch (error) {
       entry.lastProbe = {
         online: false,
@@ -250,6 +258,7 @@ export class TraceConsole {
         source: entry.source,
         online: entry.lastProbe ? entry.lastProbe.online : null,
         trusted: entry.lastProbe ? entry.lastProbe.trusted : null,
+        platform: entry.platform,
       })),
     );
   }
@@ -381,7 +390,10 @@ export class TraceConsole {
         JSON.stringify({
           ok: !failure,
           ...(failure instanceof GatewayError ? { error: failure.code } : {}),
-          status: status instanceof GatewayError ? null : redactStatus(status),
+          status:
+            status instanceof GatewayError
+              ? null
+              : redactStatus({ ...(status as object), platform: process.platform }),
           peers: peers instanceof GatewayError ? null : peerRows,
           sessions: sessions instanceof GatewayError ? null : redactSessions(sessions),
           diagnostics: diagnostics instanceof GatewayError ? null : redactDiagnostics(diagnostics),

@@ -20,8 +20,10 @@ interface MockElement {
   scrollTop: number;
   clientHeight: number;
   colSpan: number;
+  attributes: Record<string, string>;
   appendChild(child: MockElement): void;
   addEventListener(type: string, fn: (event: { preventDefault(): void }) => void): void;
+  setAttribute(name: string, value: string): void;
   querySelector(selector: string): MockElement;
 }
 
@@ -37,11 +39,15 @@ function makeElement(id: string): MockElement {
     scrollTop: 0,
     clientHeight: 200,
     colSpan: 0,
+    attributes: {} as Record<string, string>,
     appendChild(child: MockElement) {
       element.children.push(child);
     },
     addEventListener(type: string, fn: (event: { preventDefault(): void }) => void) {
       element.handlers[type] = fn;
+    },
+    setAttribute(name: string, value: string) {
+      element.attributes[name] = value;
     },
     querySelector(selector: string) {
       const key = `__sub_${selector}`;
@@ -108,6 +114,8 @@ async function boot(): Promise<Harness> {
   const document = {
     cookie: 'lam_trace_csrf=cs',
     createElement: () => makeElement('created'),
+    // Inline SVG icons are built through createElementNS + setAttribute.
+    createElementNS: (_ns: string, tag: string) => makeElement(`svg:${tag}`),
     getElementById: (id: string) => {
       let element = elements.get(id);
       if (!element) {
@@ -288,35 +296,51 @@ describe('frontend polling logic (synthetic negatives)', () => {
     expect(h.script.taskCalls() - before).toBeGreaterThan(0);
   });
 
-  it('renders multi-node cards with source/probe badges from overview.nodes', async () => {
+  it('renders one icon card per node with platform labels, links and source/probe badges', async () => {
     const h = await boot();
     h.script.overview = {
       ok: true,
-      status: { nodeId: 'local' },
+      status: { nodeId: 'local', platform: 'darwin' },
       peers: [],
       sessions: [],
       diagnostics: {},
       pending: [],
       pairings: [],
       nodes: [
-        { peer: '12D3KooPpairedonlinepeer00', addresses: ['/ip4/127.0.0.1/tcp/4001'], source: 'discovered', online: true, trusted: true },
-        { peer: '12D3KooPpendingofflinepeer1', addresses: [], source: 'pending', online: false, trusted: false },
+        { peer: '12D3KooPpairedonlinepeer00', addresses: ['/ip4/127.0.0.1/tcp/4001'], source: 'discovered', online: true, trusted: true, platform: 'win32' },
+        { peer: '12D3KooPpendingofflinepeer1', addresses: [], source: 'pending', online: false, trusted: false, platform: 'darwin' },
         { peer: '12D3KooPtaskprobingpeer222', addresses: [], source: 'task', online: null, trusted: null },
       ],
     };
     h.tick();
     for (let i = 0; i < 10; i++) await new Promise((resolve) => setImmediate(resolve));
-    const cards = h.elements.get('node-grid')?.children ?? [];
-    expect(cards).toHaveLength(3);
-    // Long peer ids are truncated to the first 20 characters.
-    expect(cards[0]!.children[0]!.textContent).toBe('peerId：12D3KooPpairedonline…');
-    expect(cards[0]!.children[1]!.textContent).toContain('/ip4/127.0.0.1/tcp/4001');
-    expect(cards[0]!.children[2]!.children[0]!.textContent).toBe('发现');
-    expect(cards[0]!.children[2]!.children[1]!.textContent).toBe('已配对 · 在线');
-    expect(cards[1]!.children[2]!.children[0]!.textContent).toBe('在途消息');
-    expect(cards[1]!.children[2]!.children[1]!.textContent).toBe('未配对或不可达');
-    expect(cards[2]!.children[2]!.children[0]!.textContent).toBe('任务');
-    expect(cards[2]!.children[2]!.children[1]!.textContent).toBe('探测中…');
+    // Canvas layout: [local card, link, peer1, link, peer2, link, peer3].
+    const canvas = h.elements.get('topology-canvas')?.children ?? [];
+    expect(canvas).toHaveLength(7);
+    const local = canvas[0]!;
+    // children: [svg icon, name, short peer id, badges]
+    expect(local.children[1]!.textContent).toBe('本机 · macOS');
+    expect(local.children[3]!.children[0]!.textContent).toBe('网关正常 · 发起方');
+    const online = canvas[2]!;
+    expect(online.children[1]!.textContent).toBe('对端 · Windows'); // platform drives the icon label
+    expect(online.children[2]!.textContent).toBe('12D3KooPpairedonline…'); // truncated peer id
+    expect(online.children[3]!.children[0]!.textContent).toBe('发现');
+    expect(online.children[3]!.children[1]!.textContent).toBe('已配对 · 在线');
+    // The link in front of the online peer is the animated "up" variant.
+    expect(canvas[1]!.className).toContain('topo-link up');
+    const offline = canvas[4]!;
+    expect(offline.children[1]!.textContent).toBe('对端 · macOS');
+    expect(offline.children[3]!.children[0]!.textContent).toBe('在途消息');
+    expect(offline.children[3]!.children[1]!.textContent).toBe('未配对或不可达');
+    const probing = canvas[6]!;
+    expect(probing.children[1]!.textContent).toBe('对端 · 平台未知'); // no platform field
+    expect(probing.children[3]!.children[0]!.textContent).toBe('任务');
+    expect(probing.children[3]!.children[1]!.textContent).toBe('探测中…');
+    // Full peer ids and addresses stay available in the detail grid.
+    const detail = h.elements.get('node-detail')?.children ?? [];
+    expect(detail).toHaveLength(4); // local + 3 peers
+    expect(detail[1]!.children[0]!.textContent).toContain('12D3KooPpairedonlinepeer00');
+    expect(detail[1]!.children[1]!.textContent).toContain('/ip4/127.0.0.1/tcp/4001');
   });
 
   it('renders the in-flight (un-ACKed) message table with deadline countdown and inbox receipts', async () => {
@@ -355,9 +379,9 @@ describe('frontend polling logic (synthetic negatives)', () => {
     expect(rows).toHaveLength(1);
     expect(rows[0]!.children[0]!.textContent).toContain('暂无在途消息');
     expect(rows[0]!.children[0]!.textContent).toContain('ACK');
-    const cards = h.elements.get('node-grid')?.children ?? [];
-    expect(cards).toHaveLength(1);
-    expect(cards[0]!.textContent).toContain('尚未发现对端节点');
+    const canvas = h.elements.get('topology-canvas')?.children ?? [];
+    expect(canvas).toHaveLength(3); // local + "待发现" link + empty placeholder
+    expect(canvas[2]!.children[2]!.textContent).toContain('尚未发现对端节点');
   });
 
   it('mentions the outbox auto-discovery boundary in the static page', async () => {
