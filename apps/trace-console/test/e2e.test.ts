@@ -133,7 +133,7 @@ describe('trace console over two real loopback gateways', () => {
     expect(page.headers.get('content-security-policy')).toContain("script-src 'self'");
     expect(page.headers.get('x-content-type-options')).toBe('nosniff');
     const html = await page.text();
-    expect(html).toContain('READ-ONLY OBSERVER');
+    expect(html).toContain('只读观察');
     expect(html).not.toContain(caller.token);
     expect((await api('/app.js', {}, cookie)).status).toBe(200);
     expect((await api('/app.css', {}, cookie)).status).toBe(200);
@@ -263,7 +263,7 @@ describe('trace console over two real loopback gateways', () => {
     const body = await response.json();
     expect(body.ok).toBe(false);
     expect(body.notObservable).toBe(true);
-    expect(body.reason).toContain('V0 boundary');
+    expect(body.reason).toContain('V0');
   });
 
   it('exports a bounded redacted JSON transcript', async () => {

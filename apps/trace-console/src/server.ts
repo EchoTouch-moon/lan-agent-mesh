@@ -209,7 +209,7 @@ export class TraceConsole {
       if (url.pathname === '/' && req.method === 'GET') {
         this.securityHeaders(res, 'text/plain; charset=utf-8');
         res.writeHead(401);
-        res.end('LAM trace console: this page needs a session. Open the login URL the server printed once at startup.');
+        res.end('LAM 链路观察台：本页面需要会话。请打开服务端启动时打印的一次性登录链接（该链接仅可使用一次）。');
         return;
       }
       this.securityHeaders(res, 'application/json');
@@ -300,7 +300,7 @@ export class TraceConsole {
           JSON.stringify({
             ok: false,
             notObservable: true,
-            reason: 'Tasks received by this node are not exposed by the Gateway loopback API (V0 boundary: caller-side events only).',
+            reason: '该任务由本节点接收：网关环回接口不暴露此类任务（V0 边界：仅提供发起方事件）。',
           }),
         );
         return;
